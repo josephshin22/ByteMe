@@ -5,7 +5,6 @@ public class Schedule {
     Course[] courses;
     int scheduleID;
     int studentID;
-    ArrayList<Course> gccCourses;
 
     public Schedule(int scheduleID, int studentID, Course[] courses, String name) {
         this.scheduleID = scheduleID;
@@ -13,4 +12,14 @@ public class Schedule {
         this.courses = courses;
         this.name = name;
     }
+
+    public void addToSchedule(int referenceNumber, int studentID){
+
+    }
+
+    public void removeFromSchedule(int referenceNumber, int studentID){
+
+    }
+
+
 }

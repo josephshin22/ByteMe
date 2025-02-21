@@ -6,4 +6,8 @@ public class Search {
     public Search() {
 
     }
+
+    public Course[] search(Filter filter){
+        return null;
+    }
 }
