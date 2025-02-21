@@ -12,4 +12,9 @@ public class Course {
     public Course() {
 
     }
+
+    public void deleteCourse(int referenceNumber) {
+
+    }
+
 }
