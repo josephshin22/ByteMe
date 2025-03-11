@@ -40,6 +40,4 @@ public class Schedule {
         // print class names and timeslots in order of appearance monday-friday
     }
 
-    public void saveSchedule() {}
-
 }
