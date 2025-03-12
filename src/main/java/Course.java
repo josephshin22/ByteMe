@@ -37,7 +37,6 @@ public class Course {
         this.subjCode = subjCode;
         this.times = times;
 
-
     }
 
     public int getNumCredits() {
@@ -87,5 +86,5 @@ public class Course {
     public timeBlock getTimes() {
         return times;
     }
-    
+
 }
