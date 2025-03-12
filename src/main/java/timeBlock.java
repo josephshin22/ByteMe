@@ -14,4 +14,15 @@ public class timeBlock {
     public timeBlock() {
     }
 
+    public String getDay() {
+        return day;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
 }
