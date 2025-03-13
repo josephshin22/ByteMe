@@ -1,3 +1,8 @@
+import io.javalin.Javalin;
+import io.javalin.json.JavalinJackson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -8,8 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class Main {
-
     public static void main(String[] args) {
+
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             System.out.println("test");
@@ -47,6 +52,34 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Frontend testing --------------------------------------------------------------------
+        // Configure Jackson ObjectMapper
+        ObjectMapper objectMapper1 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
+        // Create Javalin app and set Jackson as the JSON mapper
+        Javalin app = Javalin.create(config -> {
+            config.jsonMapper(new JavalinJackson(objectMapper1));
+
+            // Enable CORS for frontend access
+            config.plugins.enableCors(cors -> {
+                cors.add(it -> it.allowHost("http://localhost:5173"));
+            });
+        });
+
+        // Define a test API endpoint
+        app.get("/api/hello", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
+
+        app.start(7000);
+        //--------------------------------------------------------------------------------------
     }
 
+    // Data class for JSON response - frontend testing
+    public static class Message {
+        public String message;
+
+        public Message(String message) {
+            this.message = message;
+        }
+    }
 }
