@@ -1,43 +1,64 @@
-import java.util.ArrayList;
+import java.util.*;
 
 public class Schedule {
     String name;
-    ArrayList<Course> courses;
+    List<Course> courses;
     int scheduleID;
     int studentID;
 
-    public Schedule(int studentID, ArrayList<Course> courses, String name) {
+    public Schedule(Student s, List<Course> courses, String name) {
         this.scheduleID = createScheduleID();
-        this.studentID = studentID;
+        this.studentID = s.studentID;
         this.courses = courses;
         this.name = name;
+        for (int i = 0; i < s.schedules.length; i++) {
+            if (s.schedules[i] == null) {
+                s.schedules[i] = this;
+                break;
+            }
+        }
     }
 
-    public Schedule(int studentID) {
+    public Schedule(Student s) {
         this.scheduleID = createScheduleID();
-        this.studentID = studentID;
+        this.studentID = s.studentID;
         this.courses = new ArrayList<Course>();
         this.name = "";
+        for (int i = 0; i < s.schedules.length; i++) {
+            if (s.schedules[i] == null) {
+                s.schedules[i] = this;
+                break;
+            }
+        }
     }
 
     private int createScheduleID() {
-        return (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+        return (int) (Math.random() * 900000) + 100000;
     }
 
-    public void addToSchedule(int studentID, int scheduleID, Course c1) {
-        Student s = new Student();
-        Schedule sched = s.schedules[scheduleID];
-        sched.add(c1);
+    public void addToSchedule(Student s, int scheduleID, Course c1) {
+        for (int i = 0; i < s.schedules.length; i++) {
+            if (s.schedules[i] != null && s.schedules[i].scheduleID == scheduleID) {
+                Schedule sched = s.schedules[i];
+                sched.courses.add(c1);
+                break;
+            }
+        }
     }
 
-    public void removefromSchedule(int studentID, int scheduleID, Course c1) {
-        Student s = new Student();
-        Schedule sched = s.schedules[scheduleID];
-        sched.courses.remove(c1);
+    public void removefromSchedule(Student s, int scheduleID, Course c1) {
+        for (int i = 0; i < s.schedules.length; i++) {
+            if(s.schedules[i] != null && s.schedules[i].scheduleID == scheduleID) {
+                Schedule sched = s.schedules[i];
+                sched.courses.remove(c1);
+                break;
+            }
+        }
     }
 
-    public void printSchedule() {
-        // print class names and timeslots in order of appearance monday-friday
+    @Override
+    public String toString() {
+        return "Schedule Name: " + name + "\nSchedule ID: " + scheduleID + "\n" + "Student ID: " + studentID + "\n" +
+                "Courses: " + courses + "\n";
     }
-
 }
