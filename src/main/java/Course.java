@@ -120,7 +120,7 @@ public class Course {
                 ZonedDateTime end2 = convertToUTC(t2.getEndTime());
 
                 if(t1.getDay().equals(t2.getDay())) {
-                    if(end1.isBefore(start2) || end2.isBefore(start1)) {
+                    if(end1.isBefore(start2) && end2.isBefore(start1)) {
                         return true; // no conflict
                     }
                 }
