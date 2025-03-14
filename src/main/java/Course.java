@@ -110,6 +110,11 @@ public class Course {
         return times;
     }
 
+    @Override
+    public String toString(){
+        return "Course: " + name + "\nReference Number: " + referenceNumber + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nDescription: " + description + "\nTimes: " + times;
+    }
+
     public boolean hasConflict(Course c2) {
         for(timeBlock t1 : this.times) {
             ZonedDateTime start1 = convertToUTC(t1.getStartTime());
