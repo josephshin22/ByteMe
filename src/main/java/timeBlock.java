@@ -22,6 +22,7 @@ public class timeBlock {
         return day + ": " + startTime.substring(0, 5) + "-" + endTime.substring(0, 5);
     }
 
+
     public String getDay() {
         return day;
     }
