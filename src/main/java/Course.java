@@ -12,8 +12,8 @@ public class Course {
     private String name;
 
     @JsonProperty("number")
-    private int referenceNumber;
-
+    private int courseNum;
+    //Like ACCT
     @JsonProperty("subject")
     private String abbreviation;
 
@@ -27,7 +27,7 @@ public class Course {
     private int numCredits;
 
     // currently don't have info for this
-    private String description;
+//    private String description;
 
     @JsonProperty("times")
     //constructor need day (M, T, W...), then end_time (string in military time: Hour, min, sec), then start_time (in military time)
@@ -38,27 +38,37 @@ public class Course {
     private boolean is_open;
 
     // Three digit, 101, 220, etc.....
-    private int courseNum;
+//    private int courseNum;
     private int openSeats;
+
+    private int totalSeats;
+
     //Like A, or B
     private String section;
     private String semester;
-    //Like ACCT
-    private String subjCode;
+
+
 
     public Course() {
     }
 
-    public Course(String name, int referenceNumber, String abbreviation, String[] faculty, String location,
-                  int numCredits, String description, timeBlock[] timeBlocks) {
+    public Course(String name, int courseNum, String abbreviation, String section, String[] faculty, String location,
+                  int numCredits, String description, timeBlock[] timeBlocks, boolean is_lab, boolean is_open, int openSeats, int totalSeats, String semester ) {
         this.name = name;
-        this.referenceNumber = referenceNumber;
+        this.courseNum = courseNum;
         this.abbreviation = abbreviation;
+        this.section = section;
         this.faculty = faculty;
         this.location = location;
         this.numCredits = numCredits;
-        this.description = description;
-        this.times = times;
+        this.is_open = is_open;
+        this.is_lab = is_lab;
+        this.totalSeats = totalSeats;
+//        this.description = description;
+        this.times = List.of(timeBlocks);
+        this.openSeats = openSeats;
+
+        this.semester = semester;
     }
 
 
@@ -103,7 +113,10 @@ public class Course {
     }
 
     public String getSubjCode() {
-        return subjCode;
+        return abbreviation;
+    }
+    public int getTotalSeats() {
+        return totalSeats;
     }
 
     public List<timeBlock> getTimes() {
