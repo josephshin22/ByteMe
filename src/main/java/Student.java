@@ -1,5 +1,6 @@
-public class Student {
+import java.util.ArrayList;
 
+public class Student {
     String username;
     int studentID;
     String password;
@@ -8,9 +9,21 @@ public class Student {
     String gradYear;
     String gradMonth;
     Course[] takenCourses;
-    Schedule[] schedules;
+    ArrayList<Schedule> schedules;
 
     public Student() {
+        this.schedules = new ArrayList<>();
+    }
 
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
+    }
+
+    public ArrayList<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public void removeSchedule(Schedule schedule) {
+        schedules.remove(schedule);
     }
 }
