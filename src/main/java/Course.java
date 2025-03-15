@@ -107,4 +107,6 @@ public class Course {
     public List<timeBlock> getTimes() {
         return times;
     }
+
+
 }
