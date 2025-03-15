@@ -11,9 +11,9 @@ public class Schedule {
         this.studentID = s.studentID;
         this.courses = courses;
         this.name = name;
-        for (int i = 0; i < s.schedules.length; i++) {
-            if (s.schedules[i] == null) {
-                s.schedules[i] = this;
+        for (int i = 0; i < s.schedules.size(); i++) {
+            if (s.schedules.get(i) == null) {
+                s.schedules.set(i, this);
                 break;
             }
         }
@@ -24,9 +24,9 @@ public class Schedule {
         this.studentID = s.studentID;
         this.courses = new ArrayList<Course>();
         this.name = "";
-        for (int i = 0; i < s.schedules.length; i++) {
-            if (s.schedules[i] == null) {
-                s.schedules[i] = this;
+        for (int i = 0; i < s.schedules.size(); i++) {
+            if (s.schedules.get(i) == null) {
+                s.schedules.set(i, this);
                 break;
             }
         }
@@ -37,9 +37,9 @@ public class Schedule {
     }
 
     public void addToSchedule(Student s, int scheduleID, Course c1) {
-        for (int i = 0; i < s.schedules.length; i++) {
-            if (s.schedules[i] != null && s.schedules[i].scheduleID == scheduleID) {
-                Schedule sched = s.schedules[i];
+        for (int i = 0; i < s.schedules.size(); i++) {
+            if (s.schedules.get(i) != null && s.schedules.get(i).scheduleID == scheduleID) {
+                Schedule sched = s.schedules.get(i);
                 sched.courses.add(c1);
                 break;
             }
@@ -47,9 +47,9 @@ public class Schedule {
     }
 
     public void removefromSchedule(Student s, int scheduleID, Course c1) {
-        for (int i = 0; i < s.schedules.length; i++) {
-            if(s.schedules[i] != null && s.schedules[i].scheduleID == scheduleID) {
-                Schedule sched = s.schedules[i];
+        for (int i = 0; i < s.schedules.size(); i++) {
+            if(s.schedules.get(i) != null && s.schedules.get(i).scheduleID == scheduleID) {
+                Schedule sched = s.schedules.get(i);
                 sched.courses.remove(c1);
                 break;
             }
