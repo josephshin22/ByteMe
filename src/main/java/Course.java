@@ -125,7 +125,7 @@ public class Course {
 
     @Override
     public String toString(){
-        return "Course: " + name + "\nReference Number: " + referenceNumber + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nDescription: " + description + "\nTimes: " + times;
+        return "Course: " + name + "\nReference Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
     }
 
     public boolean hasConflict(Course c2) {
@@ -138,13 +138,13 @@ public class Course {
                 ZonedDateTime end2 = convertToUTC(t2.getEndTime());
 
                 if(t1.getDay().equals(t2.getDay())) {
-                    if(end1.isBefore(start2) && end2.isBefore(start1)) {
-                        return true; // no conflict
+                    if(!(end1.isBefore(start2) || end2.isBefore(start1))) {
+                        return true; // conflict
                     }
                 }
             }
         }
-        return false;
+        return false; // no conflict
     }
 
     private ZonedDateTime convertToUTC(String timeString) {
@@ -161,5 +161,4 @@ public class Course {
 
         return utcDateTime;
     }
-
 }

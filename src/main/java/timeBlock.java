@@ -11,7 +11,15 @@ public class timeBlock {
     @JsonProperty("end_time")
     private String endTime;
 
-    public timeBlock() {
+    public timeBlock(String day, String endTime, String startTime) {
+        this.day = day;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    @Override
+    public String toString() {
+        return day + ": " + startTime.substring(0, 5) + "-" + endTime.substring(0, 5);
     }
 
     public String getDay() {
