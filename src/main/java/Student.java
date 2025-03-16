@@ -17,8 +17,6 @@ public class Student {
     }
 
     public void showSavedCourses() {
-
-
         if (savedCourses != null && savedCourses.length > 0) {
             System.out.println("Saved Courses:");
             for (Course course : savedCourses) {
