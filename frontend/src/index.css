@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --light-bg: oklch(0.984 0.003 247.858); /* tailwind: bg-slate-50 */
+}
+
+:root{
+  background: var(--light-bg);
+}
