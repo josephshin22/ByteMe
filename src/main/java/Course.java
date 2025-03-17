@@ -123,6 +123,7 @@ public class Course {
         return times;
     }
 
+
     @Override
     public String toString(){
         return "Course: " + name + "\nReference Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
@@ -163,3 +164,8 @@ public class Course {
     }
 
 }
+
+
+
+}
+
