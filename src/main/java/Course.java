@@ -120,4 +120,27 @@ public class Course {
     public List<timeBlock> getTimes() {
         return times;
     }
+    public void showCourse() {
+        System.out.print(getSubjCode() + " " + getCourseNum() + " " + getSubjCode());
+        System.out.print("      " + getName());
+        System.out.print("      " + (getFaculty() != null ? String.join(", ", getFaculty()) : "N/A"));
+        System.out.print(" " + getOpenSeats() + "/" + getTotalSeats() + "  ");
+        System.out.print("   " + (getIs_open() ? "Open" : "Full"));
+        System.out.println("===============================================================");
+        for (timeBlock timeBlock : getTimes()) {
+            System.out.println("\tDay: " + timeBlock.getDay());
+            System.out.println("\tStart Time: " + timeBlock.getStartTime());
+            System.out.println("\tEnd Time: " + timeBlock.getEndTime());
+            System.out.println("\t---------------------");
+        }
+        System.out.println("Location: " + getLocation());
+        System.out.println("Credits: " + getNumCredits());
+        System.out.println("Semester: " + getSemester());
+        System.out.println("Lab: " + (getIs_lab() ? "Yes" : "No"));
+        System.out.println("");
+        System.out.println("");
+        System.out.println("");
+    }
+
+
 }
