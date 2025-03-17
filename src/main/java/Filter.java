@@ -4,18 +4,18 @@ public class Filter {
 
 //    boolean required;
 //    boolean completed;
-
+    //ex: HUMA 200 D
     String courseCode;
     boolean full;
     ArrayList<String> weekDays;
-    int startTime;
-    int endTime;
-    int startTimeExtra;
-    int endTimeExtra;
+    String startTime;
+    String endTime;
     int credits;
+    String startTimeExtra;
+    String endTimeExtra;
     public Filter()
     {
-
+        full = true; // default to true
     }
 
     //setters for all variables
@@ -40,17 +40,17 @@ public class Filter {
         this.weekDays = weekDays;
     }
 
-    public void setStartTime(int startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(int endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
-    public void setStartTimeExtra(int startTimeExtra) {
+    public void setStartTimeExtra(String startTimeExtra) {
         this.startTimeExtra = startTimeExtra;
     }
-    public void setEndTimeExtra(int endTimeExtra) {
+    public void setEndTimeExtra(String endTimeExtra) {
         this.endTimeExtra = endTimeExtra;
     }
     public void setCredits(int credits) {
@@ -74,17 +74,17 @@ public class Filter {
         return weekDays;
     }
 
-    public int getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public int getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
-    public int getStartTimeExtra() {
+    public String getStartTimeExtra() {
         return startTimeExtra;
     }
-    public int getEndTimeExtra() {
+    public String getEndTimeExtra() {
         return endTimeExtra;
     }
     public String getCourseCode() {
@@ -99,13 +99,13 @@ public class Filter {
      public String toString() {
 
             return "Filter: " +
-                    "courseCode: " + (courseCode != null ? courseCode : "") + '\'' +
-                    ", is full: " + (full ? full : "") +
-                    ", weekDays: " + (weekDays != null ? weekDays : "") +
-                    ", startTime: " + (startTime != 0 ? startTime : "") +
-                    ", endTime: " + (endTime != 0 ? endTime : "") +
+                    "1. courseCode: " + (courseCode != null ? courseCode : "")  +
+                    "\n2. show full courses: " + (full ? full : "") +
+                    "\n3. weekDays: " + (weekDays != null ? weekDays : "") +
+                    "\n4. startTime: " + (startTime != null ? startTime : "") +
+                    "\n 5. endTime: " + (endTime != null ? endTime : "") +
 
-                    ", credits: " + (credits != 0 ? credits : "");
+                    "\n 6. credits: " + (credits != 0 ? credits : "");
 
      }
 }
