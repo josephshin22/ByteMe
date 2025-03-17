@@ -29,9 +29,9 @@ public class Student {
             }
             boolean done = false;
             System.out.println("Here is your saved courses page.");
-            System.out.println("Type 'exit' to return to the main menu.");
-            System.out.println("Type 'remove' to remove a course from your saved courses.");
-            System.out.println("Type 'add' to add a course to one of your schedules.");
+//            System.out.println("Type 'exit' to return to the main menu.");
+//            System.out.println("Type 'remove' to remove a course from your saved courses.");
+//            System.out.println("Type 'add' to add a course to one of your schedules.");
             while(done)
             {
                 System.out.println("Type 'exit' to return to the main menu.");
