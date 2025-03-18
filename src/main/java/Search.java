@@ -8,10 +8,11 @@ public class Search {
     Filter searchFilter;
 
     public Search() {
-
     }
     public ArrayList<Course> conductSearchLoop(ArrayList<Course> masterList, Filter searchFilter) {
-       boolean loop = true;
+        this.masterList = masterList;
+        this.searchFilter = searchFilter;
+        boolean loop = true;
         while(loop) {
             System.out.println("Welcome to course search!");
             System.out.println("Type 'exit' to exit. Type f to modify filters, r to reset filters, or s to search.");
@@ -19,7 +20,9 @@ public class Search {
             String input = scanner.nextLine();
             if(input.equalsIgnoreCase("exit")){
                 loop = false;
-            } else if (input.equalsIgnoreCase("f")) {
+            }
+            else if (input.equalsIgnoreCase("f"))
+            {
                 while(true) {
                     System.out.println(searchFilter);
                     System.out.println("Modify filters. Type 0 to exit filter modification.");
@@ -125,15 +128,13 @@ public class Search {
                         System.out.println("Invalid input. Please try again.");
                     }
                 }
-
                 // Add code to modify filters here
-
             } else if (input.equalsIgnoreCase("r")) {
                 searchFilter = new Filter(); // Reset the filter
                 System.out.println("Filters reset.");
             } else if (input.equalsIgnoreCase("s")) {
-                results = singleSearch();
-                if(results != null) {
+                singleSearch();
+                if(!results.isEmpty()) {
                     for(Course c : results) {
                        c.showCourse();
                     }
@@ -147,7 +148,7 @@ public class Search {
         }
         return null;
     }
-    public ArrayList<Course> singleSearch() {
+    public void singleSearch() {
         results = new ArrayList<Course>();
 
         System.out.println("Welcome to course search!");
@@ -156,12 +157,28 @@ public class Search {
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
+        for(Course c: masterList) {
+            if(checkCourse(c, input)) {
+                results.add(c);
+            }
+        }
 
-        return null;
+
 
     }
     public boolean checkCourse(Course c, String input)
     {
+        if (!searchFilter.getFull()) {
+            if(!c.getIs_open()) {
+                return false;
+            }
+        }
+
+        if(searchFilter.getCredits() != c.getNumCredits()&& searchFilter.getCredits() != 0)
+        {
+            return false;
+        }
+
         if(!input.trim().isEmpty())
         {
             if(!c.getName().toLowerCase().contains(input.toLowerCase()))
@@ -169,6 +186,7 @@ public class Search {
                 return false;
             }
         }
+
         if(searchFilter.getCourseCode() != null && !searchFilter.getCourseCode().trim().isEmpty())
         {
             //"[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]{1}")
@@ -201,11 +219,32 @@ public class Search {
                return false;
            }
         }
-        if(searchFilter.getFull() == true){
-            
+        if(searchFilter.getWeekDays() != null && !searchFilter.getWeekDays().isEmpty())
+        {
+            for(timeBlock time : c.getTimes()) {
+                if(!searchFilter.getWeekDays().contains(time.getDay())) {
+                    return false;
+                }
+            }
         }
+        if(searchFilter.getStartTime() != null && !searchFilter.getStartTime().trim().isEmpty())
+        {
+            for(timeBlock time : c.getTimes()) {
+                if(time.getStartTime().compareTo(searchFilter.getStartTime()) != 0) {
+                    return false;
+                }
+            }
+        }
+        if(searchFilter.getEndTime() != null && !searchFilter.getEndTime().trim().isEmpty())
+        {
+            for(timeBlock time : c.getTimes()) {
+                if(time.getEndTime().compareTo(searchFilter.getEndTime()) != 0) {
+                    return false;
+                }
+            }
+        }
+        // If all filters pass, return true
         return true;
-
     }
 
 }
