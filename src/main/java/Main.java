@@ -19,14 +19,14 @@ public class Main {
 
         // Create time blocks for the courses
         timeBlock[] timeBlocks1 = {
-                new timeBlock("M", "08:00:00", "09:00:00"),
-                new timeBlock("W", "08:00:00", "09:00:00"),
-                new timeBlock("F", "08:00:00", "09:00:00")
+                new timeBlock("M", "09:00:00", "08:00:00"),
+                new timeBlock("W", "09:00:00", "08:00:00"),
+                new timeBlock("F", "09:00:00", "08:00:00")
         };
 
         timeBlock[] timeBlocks2 = {
-                new timeBlock("T", "10:00:00", "11:00:00"),
-                new timeBlock("R", "10:00:00", "11:00:00")
+                new timeBlock("T", "11:00:00", "10:00:00"),
+                new timeBlock("R", "11:00:00", "10:00:00")
         };
 
         // Add 5 courses to the masterCourse list

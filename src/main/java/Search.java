@@ -34,7 +34,8 @@ public class Search {
                             System.out.println("Enter course code.");
                             System.out.println("You can enter a full course code (e.g., HUMA 200 B), course code no section (e. g. HUMA 200), or just the subject code (e.g., HUMA):");
                             String courseCode = scanner.next();
-                            if(courseCode.matches("[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]{1}")) {
+                            if(courseCode.matches("[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]")) {
+
                                 searchFilter.setCourseCode(courseCode);
                                 break; // Exit the inner loop if valid input
                             } else {
@@ -133,6 +134,8 @@ public class Search {
                 searchFilter = new Filter(); // Reset the filter
                 System.out.println("Filters reset.");
             } else if (input.equalsIgnoreCase("s")) {
+
+                results = null;
                 singleSearch();
                 if(!results.isEmpty()) {
                     for(Course c : results) {
@@ -168,6 +171,7 @@ public class Search {
     }
     public boolean checkCourse(Course c, String input)
     {
+        System.out.println(searchFilter);
         if (!searchFilter.getFull()) {
             if(!c.getIs_open()) {
                 return false;
@@ -190,7 +194,7 @@ public class Search {
         if(searchFilter.getCourseCode() != null && !searchFilter.getCourseCode().trim().isEmpty())
         {
             //"[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]{1}")
-           if(searchFilter.getCourseCode().matches("[A-Z]{4} \\d{3} [A-Z]{1}"))
+           if(searchFilter.getCourseCode().matches("[A-Z]{4} \\d{3} [A-Z]"))
            {
                if(!c.getSubjCode().equalsIgnoreCase(searchFilter.getCourseCode().trim().substring(0, 4)) ||
                    !(c.getCourseNum() == Integer.parseInt(searchFilter.getCourseCode().trim().substring(5, 8)) )||
