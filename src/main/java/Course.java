@@ -163,7 +163,7 @@ public class Course {
         return utcDateTime;
     }
     public void showCourse() {
-        System.out.print(getSubjCode() + " " + getCourseNum() + " " + getSubjCode());
+        System.out.print(getSubjCode() + " " + getCourseNum() + " " + getSection());
         System.out.print("      " + getName());
         System.out.print("      " + (getFaculty() != null ? String.join(", ", getFaculty()) : "N/A"));
         System.out.print(" " + getOpenSeats() + "/" + getTotalSeats() + "  ");

@@ -42,8 +42,6 @@ public class Main {
         }
         Search searchBoy = new Search();
         searchBoy.conductSearchLoop(masterCourse, new Filter());
-
-
 //        ObjectMapper objectMapper = new ObjectMapper();
 //        try {
 //            System.out.println("test");
