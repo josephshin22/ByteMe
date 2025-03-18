@@ -174,7 +174,7 @@ public class Search {
             }
         }
 
-        if(searchFilter.getCredits() != c.getNumCredits()&& searchFilter.getCredits() != 0)
+        if(searchFilter.getCredits() != c.getNumCredits() && searchFilter.getCredits() != 0)
         {
             return false;
         }
