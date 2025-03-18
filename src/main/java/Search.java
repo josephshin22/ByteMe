@@ -173,15 +173,39 @@ public class Search {
         {
             //"[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]{1}")
            if(searchFilter.getCourseCode().matches("[A-Z]{4} \\d{3} [A-Z]{1}"))
-            {
-               
-            }
+           {
+               if(!c.getSubjCode().equalsIgnoreCase(searchFilter.getCourseCode().trim().substring(0, 4)) ||
+                   !(c.getCourseNum() == Integer.parseInt(searchFilter.getCourseCode().trim().substring(5, 8)) )||
+                  !c.getSection().equalsIgnoreCase(searchFilter.getCourseCode().trim().substring(9)))
+               {
+                   return false;
+               }
+           }
+           else if(searchFilter.getCourseCode().matches("[A-Z]{4} \\d{3}"))
+           {
+               if(!c.getSubjCode().equalsIgnoreCase(searchFilter.getCourseCode().trim().substring(0, 4)) ||
+                       !(c.getCourseNum() == Integer.parseInt(searchFilter.getCourseCode().trim().substring(5, 8))))
+               {
+                   return false;
+               }
+           }
+           else if(searchFilter.getCourseCode().matches("[A-Z]{4}"))
+           {
+               if(!c.getSubjCode().equalsIgnoreCase(searchFilter.getCourseCode().trim().substring(0, 4)))
+               {
+                   return false;
+               }
+
+           }
+           else{
+               return false;
+           }
         }
-
-
-
-
+        if(searchFilter.getFull() == true){
+            
+        }
         return true;
 
     }
+
 }
