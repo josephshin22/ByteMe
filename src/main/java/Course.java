@@ -168,7 +168,7 @@ public class Course {
         System.out.print("      " + (getFaculty() != null ? String.join(", ", getFaculty()) : "N/A"));
         System.out.print(" " + getOpenSeats() + "/" + getTotalSeats() + "  ");
         System.out.print("   " + (getIs_open() ? "Open" : "Full"));
-        System.out.println("===============================================================");
+
         for (timeBlock timeBlock : getTimes()) {
             System.out.println("\tDay: " + timeBlock.getDay());
             System.out.println("\tStart Time: " + timeBlock.getStartTime());
