@@ -4,15 +4,19 @@ public class Filter {
 
 //    boolean required;
 //    boolean completed;
-    //ex: HUMA 200 D
+    //ex: HUMA 200 or HUMA 200 A
     String courseCode;
     boolean full;
     ArrayList<String> weekDays;
     String startTime;
     String endTime;
     int credits;
+
     String startTimeExtra;
     String endTimeExtra;
+
+
+
     public Filter()
     {
         full = true; // default to true
