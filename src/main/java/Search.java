@@ -31,10 +31,11 @@ public class Search {
                     int numInput = scanner.nextInt();
                     if(numInput == 1){
                         while(true) {
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             System.out.println("Enter course code.");
                             System.out.println("You can enter a full course code (e.g., HUMA 200 B), course code no section (e. g. HUMA 200), or just the subject code (e.g., HUMA):");
-                            String courseCode = scanner.next();
-                            if(courseCode.matches("[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]")) {
+                            String courseCode = scanner.nextLine();
+                            if(courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]")) {
 
                                 searchFilter.setCourseCode(courseCode);
                                 break; // Exit the inner loop if valid input
@@ -50,7 +51,8 @@ public class Search {
                         {
 
                             System.out.println("Show full courses? (true/false):");
-                            input = scanner.next();
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
+                            input = scanner.nextLine();
                             if(input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
                                 searchFilter.setFull(Boolean.parseBoolean(input));
                                 break; // Exit the inner loop if valid input
@@ -65,7 +67,8 @@ public class Search {
                         // Modify the third filter
                         while (true) {
                             System.out.println("Enter week days (e.g., M, T, W, R, F) separated by spaces:");
-                            input = scanner.next();
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
+                            input = scanner.nextLine();
                             String[] days = input.split(" ");
                             ArrayList<String> weekDays = new ArrayList<>();
                             for (String day : days) {
@@ -85,6 +88,7 @@ public class Search {
                         // Modify the fourth filter
                         while (true) {
                             System.out.println("Enter start time in HH:mm:ss format:");
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             input = scanner.next();
                             if (input.matches("\\d{2}:\\d{2}:\\d{2}")) {
                                 searchFilter.setStartTime(input);
@@ -98,6 +102,7 @@ public class Search {
                         // Modify the fifth filter
                         while (true) {
                             System.out.println("Enter end time in HH:mm:ss format:");
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             input = scanner.next();
                             if (input.matches("\\d{2}:\\d{2}:\\d{2}")) {
                                 searchFilter.setEndTime(input);
@@ -111,6 +116,7 @@ public class Search {
                         // Modify the sixth filter
                         while (true) {
                             System.out.println("Enter number of credits (integer):");
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             input = scanner.next();
                             if (input.matches("\\d+")) {
                                 searchFilter.setCredits(Integer.parseInt(input));
@@ -131,7 +137,8 @@ public class Search {
                 }
                 // Add code to modify filters here
             } else if (input.equalsIgnoreCase("r")) {
-                searchFilter = new Filter(); // Reset the filter
+                searchFilter = null;
+                searchFilter = new Filter();
                 System.out.println("Filters reset.");
             } else if (input.equalsIgnoreCase("s")) {
 
