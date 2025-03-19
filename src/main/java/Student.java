@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class Student {
 
     private String username;
@@ -8,9 +10,16 @@ public class Student {
     private String gradYear;
     private String gradMonth;
     private Course[] takenCourses;
-    private Schedule[] schedules;
+    private ArrayList<Schedule> schedules;
 
     public Student() {
+        this.schedules = new ArrayList<Schedule>();
+    }
+
+    public Student(String username, int studentID) {
+        this.username = username;
+        this.studentID = studentID;
+        this.schedules = new ArrayList<Schedule>();
     }
 
     public boolean verifyPassword(String passwordAttempt) {
@@ -31,5 +40,17 @@ public class Student {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getStudentID() {
+        return studentID;
+    }
+
+    public ArrayList<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        schedules.add(schedule);
     }
 }
