@@ -244,7 +244,7 @@ public class Search {
         if(searchFilter.getStartTime() != null && !searchFilter.getStartTime().trim().isEmpty())
         {
             for(timeBlock time : c.getTimes()) {
-                if(time.getStartTime().compareTo(searchFilter.getStartTime()) != 0) {
+                if(time.getStartTime().compareTo(searchFilter.getStartTime()) < 0) {
                     return false;
                 }
             }
@@ -252,7 +252,7 @@ public class Search {
         if(searchFilter.getEndTime() != null && !searchFilter.getEndTime().trim().isEmpty())
         {
             for(timeBlock time : c.getTimes()) {
-                if(time.getEndTime().compareTo(searchFilter.getEndTime()) != 0) {
+                if(time.getEndTime().compareTo(searchFilter.getEndTime()) > 0) {
                     return false;
                 }
             }

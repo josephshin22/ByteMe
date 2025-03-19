@@ -104,12 +104,14 @@ public class Filter {
 
             return "Filter: " +
                     "\n1. courseCode: " + (courseCode != null ? courseCode : "")  +
-                    "\n2. show full courses: " + (full ? full : "") +
+                    "\n2. show full courses: " + (full) +
                     "\n3. weekDays: " + (weekDays != null ? weekDays : "") +
-                    "\n4. startTime: " + (startTime != null ? startTime : "") +
-                    "\n 5. endTime: " + (endTime != null ? endTime : "") +
+                    "\n4. minimumStartTime: " + (startTime != null ? startTime : "") +
+                    "\n5. maximumEndTime: " + (endTime != null ? endTime : "") +
+                    "\n6. credits: " + (credits != 0 ? credits : "");
 
-                    "\n 6. credits: " + (credits != 0 ? credits : "");
+
+
 
      }
 }
