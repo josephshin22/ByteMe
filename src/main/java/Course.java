@@ -183,6 +183,9 @@ public class Course {
         System.out.println("");
         System.out.println("");
     }
+    public String fullCourseCode(){
+        return getSubjCode() + " " + getCourseNum() + " " + getSection();
+    }
 
 }
 

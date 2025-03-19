@@ -8,10 +8,10 @@ public class Search {
     Filter searchFilter;
 
     public Search() {
+        searchFilter = new Filter();
     }
-    public ArrayList<Course> conductSearchLoop(ArrayList<Course> masterList, Filter searchFilter) {
+    public ArrayList<Course> conductSearchLoop(ArrayList<Course> masterList) {
         this.masterList = masterList;
-        this.searchFilter = searchFilter;
         boolean loop = true;
         while(loop) {
             System.out.println("Welcome to course search!");
@@ -28,13 +28,20 @@ public class Search {
                     System.out.println("Modify filters. Type 0 to exit filter modification.");
                     System.out.println("Type the number of the filter you want to modify:");
 
-                    int numInput = scanner.nextInt();
+                    int numInput;
+                    try {
+                        numInput = Integer.parseInt(scanner.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Please enter a number.");
+                        continue;
+                    }
                     if(numInput == 1){
                         while(true) {
                             scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             System.out.println("Enter course code.");
-                            System.out.println("You can enter a full course code (e.g., HUMA 200 B), course code no section (e. g. HUMA 200), or just the subject code (e.g., HUMA):");
+                            System.out.println("You can enter a full course code (e.g., HUMA 200 B), course code with no section (e. g. HUMA 200), or just the subject code (e.g., HUMA):");
                             String courseCode = scanner.nextLine();
+                            courseCode = courseCode.toUpperCase(); // Convert to uppercase for consistency
                             if(courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]")) {
 
                                 searchFilter.setCourseCode(courseCode);
@@ -44,12 +51,10 @@ public class Search {
                             }
                         }
                     }
-
                     else if(numInput == 2){
                         // Modify the second filter
                         while(true)
                         {
-
                             System.out.println("Show full courses? (true/false):");
                             scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             input = scanner.nextLine();
@@ -66,12 +71,14 @@ public class Search {
                     else if(numInput == 3){
                         // Modify the third filter
                         while (true) {
-                            System.out.println("Enter week days (e.g., M, T, W, R, F) separated by spaces:");
+                            System.out.println("Enter week days (e.g., M, T, W, R, F) :");
                             scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             input = scanner.nextLine();
-                            String[] days = input.split(" ");
+                            input = input.trim(); // Remove leading and trailing whitespace
+                            String[] days = input.split("");
                             ArrayList<String> weekDays = new ArrayList<>();
                             for (String day : days) {
+                                day = day.toUpperCase() ;
                                 if (day.matches("[MTWRF]")) {
                                     weekDays.add(day);
 
@@ -154,7 +161,6 @@ public class Search {
             } else {
                 System.out.println("Invalid input. Please try again.");
             }
-
         }
         return null;
     }
@@ -163,7 +169,7 @@ public class Search {
 
         System.out.println("Welcome to course search!");
         System.out.println("Press enter to only search based on filters.");
-        System.out.println("Or, type a course name or a subsection of one to search for a specific course (e.g. 'psych' or 'psychology':");
+        System.out.println("Or, type in input to search with along with filters");
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -172,13 +178,10 @@ public class Search {
                 results.add(c);
             }
         }
-
-
-
     }
     public boolean checkCourse(Course c, String input)
     {
-        System.out.println(searchFilter);
+
         if (!searchFilter.getFull()) {
             if(!c.getIs_open()) {
                 return false;
@@ -192,12 +195,13 @@ public class Search {
 
         if(!input.trim().isEmpty())
         {
-            if(!c.getName().toLowerCase().contains(input.toLowerCase()))
+            if(!c.getName().toLowerCase().contains(input.toLowerCase())&&
+             !c.fullCourseCode().trim().toLowerCase().contains(input.trim().toLowerCase()))
             {
                 return false;
+
             }
         }
-
         if(searchFilter.getCourseCode() != null && !searchFilter.getCourseCode().trim().isEmpty())
         {
             //"[A-Z]{4} \\d{3}")|| courseCode.matches("[A-Z]{4}")||courseCode.matches("[A-Z]{4} \\d{3} [A-Z]{1}")
@@ -224,7 +228,6 @@ public class Search {
                {
                    return false;
                }
-
            }
            else{
                return false;

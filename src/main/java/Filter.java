@@ -103,7 +103,7 @@ public class Filter {
      public String toString() {
 
             return "Filter: " +
-                    "1. courseCode: " + (courseCode != null ? courseCode : "")  +
+                    "\n1. courseCode: " + (courseCode != null ? courseCode : "")  +
                     "\n2. show full courses: " + (full ? full : "") +
                     "\n3. weekDays: " + (weekDays != null ? weekDays : "") +
                     "\n4. startTime: " + (startTime != null ? startTime : "") +
