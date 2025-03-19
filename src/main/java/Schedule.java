@@ -1,10 +1,10 @@
 import java.util.*;
 
 public class Schedule {
-    String name;
-    List<Course> courses;
-    int scheduleID;
-    int studentID;
+    private String name;
+    private List<Course> courses;
+    private int scheduleID;
+    private int studentID;
 
     public Schedule(Student s, List<Course> courses, String name) {
         this.scheduleID = createScheduleID();
@@ -29,7 +29,17 @@ public class Schedule {
         for (int i = 0; i < s.getSchedules().size(); i++) {
             if (s.getSchedules().get(i) != null && s.getSchedules().get(i).scheduleID == scheduleID) {
                 Schedule sched = s.getSchedules().get(i);
+
+                for (Course existingCourse : sched.getCourses()) {
+                    if (existingCourse.hasConflict(c1)) {
+                        System.out.println("Conflict detected between " + existingCourse.getName() + " and " + c1.getName());
+                        System.out.println("Course not added.");
+                        return;
+                    }
+                }
+
                 sched.courses.add(c1);
+                System.out.println("Course " + c1.getName() + " added to the schedule.");
                 break;
             }
         }
@@ -49,6 +59,11 @@ public class Schedule {
     public String toString() {
         return "Schedule Name: " + name + "\nSchedule ID: " + scheduleID + "\n" + "Student ID: " + studentID + "\n" +
                 "Courses: " + courses + "\n";
+    }
+
+    // getter for courses
+    public List<Course> getCourses() {
+        return courses;
     }
 
     public String calendarView() {
@@ -88,4 +103,5 @@ public class Schedule {
         }
         return calendar.toString();
     }
+
 }
