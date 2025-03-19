@@ -16,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
 
         ObjectMapper objectMapper = new ObjectMapper();
+        List<Course> courses = null;
         try {
             System.out.println("test");
             // Read the root node of the JSON file
@@ -25,7 +26,7 @@ public class Main {
             JsonNode classesNode = rootNode.get("classes");
 
             // Convert the classes JSON array to a List<Course>
-            List<Course> courses = objectMapper.readerForListOf(Course.class).readValue(classesNode);
+            courses = objectMapper.readerForListOf(Course.class).readValue(classesNode);
 
             // Print all courses
             for (Course course : courses) {
@@ -52,6 +53,17 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Test Schedule Class
+        List<Course> courses1 = courses.subList(1, 3);
+        Student stu1 = new Student("John Smith",123456789);
+        Schedule sch1 = new Schedule(stu1, courses1, "Spring 2025");
+        System.out.println(sch1.courses.get(1).getName());  // test to see if courses were added to schedule
+        System.out.println(sch1.calendarView());
+
+        // Test Calendar Class
+        System.out.println("Which calendar view would you like?");
+        System.out.println("(1) Day View (2) Week View");
 
         // Frontend testing --------------------------------------------------------------------
         // Configure Jackson ObjectMapper
