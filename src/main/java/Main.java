@@ -70,25 +70,7 @@ public class Main {
 
             // Print all courses
             for (Course course : courses) {
-                System.out.println("=====================================");
-                System.out.println("Course Name: " + course.getName());
-                System.out.println("Course Number: " + course.getCourseNum());
-                System.out.println("Faculty: " + (course.getFaculty() != null ? String.join(", ", course.getFaculty()) : "N/A"));
-                System.out.println("Location: " + course.getLocation());
-                System.out.println("Credits: " + course.getNumCredits());
-                System.out.println("Open Seats: " + course.getOpenSeats());
-                System.out.println("Section: " + course.getSection());
-                System.out.println("Semester: " + course.getSemester());
-                System.out.println("Lab: " + (course.getIs_lab() ? "Yes" : "No"));
-                System.out.println("Open for Enrollment: " + (course.getIs_open() ? "Yes" : "No"));
-
-                for (timeBlock timeBlock : course.getTimes()) {
-                    System.out.println("\tDay: " + timeBlock.getDay());
-                    System.out.println("\tStart Time: " + timeBlock.getStartTime());
-                    System.out.println("\tEnd Time: " + timeBlock.getEndTime());
-                    System.out.println("\t---------------------");
-                }
-                System.out.println("=====================================");
+                course.showCourse();
             }
         } catch (IOException e) {
             e.printStackTrace();
