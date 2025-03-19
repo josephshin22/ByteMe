@@ -126,7 +126,7 @@ public class Course {
 
     @Override
     public String toString(){
-        return "Course: " + name + "\nReference Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
+        return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
     }
 
     public boolean hasConflict(Course c2) {
@@ -162,10 +162,34 @@ public class Course {
 
         return utcDateTime;
     }
+    public void showCourse() {
+        System.out.print(getSubjCode() + " " + getCourseNum() + " " + getSection());
+        System.out.print("      " + getName());
+        System.out.print("      " + (getFaculty() != null ? String.join(", ", getFaculty()) : "N/A"));
+        System.out.print("    " + getOpenSeats() + "/" + getTotalSeats() + "  ");
+        System.out.print("   status: " + (getIs_open() ? "Open" : "Full")+"\n");
+
+        for (timeBlock timeBlock : getTimes()) {
+            System.out.println("\tDay: " + timeBlock.getDay());
+            System.out.println("\tStart Time: " + timeBlock.getStartTime());
+            System.out.println("\tEnd Time: " + timeBlock.getEndTime());
+            System.out.println("\t---------------------");
+        }
+        System.out.println("Location: " + getLocation());
+        System.out.println("Credits: " + getNumCredits());
+        System.out.println("Semester: " + getSemester());
+        System.out.println("Lab: " + (getIs_lab() ? "Yes" : "No"));
+        System.out.println("");
+        System.out.println("");
+        System.out.println("");
+    }
+    public String fullCourseCode(){
+        return getSubjCode() + " " + getCourseNum() + " " + getSection();
+    }
 
 }
 
 
 
-}
+
 
