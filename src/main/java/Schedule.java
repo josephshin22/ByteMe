@@ -19,15 +19,17 @@ public class Schedule {
         this.studentID = s.getStudentID();
         this.courses = new ArrayList<Course>();
         this.name = "";
+        s.setSchedule(this);
+
     }
 
     private int createScheduleID() {
         return (int) (Math.random() * 900000) + 100000;
     }
 
-    public void addToSchedule(Student s, int scheduleID, Course c1) {
+    public void addToSchedule(Student s, Course c1) {
         for (int i = 0; i < s.getSchedules().size(); i++) {
-            if (s.getSchedules().get(i) != null && s.getSchedules().get(i).scheduleID == scheduleID) {
+            if (s.getSchedules().get(i) != null) {
                 Schedule sched = s.getSchedules().get(i);
 
                 for (Course existingCourse : sched.getCourses()) {
@@ -72,12 +74,14 @@ public class Schedule {
         int startHour = 8; // Start time for the calendar
         int endHour = 18; // End time for the calendar
 
+
         // Print the header with days of the week
         calendar.append("Time  ");
         for (String day : days) {
             calendar.append(String.format("%-10s", day));
         }
         calendar.append("\n");
+
 
         // Print the time slots and courses
         for (int hour = startHour; hour <= endHour; hour++) {
@@ -88,6 +92,7 @@ public class Schedule {
                     for (timeBlock time : course.getTimes()) {
                         if (time.getDay().equals(day) && Integer.parseInt(time.getStartTime().split(":")[0]) == hour) {
                             calendar.append(String.format("%-10s", course.getCourseNum() + "-" + course.getSection()));
+
 
                             courseFound = true;
                             break;
@@ -103,5 +108,7 @@ public class Schedule {
         }
         return calendar.toString();
     }
-
+    public int getScheduleID() {
+        return scheduleID;
+    }
 }

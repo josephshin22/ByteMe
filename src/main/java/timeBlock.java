@@ -11,6 +11,10 @@ public class timeBlock {
     @JsonProperty("end_time")
     private String endTime;
 
+    public timeBlock() {
+
+    }
+
     public timeBlock(String day, String endTime, String startTime) {
         this.day = day;
         this.startTime = startTime;

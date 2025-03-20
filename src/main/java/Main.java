@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,51 +15,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class Main {
+
+    // part of backend testing - define variables
+    static boolean loggedIn = false;
+    static Scanner scnr = new Scanner(System.in);
+    private static Student student; // Store the student object globally
+    public static List<Course> courses;
+
     public static void main(String[] args) {
-//        ArrayList<Course> masterCourse = new ArrayList<>();
-//
-//        // Create time blocks for the courses
-//        timeBlock[] timeBlocks1 = {
-//                new timeBlock("M", "09:00:00", "08:00:00"),
-//                new timeBlock("W", "09:00:00", "08:00:00"),
-//                new timeBlock("F", "09:00:00", "08:00:00")
-//        };
-//
-//        timeBlock[] timeBlocks2 = {
-//                new timeBlock("T", "11:00:00", "10:00:00"),
-//                new timeBlock("R", "11:00:00", "10:00:00")
-//        };
-//
-//        timeBlock[] timeBlocks3 = {
-//                new timeBlock("M", "09:00:00", "08:00:00"),
-//                new timeBlock("W", "09:00:00", "08:00:00"),
-//                new timeBlock("F", "09:00:00", "08:00:00"),
-//                new timeBlock("T", "13:20:00", "12:30:00")
-//
-//        };
-//
-//
-//
-//
-//        // Add 5 courses to the masterCourse list
-//        masterCourse.add(new Course("Calculus", 101, "MATH", "A", new String[]{"Dr. Smith"}, "Room 101", 3, null, timeBlocks1, false, true, 10, 30, "Fall 2023"));
-//        masterCourse.add(new Course("Physics", 201, "PHYS", "B", new String[]{"Dr. Johnson"}, "Room 202", 4, null, timeBlocks3, false, true, 5, 25, "Fall 2023"));
-//        masterCourse.add(new Course("Chemistry", 301, "CHEM", "C", new String[]{"Dr. Brown"}, "Room 303", 3, null, timeBlocks2, true, false, 0, 20, "Fall 2023"));
-//        masterCourse.add(new Course("Biology", 401, "BIOL", "D", new String[]{"Dr. Taylor"}, "Room 404", 4, null, timeBlocks3, false, true, 15, 35, "Fall 2023"));
-//        masterCourse.add(new Course("Computer Science", 501, "CSCI", "E", new String[]{"Dr. Wilson"}, "Room 505", 3, null, timeBlocks1, false, true, 20, 40, "Fall 2023"));
-//
-//        // Print the courses to verify
-//        for (Course course : masterCourse) {
-//            System.out.println(course);
-//        }
-//        Search searchBoy = new Search();
-//        searchBoy.conductSearchLoop(masterCourse);
-        //TESTING ^^^^^ FOR SEARCH
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Course> courses = null;
         try {
-            System.out.println("test");
             // Read the root node of the JSON file
             JsonNode rootNode = objectMapper.readTree(new File("data_wolfe.json"));
 
@@ -76,16 +43,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        // Test Schedule Class
-        List<Course> courses1 = courses.subList(1, 3);
-        Student stu1 = new Student("John Smith",123456789);
-        Schedule sch1 = new Schedule(stu1, courses1, "Spring 2025");
-        System.out.println(sch1.courses.get(1).getName());  // test to see if courses were added to schedule
-        System.out.println(sch1.calendarView());
-
-        // Test Calendar Class
-        System.out.println("Which calendar view would you like?");
-        System.out.println("(1) Day View (2) Week View");
 
         // Frontend testing --------------------------------------------------------------------
         // Configure Jackson ObjectMapper
@@ -107,6 +64,154 @@ public class Main {
         app.start(7000);
         //--------------------------------------------------------------------------------------
 
+        // Backend Testing ---------------------------------------------------------------------
+        while(true) {
+            showMenu();
+            int choice = getUserChoice();
+            handlechoice(choice);
+        }
+
+    }
+
+    private static void showMenu() {
+        System.out.println("\nWhat would you like to do?");
+        System.out.println("1. Create a new profile");
+        System.out.println("2. Login (required before modification)");
+        System.out.println("3. Create a new schedule");
+        System.out.println("4. Remove a schedule");
+        System.out.println("5. View calendar");
+        System.out.println("6. Add course to schedule");
+        System.out.println("7. Remove course from schedule");
+        System.out.println("8. Search for a course");
+        System.out.println("9. Print all schedules");
+        System.out.println("10. Exit");
+        System.out.print("Enter your choice: ");
+    }
+
+    private static int getUserChoice() {
+        int choice = -1;
+        try {
+            choice = Integer.parseInt(scnr.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+        }
+        return choice;
+    }
+
+    private static void handlechoice(int choice) {
+        switch (choice) {
+            case 1:
+                System.out.println("Please enter a username:");
+                String username = scnr.nextLine();
+                System.out.println("Please enter a student ID:");
+                int studentID = Integer.parseInt(scnr.nextLine());
+                System.out.println("Please enter a password:");
+                String password = scnr.nextLine();
+                student = new Student(username, studentID, password);
+                break;
+            case 2:
+                for (int i = 0; i < 3; i++) {
+                    System.out.println("Please enter your username:");
+                    String usernameAttempt = scnr.nextLine();
+                    System.out.println("Please enter your password:");
+                    String passwordAttempt = scnr.nextLine();
+                    if (student.verifyPassword(passwordAttempt)) {
+                        loggedIn = true;
+                        System.out.println("Login successful.");
+                        break;
+                    } else {
+                        System.out.println("Incorrect password. Please try again.");
+                    }
+                }
+                break;
+            case 3:
+                if (loggedIn) {
+                    Schedule newSchedule = new Schedule(student); // Create a new schedule under student
+                    System.out.println("New schedule created with ID: " + newSchedule.getScheduleID());
+                } else {
+                    System.out.println("You must be logged in to modify schedules.");
+                }
+                break;
+            case 4:
+                if (loggedIn) {
+                    System.out.println("Which schedule would you like to remove? (Enter a schedule ID)");
+                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    student.deleteSchedule(scheduleID);
+                } else {
+                    System.out.println("You must be logged in to modify schedules.");
+                }
+                break;
+            case 5:
+                if (loggedIn) {
+                    System.out.println("Which schedule would you like to view? (Enter a schedule ID)");
+                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    System.out.println(student.getSchedules().get(0).getScheduleID());
+                    for (Schedule schedule : student.getSchedules()) {
+                        System.out.println(schedule.getScheduleID());
+                        if (schedule.getScheduleID() == scheduleID) {
+
+
+                            System.out.println(schedule.calendarView());
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println("You must be logged in to modify schedules.");
+                }
+                break;
+            case 6:
+                if (loggedIn) {
+                    System.out.println("Which schedule would you like to modify? (Enter a schedule ID)");
+                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    System.out.println("Enter the course subject code:");
+                    String subjCode = scnr.nextLine();
+                    System.out.println("Enter the course number:");
+                    int courseNum = Integer.parseInt(scnr.nextLine());
+                    System.out.println("Enter the section:");
+                    String section = scnr.nextLine();
+                    for (Course course : courses) {
+                        if (course.getSubjCode().equals(subjCode) && course.getCourseNum() == courseNum && course.getSection().equals(section)) {
+                            for (Schedule schedule : student.getSchedules()) {
+                                if (schedule.getScheduleID() == scheduleID) {
+                                    schedule.addToSchedule(student, course);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println("You must be logged in to modify schedules.");
+                }
+                break;
+            case 7:
+                if (loggedIn) {
+                    // remove course
+                } else {
+                    System.out.println("You must be logged in to modify schedules.");
+                }
+                break;
+            case 8:
+                Search search = new Search();
+                search.conductSearchLoop((ArrayList<Course>) courses);
+                break;
+            case 9:
+                // print all schedules
+                if (loggedIn){
+                    for (Schedule schedule : student.getSchedules()) {
+                        System.out.println(schedule);
+                    }
+                    break;
+                } else {
+                    System.out.println("You must be logged in to view schedules.");
+                }
+            case 10:
+                System.out.println("Exiting the application...");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Invalid choice. Please select a valid option.");
+        }
     }
 
     // Data class for JSON response - frontend testing
