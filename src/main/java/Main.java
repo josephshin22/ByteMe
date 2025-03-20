@@ -102,7 +102,7 @@ public class Main {
                     }
                     break;
 
-                case "studentID":
+                case "ID":
                     if (input.length() != 6 || !input.matches("\\d{6}")) {
                         System.out.println(errorMsg);
                     } else {
@@ -136,8 +136,8 @@ public class Main {
         switch (choice) {
             case 1:
                 String username = validateInput("Please enter a username:", "Username must be at least 3 characters long.", "username");
-                int studentID = Integer.parseInt(validateInput("Please enter a student ID:", "Student ID must be exactly 6 digits.", "studentID"));
-                String password = validateInput("Please enter a password:", "Password must be at least 6 characters long.", "password");
+                int studentID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
+                String password = validateInput("Please enter a password:", "Password must be at least 6 alphanumeric characters long.", "password");
 
                 student = new Student(username, studentID, password);
                 break;
@@ -167,16 +167,17 @@ public class Main {
             case 4:
                 if (loggedIn) {
                     System.out.println("Which schedule would you like to remove? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
                     // check that schedule exists
                     for (Schedule sched : student.getSchedules()){
                         if (scheduleID == sched.getScheduleID()){
                             student.deleteSchedule(scheduleID);
                             System.out.println("Schedule removed.");
                             break;
+                        } else {
+                            System.out.println("Schedule not found.");
                         }
                     }
-                    System.out.println("Schedule not found.");
 
                 } else {
                     System.out.println("You must be logged in to modify schedules.");
@@ -185,7 +186,7 @@ public class Main {
             case 5:
                 if (loggedIn) {
                     System.out.println("Which schedule would you like to view? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
 //                    System.out.println(student.getSchedules().get(0).getScheduleID());
                     for (Schedule schedule : student.getSchedules()) {
 //                        System.out.println(schedule.getScheduleID());
@@ -204,7 +205,7 @@ public class Main {
             case 6:
                 if (loggedIn) {
                     System.out.println("Which schedule would you like to modify? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
                     System.out.println("Enter the course subject code:");
                     String subjCode = scnr.nextLine();
                     System.out.println("Enter the course number:");
@@ -212,7 +213,7 @@ public class Main {
                     System.out.println("Enter the section:");
                     String section = scnr.nextLine();
                     for (Course course : courses) {
-                        if (course.getSubjCode().equals(subjCode) && course.getCourseNum() == courseNum && course.getSection().equals(section)) {
+                        if (course.getSubjCode().equalsIgnoreCase(subjCode) && course.getCourseNum() == courseNum && course.getSection().equalsIgnoreCase(section)) {
                             for (Schedule schedule : student.getSchedules()) {
                                 if (schedule.getScheduleID() == scheduleID) {
                                     schedule.addToSchedule(course);
@@ -229,8 +230,8 @@ public class Main {
             case 7:
                 if (loggedIn) {
                     // remove course
-                    System.out.println("Which schedule would you like to modify? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    System.out.println("Which schedule would you like to modify?");
+                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
                     System.out.println("Enter the course subject code:");
                     String subjCode = scnr.nextLine();
                     System.out.println("Enter the course number:");
@@ -266,6 +267,7 @@ public class Main {
                     break;
                 } else {
                     System.out.println("You must be logged in to view schedules.");
+                    break;
                 }
             case 10:
                 System.out.println("Exiting the application...");
