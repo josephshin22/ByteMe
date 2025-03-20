@@ -20,6 +20,7 @@ public class Filter {
     public Filter()
     {
         full = true; // default to true
+        credits = -1; // default to -1 (because 0 is a valid number of credits)
     }
 
     //setters for all variables
@@ -109,11 +110,8 @@ public class Filter {
                     "\n3. weekDays: " + (weekDays != null ? weekDays : "") +
                     "\n4. minimumStartTime: " + (startTime != null ? startTime : "") +
                     "\n5. maximumEndTime: " + (endTime != null ? endTime : "") +
-                    "\n6. credits: " + (credits != 0 ? credits : "") +
+                    "\n6. credits: " + (credits != -1 ? credits : "") +
                     "\n7. semester: " + (semester == null ? "" : semester);
-
-
-
 
      }
 }
