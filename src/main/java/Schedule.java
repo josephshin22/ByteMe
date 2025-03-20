@@ -24,6 +24,10 @@ public class Schedule {
     private int createScheduleID() {
         return (int) (Math.random() * 900000) + 100000;
     }
+    //get schedule id
+    public int getScheduleID() {
+        return scheduleID;
+    }
 
     public void addToSchedule(Student s, int scheduleID, Course c1) {
         for (int i = 0; i < s.getSchedules().size(); i++) {
