@@ -129,6 +129,9 @@ public class Student {
     public boolean verifyPassword(String passwordAttempt) {
         return passwordAttempt.equals(password);
     }
+    public boolean verifyLogin(String usernameAttempt, String passwordAttempt) {
+        return usernameAttempt.equals(username) && passwordAttempt.equals(password);
+    }
 
     public String getUsername() {
         return username;

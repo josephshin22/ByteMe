@@ -133,6 +133,23 @@ public class Search {
                             }
                         }
                     }
+                    else if(numInput == 7){
+                        // Modify the seventh filter
+                        while (true) {
+                            System.out.println("Enter semester (e.g. 2024_Fall):");
+                            scanner = new Scanner(System.in); // Reset scanner to avoid input issues
+                            input = scanner.nextLine();
+                            //verify format of input string
+                            if (input.matches("\\d{4}_\\w+")) {
+                                searchFilter.setSemester(input);
+                                break; // Exit the inner loop if valid input
+                            } else {
+                                System.out.println("Invalid input. Please enter in the format: Year_Semester.");
+
+                            }
+
+                        }
+                    }
                     else if (numInput == 0) {
                         System.out.println("Exiting filter modification.");
                         break; // Exit the filter modification loop
@@ -255,6 +272,11 @@ public class Search {
                 if(time.getEndTime().compareTo(searchFilter.getEndTime()) > 0) {
                     return false;
                 }
+            }
+        }
+        if(searchFilter.getSemester() != "") {
+            if(!c.getSemester().equalsIgnoreCase(searchFilter.getSemester())) {
+                return false;
             }
         }
         // If all filters pass, return true

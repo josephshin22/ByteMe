@@ -35,10 +35,6 @@ public class Main {
             // Convert the classes JSON array to a List<Course>
             courses = objectMapper.readerForListOf(Course.class).readValue(classesNode);
 
-            // Print all courses
-            for (Course course : courses) {
-                course.showCourse();
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,6 +84,44 @@ public class Main {
         System.out.print("Enter your choice: ");
     }
 
+    private static String validateInput(String prompt, String errorMsg, String inputType){
+        String input = "";
+        boolean valid = false;
+
+        while (!valid) {
+            System.out.println(prompt);
+            input = scnr.nextLine().trim();
+
+            // Check validation based on input type
+            switch (inputType) {
+                case "username":
+                    if (input.isEmpty() || input.length() < 3) {
+                        System.out.println(errorMsg);
+                    } else {
+                        valid = true;
+                    }
+                    break;
+
+                case "studentID":
+                    if (input.length() != 6 || !input.matches("\\d{6}")) {
+                        System.out.println(errorMsg);
+                    } else {
+                        valid = true;
+                    }
+                    break;
+
+                case "password":
+                    if (input.length() < 6 || !input.matches("[a-zA-Z0-9]+")) {
+                        System.out.println(errorMsg);
+                    } else {
+                        valid = true;
+                    }
+                    break;
+            }
+        }
+        return input;
+    }
+
     private static int getUserChoice() {
         int choice = -1;
         try {
@@ -101,12 +135,10 @@ public class Main {
     private static void handlechoice(int choice) {
         switch (choice) {
             case 1:
-                System.out.println("Please enter a username:");
-                String username = scnr.nextLine();
-                System.out.println("Please enter a student ID:");
-                int studentID = Integer.parseInt(scnr.nextLine());
-                System.out.println("Please enter a password:");
-                String password = scnr.nextLine();
+                String username = validateInput("Please enter a username:", "Username must be at least 3 characters long.", "username");
+                int studentID = Integer.parseInt(validateInput("Please enter a student ID:", "Student ID must be exactly 6 digits.", "studentID"));
+                String password = validateInput("Please enter a password:", "Password must be at least 6 characters long.", "password");
+
                 student = new Student(username, studentID, password);
                 break;
             case 2:
@@ -115,12 +147,12 @@ public class Main {
                     String usernameAttempt = scnr.nextLine();
                     System.out.println("Please enter your password:");
                     String passwordAttempt = scnr.nextLine();
-                    if (student.verifyPassword(passwordAttempt)) {
+                    if(student.verifyLogin(usernameAttempt, passwordAttempt)) {
                         loggedIn = true;
                         System.out.println("Login successful.");
                         break;
                     } else {
-                        System.out.println("Incorrect password. Please try again.");
+                        System.out.println("Incorrect username or password. Please try again.");
                     }
                 }
                 break;
@@ -136,7 +168,16 @@ public class Main {
                 if (loggedIn) {
                     System.out.println("Which schedule would you like to remove? (Enter a schedule ID)");
                     int scheduleID = Integer.parseInt(scnr.nextLine());
-                    student.deleteSchedule(scheduleID);
+                    // check that schedule exists
+                    for (Schedule sched : student.getSchedules()){
+                        if (scheduleID == sched.getScheduleID()){
+                            student.deleteSchedule(scheduleID);
+                            System.out.println("Schedule removed.");
+                            break;
+                        }
+                    }
+                    System.out.println("Schedule not found.");
+
                 } else {
                     System.out.println("You must be logged in to modify schedules.");
                 }
@@ -145,16 +186,17 @@ public class Main {
                 if (loggedIn) {
                     System.out.println("Which schedule would you like to view? (Enter a schedule ID)");
                     int scheduleID = Integer.parseInt(scnr.nextLine());
-                    System.out.println(student.getSchedules().get(0).getScheduleID());
+//                    System.out.println(student.getSchedules().get(0).getScheduleID());
                     for (Schedule schedule : student.getSchedules()) {
-                        System.out.println(schedule.getScheduleID());
+//                        System.out.println(schedule.getScheduleID());
                         if (schedule.getScheduleID() == scheduleID) {
-
-
                             System.out.println(schedule.calendarView());
                             break;
+                        } else {
+                            System.out.println("Schedule not found. Check ID and try again.");
                         }
                     }
+
                 } else {
                     System.out.println("You must be logged in to modify schedules.");
                 }
@@ -173,7 +215,7 @@ public class Main {
                         if (course.getSubjCode().equals(subjCode) && course.getCourseNum() == courseNum && course.getSection().equals(section)) {
                             for (Schedule schedule : student.getSchedules()) {
                                 if (schedule.getScheduleID() == scheduleID) {
-                                    schedule.addToSchedule(student, course);
+                                    schedule.addToSchedule(course);
                                     break;
                                 }
                             }
@@ -187,6 +229,26 @@ public class Main {
             case 7:
                 if (loggedIn) {
                     // remove course
+                    System.out.println("Which schedule would you like to modify? (Enter a schedule ID)");
+                    int scheduleID = Integer.parseInt(scnr.nextLine());
+                    System.out.println("Enter the course subject code:");
+                    String subjCode = scnr.nextLine();
+                    System.out.println("Enter the course number:");
+                    int courseNum = Integer.parseInt(scnr.nextLine());
+                    System.out.println("Enter the section:");
+                    String section = scnr.nextLine();
+                    for (Course course : courses) {
+                        if (course.getSubjCode().equals(subjCode) && course.getCourseNum() == courseNum && course.getSection().equals(section)) {
+                            for (Schedule schedule : student.getSchedules()) {
+                                if (schedule.getScheduleID() == scheduleID) {
+                                    schedule.removeFromSchedule(course);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+
                 } else {
                     System.out.println("You must be logged in to modify schedules.");
                 }

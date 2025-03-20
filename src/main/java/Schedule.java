@@ -5,6 +5,7 @@ public class Schedule {
     private List<Course> courses;
     private int scheduleID;
     private int studentID;
+    private String semester;
 
     public Schedule(Student s, List<Course> courses, String name) {
         this.scheduleID = createScheduleID();
@@ -27,34 +28,26 @@ public class Schedule {
         return (int) (Math.random() * 900000) + 100000;
     }
 
-    public void addToSchedule(Student s, Course c1) {
-        for (int i = 0; i < s.getSchedules().size(); i++) {
-            if (s.getSchedules().get(i) != null) {
-                Schedule sched = s.getSchedules().get(i);
-
-                for (Course existingCourse : sched.getCourses()) {
-                    if (existingCourse.hasConflict(c1)) {
-                        System.out.println("Conflict detected between " + existingCourse.getName() + " and " + c1.getName());
-                        System.out.println("Course not added.");
-                        return;
-                    }
-                }
-
-                sched.courses.add(c1);
-                System.out.println("Course " + c1.getName() + " added to the schedule.");
-                break;
+    public void addToSchedule(Course c1) {
+        for (Course existingCourse : this.getCourses()) {
+            if (existingCourse.hasConflict(c1)) {
+                System.out.println("Conflict detected between " + existingCourse.getName() + " and " + c1.getName());
+                System.out.println("Course not added.");
+                return;
             }
         }
+        this.courses.add(c1);
+        System.out.println("Course " + c1.getName() + " added to the schedule.");
     }
 
-    public void removefromSchedule(Student s, int scheduleID, Course c1) {
-        for (int i = 0; i < s.getSchedules().size(); i++) {
-            if(s.getSchedules().get(i) != null && s.getSchedules().get(i).scheduleID == scheduleID) {
-                Schedule sched = s.getSchedules().get(i);
-                sched.courses.remove(c1);
-                break;
+    public void removeFromSchedule(Course c1) {
+            if (this.courses != null && this.courses.contains(c1)) {
+                this.courses.remove(c1);
+                System.out.println("Course " + c1.getName() + " removed from the schedule.");
             }
-        }
+            else {
+                System.out.println("Course not found in schedule.");
+            }
     }
 
     @Override
@@ -108,6 +101,7 @@ public class Schedule {
         }
         return calendar.toString();
     }
+
     public int getScheduleID() {
         return scheduleID;
     }
