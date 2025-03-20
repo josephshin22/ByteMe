@@ -11,7 +11,7 @@ public class Filter {
     String startTime;
     String endTime;
     int credits;
-
+    String semester;
     String startTimeExtra;
     String endTimeExtra;
 
@@ -38,9 +38,10 @@ public class Filter {
     public void setFull(boolean full) {
         this.full = full;
     }
-
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
     public void setWeekDays(ArrayList<String> weekDays) {
-
         this.weekDays = weekDays;
     }
 
@@ -73,7 +74,7 @@ public class Filter {
     public boolean getFull() {
         return full;
     }
-
+    public String getSemester() { return semester;}
     public ArrayList<String> getWeekDays() {
         return weekDays;
     }
@@ -108,7 +109,8 @@ public class Filter {
                     "\n3. weekDays: " + (weekDays != null ? weekDays : "") +
                     "\n4. minimumStartTime: " + (startTime != null ? startTime : "") +
                     "\n5. maximumEndTime: " + (endTime != null ? endTime : "") +
-                    "\n6. credits: " + (credits != 0 ? credits : "");
+                    "\n6. credits: " + (credits != 0 ? credits : "") +
+                    "\n7. semester: " + (semester == null ? "" : semester);
 
 
 
