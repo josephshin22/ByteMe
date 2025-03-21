@@ -75,7 +75,7 @@ public class Search {
                             scanner = new Scanner(System.in); // Reset scanner to avoid input issues
                             input = scanner.nextLine();
                             input = input.trim(); // Remove leading and trailing whitespace
-                            String[] days = input.split("");
+                            String[] days = input.split(" "); // Split by whitespace
                             ArrayList<String> weekDays = new ArrayList<>();
                             for (String day : days) {
                                 day = day.toUpperCase() ;
@@ -205,8 +205,10 @@ public class Search {
             }
         }
 
-        if(searchFilter.getCredits() != c.getNumCredits() && searchFilter.getCredits() != 0)
+        if(searchFilter.getCredits() != c.getNumCredits() && searchFilter.getCredits() != -1)
         {
+            System.out.println("Filter credits: " + searchFilter.getCredits());
+            System.out.println("Course credits: " + c.getNumCredits());
             return false;
         }
 
@@ -274,7 +276,7 @@ public class Search {
                 }
             }
         }
-        if(searchFilter.getSemester() != "") {
+        if(searchFilter.getSemester() != null) {
             if(!c.getSemester().equalsIgnoreCase(searchFilter.getSemester())) {
                 return false;
             }
