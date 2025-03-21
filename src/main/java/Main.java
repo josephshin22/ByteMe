@@ -117,6 +117,13 @@ public class Main {
                         valid = true;
                     }
                     break;
+                case "semester":
+                    if (input.isEmpty() || !input.matches("\\d{4}_[a-zA-Z]+")) {
+                        System.out.println(errorMsg);
+                    } else {
+                        valid = true;
+                    }
+                    break;
             }
         }
         return input;
@@ -136,7 +143,7 @@ public class Main {
         switch (choice) {
             case 1:
                 String username = validateInput("Please enter a username:", "Username must be at least 3 characters long.", "username");
-                int studentID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
+                int studentID = Integer.parseInt(validateInput("Please enter student ID:", "ID must be exactly 6 digits.", "ID"));
                 String password = validateInput("Please enter a password:", "Password must be at least 6 alphanumeric characters long.", "password");
 
                 student = new Student(username, studentID, password);
@@ -159,15 +166,15 @@ public class Main {
             case 3:
                 if (loggedIn) {
                     Schedule newSchedule = new Schedule(student); // Create a new schedule under student
-                    System.out.println("New schedule created with ID: " + newSchedule.getScheduleID());
-                } else {
+                    String input = validateInput("What semester is this schedule for? Enter Year_Semester:", "Semester must be in the format YYYY_Semester", "semester");
+                    newSchedule.setSemester(input);
+                    System.out.println("New schedule created for " + input + " with ID: " + newSchedule.getScheduleID());                } else {
                     System.out.println("You must be logged in to modify schedules.");
                 }
                 break;
             case 4:
                 if (loggedIn) {
-                    System.out.println("Which schedule would you like to remove? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
+                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to remove? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
                     // check that schedule exists
                     for (Schedule sched : student.getSchedules()){
                         if (scheduleID == sched.getScheduleID()){
@@ -185,9 +192,7 @@ public class Main {
                 break;
             case 5:
                 if (loggedIn) {
-                    System.out.println("Which schedule would you like to view? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
-//                    System.out.println(student.getSchedules().get(0).getScheduleID());
+                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to view? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));//                    System.out.println(student.getSchedules().get(0).getScheduleID());
                     for (Schedule schedule : student.getSchedules()) {
 //                        System.out.println(schedule.getScheduleID());
                         if (schedule.getScheduleID() == scheduleID) {
@@ -204,8 +209,7 @@ public class Main {
                 break;
             case 6:
                 if (loggedIn) {
-                    System.out.println("Which schedule would you like to modify? (Enter a schedule ID)");
-                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
+                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to modify? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
                     System.out.println("Enter the course subject code:");
                     String subjCode = scnr.nextLine();
                     System.out.println("Enter the course number:");
@@ -217,20 +221,26 @@ public class Main {
                     }
                     System.out.println("Enter the section:");
                     String section = scnr.nextLine();
+
+                    System.out.println("Enter the semester:");
+                    String semester = scnr.nextLine();
+                    boolean courseFound = false;
                     for (Course course : courses) {
-                        if (course.getSubjCode().equalsIgnoreCase(subjCode) && course.getCourseNum() == courseNum && course.getSection().equalsIgnoreCase(section)) {
+                        if (course.getSubjCode().equalsIgnoreCase(subjCode) && course.getCourseNum() == courseNum && course.getSection().equalsIgnoreCase(section) && course.getSemester().equals(semester)) {
+                            courseFound = true;
                             for (Schedule schedule : student.getSchedules()) {
                                 if (schedule.getScheduleID() == scheduleID) {
                                     schedule.addToSchedule(course);
-                                    System.out.println("Course successfully added to schedule.");
+//                                    System.out.println("Course successfully added to schedule.");
                                     break;
                                 }
                             }
                             break;
-                        } else {
-                            System.out.println("Schedule/course not found. Check ID and try again.");
-                            break;
                         }
+                    }
+                    if (!courseFound) {
+                        System.out.println("Schedule/course not found. Check ID and try again.");
+                        break;
                     }
                 } else {
                     System.out.println("You must be logged in to modify schedules.");
@@ -239,8 +249,7 @@ public class Main {
             case 7:
                 if (loggedIn) {
                     // remove course
-                    System.out.println("Which schedule would you like to modify?");
-                    int scheduleID = Integer.parseInt(validateInput("Please enter a six-digit ID number:", "ID must be exactly 6 digits.", "ID"));
+                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to modify? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
                     System.out.println("Enter the course subject code:");
                     String subjCode = scnr.nextLine();
                     System.out.println("Enter the course number:");
@@ -252,8 +261,12 @@ public class Main {
                     }
                     System.out.println("Enter the section:");
                     String section = scnr.nextLine();
+                    System.out.println("Enter the semester:");
+                    String semester = scnr.nextLine();
+                    boolean courseFound2 = false;
                     for (Course course : courses) {
                         if (course.getSubjCode().equals(subjCode) && course.getCourseNum() == courseNum && course.getSection().equals(section)) {
+                            courseFound2 = true;
                             for (Schedule schedule : student.getSchedules()) {
                                 if (schedule.getScheduleID() == scheduleID) {
                                     schedule.removeFromSchedule(course);
@@ -261,10 +274,11 @@ public class Main {
                                 }
                             }
                             break;
-                        } else {
-                            System.out.println("Schedule/course not found. Check ID and try again.");
-                            break;
                         }
+                    }
+                    if (!courseFound2) {
+                        System.out.println("Schedule/course not found. Check ID and try again.");
+                        break;
                     }
 
                 } else {
