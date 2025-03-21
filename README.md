@@ -19,4 +19,8 @@
    8. Search for a course
    9. Print all schedules
    10. Exit
-6. Selecting each option will have subsequent menu options that will appear 
+6. Selecting each option will have subsequent menu options that will appear
+
+Note: 
+- saved courses page is not complete (not part of MVP)
+- react fetching classes is not fully functional (not part of MVP)
