@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Search {
-
+    //arraylist for search results, arraylsit for all possible courses, and searchFilter object
     ArrayList<Course> results;
     ArrayList<Course> masterList;
     Filter searchFilter;
@@ -10,6 +10,14 @@ public class Search {
     public Search() {
         searchFilter = new Filter();
     }
+    // javadoc for conductSearchLoop
+    /**
+     * Conducts a loop for searching courses based on user input and filters.
+     * The user can modify filters, reset them, or perform a search.
+     *
+     * @param masterList The list of all available courses to search from.
+     * @return An ArrayList of Course objects that match the search criteria.
+     */
     public ArrayList<Course> conductSearchLoop(ArrayList<Course> masterList) {
         this.masterList = masterList;
         boolean loop = true;
@@ -18,16 +26,18 @@ public class Search {
             System.out.println("Type 'exit' to exit. Type f to modify filters, r to reset filters, or s to search.");
             Scanner scanner = new Scanner(System.in);
             String input = scanner.nextLine();
+            //user can type three possible options printed above
             if(input.equalsIgnoreCase("exit")){
                 loop = false;
             }
             else if (input.equalsIgnoreCase("f"))
             {
                 while(true) {
+                    //loop for modifying the current filter settings, all filter setting default to not being restictive at all
                     System.out.println(searchFilter);
                     System.out.println("Modify filters. Type 0 to exit filter modification.");
                     System.out.println("Type the number of the filter you want to modify:");
-
+                    //filter settings numbered one through 7, reference the Filter class for what each filter does
                     int numInput;
                     try {
                         numInput = Integer.parseInt(scanner.nextLine());
@@ -165,10 +175,12 @@ public class Search {
                 searchFilter = new Filter();
                 System.out.println("Filters reset.");
             } else if (input.equalsIgnoreCase("s")) {
-
+                //option for actually doing a search
                 results = null;
+                //call the singleSearch method to search for courses based on the current filter settings
                 singleSearch();
                 if(!results.isEmpty()) {
+                    //loop to print all results
                     for(Course c : results) {
                        c.showCourse();
                     }
@@ -181,6 +193,11 @@ public class Search {
         }
         return null;
     }
+    //java doc for singleSearch
+    /**
+     * Searches for courses based on the current filter settings and user input.
+     * The user can enter a search term to further refine the results.
+     */
     public void singleSearch() {
         results = new ArrayList<Course>();
 
@@ -190,15 +207,26 @@ public class Search {
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
+        //loop to check each possible course from master course list, accept it or not for the
+        //results based on it matches the filters and/or search "bar" input
         for(Course c: masterList) {
             if(checkCourse(c, input)) {
                 results.add(c);
             }
         }
     }
+
+    /**
+     * Checks if a course matches the current filter settings and input.
+     *
+     * @param c The Course object to check.
+     * @param input The search input string.
+     * @return true if the course matches the filters and input, false otherwise.
+     */
     public boolean checkCourse(Course c, String input)
     {
-
+        //multiple if statements to see if course matches filters and/or user input
+        //if a filter is in its default state and not modified, it doesn't restrict whatsoeevr
         if (!searchFilter.getFull()) {
             if(!c.getIs_open()) {
                 return false;
