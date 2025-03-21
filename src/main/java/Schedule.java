@@ -29,15 +29,19 @@ public class Schedule {
     }
 
     public void addToSchedule(Course c1) {
-        for (Course existingCourse : this.getCourses()) {
-            if (existingCourse.hasConflict(c1)) {
-                System.out.println("Conflict detected between " + existingCourse.getName() + " and " + c1.getName());
-                System.out.println("Course not added.");
-                return;
+        if(this.semester.equals(c1.getSemester())) {
+            for (Course existingCourse : this.getCourses()) {
+                if (existingCourse.hasConflict(c1)) {
+                    System.out.println("Conflict detected between " + existingCourse.getName() + " and " + c1.getName());
+                    System.out.println("Course not added.");
+                    return;
+                }
             }
+            this.courses.add(c1);
+            System.out.println("Course " + c1.getName() + " added to the schedule.");
+        } else {
+            System.out.println("Course " + c1.getName() + " is not in the same semester as the schedule.");
         }
-        this.courses.add(c1);
-        System.out.println("Course " + c1.getName() + " added to the schedule.");
     }
 
     public void removeFromSchedule(Course c1) {
@@ -59,6 +63,14 @@ public class Schedule {
     // getter for courses
     public List<Course> getCourses() {
         return courses;
+    }
+
+    public void setSemester(String semester){
+        this.semester = semester;
+    }
+
+    public String getSemester() {
+        return semester;
     }
 
     public String calendarView() {
