@@ -46,7 +46,7 @@ public class Course {
     //Like A, or B
     private String section;
 
-    @JsonProperty("semester")
+//    @JsonProperty("semester")
     private String semester;
 
 

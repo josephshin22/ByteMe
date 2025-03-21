@@ -211,11 +211,11 @@ public class Main {
                 if (loggedIn) {
                     int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to modify? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
                     System.out.println("Enter the course subject code:");
-                    String subjCode = scnr.nextLine();
+                    String subjCode = scnr.nextLine().trim();
                     System.out.println("Enter the course number:");
                     int courseNum = 0;
                     try {
-                        courseNum = Integer.parseInt(scnr.nextLine());
+                        courseNum = Integer.parseInt(scnr.nextLine().trim());
                     } catch (NumberFormatException e) {
                         System.out.println("Error: Invalid input. Please enter a valid numeric course number.");
                     }
@@ -251,21 +251,23 @@ public class Main {
                     // remove course
                     int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to modify? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
                     System.out.println("Enter the course subject code:");
-                    String subjCode = scnr.nextLine();
+                    String subjCode = scnr.nextLine().trim();
                     System.out.println("Enter the course number:");
                     int courseNum = 0;
                     try {
-                        courseNum = Integer.parseInt(scnr.nextLine());
+                        courseNum = Integer.parseInt(scnr.nextLine().trim());
                     } catch (NumberFormatException e) {
                         System.out.println("Error: Invalid input. Please enter a valid numeric course number.");
                     }
                     System.out.println("Enter the section:");
-                    String section = scnr.nextLine();
+                    String section = scnr.nextLine().trim();
+
                     System.out.println("Enter the semester:");
                     String semester = scnr.nextLine();
+
                     boolean courseFound2 = false;
                     for (Course course : courses) {
-                        if (course.getSubjCode().equals(subjCode) && course.getCourseNum() == courseNum && course.getSection().equals(section)) {
+                        if (course.getSubjCode().equalsIgnoreCase(subjCode) && course.getCourseNum() == courseNum && course.getSection().equalsIgnoreCase(section) && course.getSemester().equals(semester)) {
                             courseFound2 = true;
                             for (Schedule schedule : student.getSchedules()) {
                                 if (schedule.getScheduleID() == scheduleID) {
