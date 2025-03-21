@@ -84,7 +84,7 @@ public class Schedule {
                 for (Course course : courses) {
                     for (timeBlock time : course.getTimes()) {
                         if (time.getDay().equals(day) && Integer.parseInt(time.getStartTime().split(":")[0]) == hour) {
-                            calendar.append(String.format("%-10s", course.getCourseNum() + "-" + course.getSection()));
+                            calendar.append(String.format("%-10s", course.getSubjCode() + " " + course.getCourseNum() + "-" + course.getSection()));
 
 
                             courseFound = true;

@@ -209,7 +209,12 @@ public class Main {
                     System.out.println("Enter the course subject code:");
                     String subjCode = scnr.nextLine();
                     System.out.println("Enter the course number:");
-                    int courseNum = Integer.parseInt(scnr.nextLine());
+                    int courseNum = 0;
+                    try {
+                        courseNum = Integer.parseInt(scnr.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Error: Invalid input. Please enter a valid numeric course number.");
+                    }
                     System.out.println("Enter the section:");
                     String section = scnr.nextLine();
                     for (Course course : courses) {
@@ -217,9 +222,13 @@ public class Main {
                             for (Schedule schedule : student.getSchedules()) {
                                 if (schedule.getScheduleID() == scheduleID) {
                                     schedule.addToSchedule(course);
+                                    System.out.println("Course successfully added to schedule.");
                                     break;
                                 }
                             }
+                            break;
+                        } else {
+                            System.out.println("Schedule/course not found. Check ID and try again.");
                             break;
                         }
                     }
