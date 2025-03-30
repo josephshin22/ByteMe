@@ -9,7 +9,7 @@ export default function CourseCard() {
     return (
         <>
             <div
-                className="flex items-stretch shadow-md w-full bg-white rounded-lg cursor-pointer text-sm outline-0 outline-slate-300 hover:outline-1 outline-offset-[-1px]"
+                className="flex items-stretch shadow-md w-full bg-background rounded-lg cursor-pointer text-sm outline-0 outline-border hover:outline-1 "
             >
                 {/* Course Code and Section */}
                 <div

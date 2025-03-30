@@ -15,7 +15,7 @@ function FindCourses() {
 
     return (
         <div>
-            <h1 className="font-semibold text-xl mb-4">Find Courses</h1>
+            <h1 className="font-semibold text-xl mb-4 ">Find Courses</h1>
             <p>Message from backend: {message}</p>
 
             <CourseCard/>

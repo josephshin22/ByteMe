@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, User, Menu, X } from 'lucide-react';
+import { Search, ChevronDown, User, Menu, X, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Navbar = () => {
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = useState(window.innerWidth >= 880);
     const [isMobileScheduleOpen, setIsMobileScheduleOpen] = useState(false);
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
     const dropdownRef = useRef(null);
     const searchInputRef = useRef(null);
     const mobileMenuRef = useRef(null);
@@ -97,8 +99,17 @@ const Navbar = () => {
         };
     }, [isScheduleOpen]);
 
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
+
     return (
-        <nav className="sticky top-0 w-full flex items-center justify-between px-4 md:px-6 py-4 bg-white border-b border-slate-200">
+        <nav className="sticky top-0 w-full flex items-center justify-between px-4 md:px-6 py-4 border-b border-border">
             <button
                 className="hamburger-btn md:hidden flex items-center justify-center"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -130,10 +141,10 @@ const Navbar = () => {
                             ref={scheduleMenuRef}
                             className="absolute top-full left-0  w-48 z-10"
                         >
-                            <div className="bg-white border border-slate-200 rounded shadow-lg py-1 mt-2">
-                            <Link to="#" className="block px-4 py-2 hover:bg-slate-100">Fall 2024</Link>
-                            <Link to="#" className="block px-4 py-2 hover:bg-slate-100">Spring 2025</Link>
-                            <Link to="#" className="block px-4 py-2 hover:bg-slate-100">+ Add New Schedule</Link>
+                            <div className="bg-background border border-border rounded-lg shadow-lg py-1 mt-2">
+                                <Link to="#" className="block px-4 py-2 hover:bg-slate-100">Fall 2024</Link>
+                                <Link to="#" className="block px-4 py-2 hover:bg-slate-100">Spring 2025</Link>
+                                <Link to="#" className="block px-4 py-2 hover:bg-slate-100">+ Add New Schedule</Link>
                             </div>
                         </div>
                     )}
@@ -200,6 +211,16 @@ const Navbar = () => {
                     )}
                 </div>
 
+                {/* Light/dark mode toggle */}
+                <button onClick={toggleTheme} className="flex items-center justify-center cursor-pointer">
+                    {theme === 'light' ? (
+                        <Moon className="h-5 w-5 text-slate-500 hover:text-slate-700" />
+                    ) : (
+                        <Sun className="h-5 w-5 text-slate-500 hover:text-slate-700" />
+                    )}
+                </button>
+
+                {/* Profile */}
                 <Link to="/profile" className="flex items-center">
                     <span className={`hidden md:inline-block mr-2 ${
                         location.pathname === "/profile" && "underline underline-offset-6" }
