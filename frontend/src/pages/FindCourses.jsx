@@ -4,7 +4,7 @@ import CourseCard from "../components/CourseCard";
 import {Input} from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
-import {Check, ChevronDown, ChevronDownIcon, SearchIcon} from "lucide-react";
+import {Check, ChevronDown, ChevronDownIcon, SearchIcon, X} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import {Switch} from "@/components/ui/switch";
@@ -21,12 +21,19 @@ function FindCourses() {
 
     const [message, setMessage] = useState("Loading...");
     const [selectedSemesters, setSelectedSemesters] = useState(['Fall 2025']);
+    const [startTimeFilter, setStartTimeFilter] = useState('');
+    const [endTimeFilter, setEndTimeFilter] = useState('');
 
     const handleSemesterChange = (index, value) => {
         const newSelectedSemesters = [...selectedSemesters];
         newSelectedSemesters[index] = value;
         setSelectedSemesters(newSelectedSemesters);
     };
+
+    const clearTimeFilters = () => {
+        setStartTimeFilter('');
+        setEndTimeFilter('');
+    }
 
     useEffect(() => {
         api
@@ -110,7 +117,7 @@ function FindCourses() {
                             <div className="flex items-center rounded-lg bg-slate-200 shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">CODE</div>
                                 <Input
-                                    className="shadow-none rounded-l-none max-w-36"
+                                    className="h-8 shadow-none rounded-l-none max-w-36"
                                     placeholder='"HUMA 200"'
                                 />
                             </div>
@@ -120,13 +127,13 @@ function FindCourses() {
                                 <div className=" text-slate-500 font-medium text-xs px-2">DAYS</div>
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button variant="outline" className="flex justify-between shadow-none rounded-l-none">
+                                        <Button variant="outline" className="h-8 flex justify-between shadow-none rounded-l-none">
                                             {selected.length > 0 ? (
                                                 options.filter((opt) => selected.includes(opt.value)).map((opt) => opt.label).join(", ")
                                             ) : (
                                                 <span className="text-slate-500 font-normal">Select options</span>
                                             )}
-                                            <ChevronDown className="w-4 h-4 ml-2" />
+                                            <ChevronDown className="w-4 h-4 ml-2 opacity-25" />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[200px] p-0 ">
@@ -149,13 +156,16 @@ function FindCourses() {
                             </div>
 
                             {/* Time */}
-                            <div className="flex items-center rounded-lg bg-slate-200 shadow-xs">
+                            <div className="h-8 flex items-center rounded-lg bg-slate-200 shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">TIME</div>
-                                <Select>
-                                    <SelectTrigger className="shadow-none rounded-none">
+                                <Select
+                                    value={startTimeFilter}
+                                    onValueChange={(value) => setStartTimeFilter(value)}
+                                >
+                                    <SelectTrigger className="max-h-8 shadow-none rounded-none">
                                         <SelectValue placeholder="--:--" />
                                     </SelectTrigger>
-                                    <SelectContent >
+                                    <SelectContent>
                                         <SelectItem value="freshman">Freshman</SelectItem>
                                         <SelectItem value="sophomore">Sophomore</SelectItem>
                                         <SelectItem value="junior">Junior</SelectItem>
@@ -163,8 +173,11 @@ function FindCourses() {
                                     </SelectContent>
                                 </Select>
                                 <div className=" text-slate-500 font-medium text-xs px-2">to</div>
-                                <Select>
-                                    <SelectTrigger className="shadow-none rounded-l-none">
+                                <Select
+                                    value={endTimeFilter}
+                                    onValueChange={(value) => setEndTimeFilter(value)}
+                                >
+                                    <SelectTrigger className={`max-h-8 shadow-none ${startTimeFilter === '' && endTimeFilter === '' ? 'rounded-l-none' : 'rounded-none'}`}>
                                         <SelectValue placeholder="--:--" />
                                     </SelectTrigger>
                                     <SelectContent >
@@ -174,7 +187,11 @@ function FindCourses() {
                                         <SelectItem value="senior">Senior</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                {startTimeFilter !== '' || endTimeFilter !== '' && (
+                                    <div className=" text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
+                                )}
                             </div>
+
 
                         </div>
 

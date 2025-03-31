@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { Search, ChevronDown, User, Menu, X } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Navbar = () => {
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
@@ -109,7 +108,7 @@ const Navbar = () => {
     // };
 
     return (
-        <nav className="sticky bg-background top-0 shadow-md z-50">
+        <nav className="sticky bg-background top-0 shadow z-50">
 
             <div className="w-full flex items-center justify-between max-w-6xl mx-auto md:px-6 py-3 px-4">
 
