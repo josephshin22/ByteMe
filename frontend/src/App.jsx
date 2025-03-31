@@ -10,9 +10,9 @@ import SavedCourses from "./pages/SavedCourses.jsx";
 function App() {
     return (
         <Router>
-            <div className="flex flex-col ">
-                <Navbar />
-                <div className=" p-6 py-10 px-3 sm:px-4 md:px-6 flex flex-col">
+            <div className="flex flex-col bg-slate-50">
+                <Navbar className="z-50"/>
+                <div className=" p-6 py-10 px-3 sm:px-4 md:px-6 flex flex-col w-full max-w-6xl mx-auto">
                     <Routes>
                         <Route path="/" element={<FindCourses />} />
                         <Route path="/profile" element={<Profile />} />

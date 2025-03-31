@@ -9,7 +9,7 @@ export default function CourseCard() {
     return (
         <>
             <div
-                className="flex items-stretch shadow-md w-full bg-background rounded-lg cursor-pointer text-sm outline-0 outline-border hover:outline-1 "
+                className="flex items-stretch shadow w-full bg-background rounded-lg cursor-pointer text-sm outline-0 outline-border hover:outline-1 "
             >
                 {/* Course Code and Section */}
                 <div
@@ -19,17 +19,17 @@ export default function CourseCard() {
                     ACCT 302 A</div>
 
                 {/* Course Details */}
-                <div className="flex-1 p-4 space-y-2" onClick={() => setIsModalOpen(true)}>
+                <div className="flex-1 p-4 space-y-1" onClick={() => setIsModalOpen(true)}>
                     <div className="flex justify-between">
                         <div className="font-medium">INTERMEDIATE ACCOUNTING II</div>
                         <div className="font-medium">MWF 9:00-9:50am</div>
                     </div>
                     <div className="flex justify-between ">
-                        <div className="text-gray-500">Graybill, Keith B.</div>
+                        <div className="text-slate-500">Greybill, Keith B.</div>
                         <div className="flex space-x-3 ">
-                            <div className="text-gray-500">• STEM 376</div>
-                            <div className="text-gray-500">• 5/20 open seats</div>
-                            <div className="text-gray-500">• 3 seats</div>
+                            <div className="text-slate-500">• STEM 376</div>
+                            <div className="text-slate-500">• 5/20 open seats</div>
+                            <div className="text-slate-500">• 3 seats</div>
                         </div>
                     </div>
                 </div>
