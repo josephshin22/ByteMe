@@ -4,16 +4,74 @@ import CourseCard from "../components/CourseCard";
 import {Input} from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
-import {Check, ChevronDown, ChevronDownIcon, SearchIcon, X} from "lucide-react";
+import {
+    Check,
+    ChevronDown,
+    ChevronDownIcon, Rows2, Rows3,
+    SearchIcon,
+    X
+} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import {Switch} from "@/components/ui/switch";
 import {Label} from "@/components/ui/label.jsx";
 import {Separator} from "@/components/ui/separator.jsx";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 import * as React from "react";
+import CourseModal from "@/components/CourseModal.jsx";
 
+const exampleCoursesJson = `[
+  {
+    "name": "Intro to Computer Science",
+    "courseNum": "101",
+    "abbreviation": "COMP",
+    "faculty": "Dr. Smith",
+    "location": "Room 101",
+    "numCredits": 3,
+    "times": "MWF 10:00-11:00 AM",
+    "openSeats": 5,
+    "totalSeats": 30,
+    "section": "A",
+    "semester": "Fall 2025"
+  },
+  {
+    "name": "Calculus I",
+    "courseNum": "201",
+    "abbreviation": "MATH",
+    "faculty": "Dr. Johnson",
+    "location": "Room 202",
+    "numCredits": 4,
+    "times": "TR 9:30-10:45 AM",
+    "openSeats": 2,
+    "totalSeats": 25,
+    "section": "B",
+    "semester": "Fall 2025"
+  },
+  {
+    "name": "Physics I",
+    "courseNum": "101",
+    "abbreviation": "PHYS",
+    "faculty": "Dr. Brown",
+    "location": "Room 303",
+    "numCredits": 4,
+    "times": "MWF 1:00-2:00 PM",
+    "openSeats": 8,
+    "totalSeats": 20,
+    "section": "C",
+    "semester": "Fall 2025"
+  }
+]`;
 
 function FindCourses() {
+
+    const courses = JSON.parse(exampleCoursesJson);
 
     const availableSemesters = [
         'Fall 2025', 'Spring 2026'
@@ -56,11 +114,25 @@ function FindCourses() {
         );
     };
 
+    const [cardView, setCardView] = useState(true);
+
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [courseForModal, setCourseForModal] = useState('');
+
+    function handleTableRowClick(course) {
+        setCourseForModal(course);
+        setIsModalOpen(true);
+    }
 
     return (
         <div>
-            <h1 className="font-semibold text-xl mb-4 ">Find Courses</h1>
+            <div className="flex justify-between">
+                <h1 className="font-semibold text-xl mb-4 ">Find Courses</h1>
+                <Button variant="icon" onClick={() => setCardView(!cardView)}>
+                    {cardView ? <Rows2/> : <Rows3/>}
+                </Button>
+            </div>
 
             {/* Search/Filters Card */}
             <div className="bg-background relative p-4 rounded-lg shadow z-0">
@@ -114,7 +186,7 @@ function FindCourses() {
                         <div className="flex gap-2 mb-4 items-center flex-wrap">
                             <h3 className="font-medium text-xs mr-2 text-slate-500">FILTERS</h3>
                             {/* Course Code */}
-                            <div className="flex items-center rounded-lg bg-slate-200 shadow-xs">
+                            <div className="flex items-center rounded-lg bg-input shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">CODE</div>
                                 <Input
                                     className="h-8 shadow-none rounded-l-none max-w-36"
@@ -123,7 +195,7 @@ function FindCourses() {
                             </div>
 
                             {/* Days */}
-                            <div className="flex items-center rounded-lg bg-slate-200 shadow-xs">
+                            <div className="flex items-center rounded-lg bg-input shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">DAYS</div>
                                 <Popover>
                                     <PopoverTrigger asChild>
@@ -156,7 +228,7 @@ function FindCourses() {
                             </div>
 
                             {/* Time */}
-                            <div className="h-8 flex items-center rounded-lg bg-slate-200 shadow-xs">
+                            <div className="h-8 flex items-center rounded-lg bg-input shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">TIME</div>
                                 <Select
                                     value={startTimeFilter}
@@ -199,15 +271,15 @@ function FindCourses() {
                         <div className="mb-2 mr-6 flex gap-4 flex-wrap ">
                             <div className="flex items-center space-x-2 min-w-fit">
                                 <Switch id="required-switch" />
-                                <Label htmlFor="required-switch">Required for me</Label>
+                                <Label htmlFor="required-switch" className="font-normal">Required for me</Label>
                             </div>
                             <div className="flex items-center space-x-2 min-w-fit">
                                 <Switch id="hide-completed-switch" />
-                                <Label htmlFor="hide-completed">Hide complete classes</Label>
+                                <Label htmlFor="hide-completed" className="font-normal">Hide complete classes</Label>
                             </div>
                             <div className="flex items-center space-x-2 min-w-fit">
                                 <Switch id="hide-full-switch" />
-                                <Label htmlFor="hide-full-switch">Hide full classes</Label>
+                                <Label htmlFor="hide-full-switch" className="font-normal">Hide full classes</Label>
                             </div>
                         </div>
                     </>
@@ -216,7 +288,7 @@ function FindCourses() {
                 )}
 
                 <ChevronDownIcon
-                    className={`absolute bottom-4 right-4 size-4 text-slate-500 cursor-pointer ${!isCollapsed ? 'rotate-180' : ''}`}
+                    className={`absolute bottom-4 right-4 size-4 text-slate-500 cursor-pointer transition-transform duration-300 ease-in-out ${!isCollapsed ? 'rotate-180' : ''}`}
                     onClick={() => setIsCollapsed(!isCollapsed)}
                 />
 
@@ -224,7 +296,50 @@ function FindCourses() {
 
             <Separator className="my-4" />
 
-            <CourseCard/>
+            {cardView ? (
+                // Card view
+                <div className="flex flex-col gap-3">
+                    {courses.map((course, index) => (
+                        <CourseCard key={index} course={course}/>
+                    ))}
+                </div>
+            ):(
+                // Table View
+                <div className="bg-background mt-6 rounded-lg shadow">
+                <Table>
+                <TableHeader>
+                    <TableRow className="hover:bg-background">
+                        <TableHead>Code</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Faculty</TableHead>
+                        <TableHead className="w-[100px]">Seats Open</TableHead>
+                        <TableHead>Credits</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Time</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {courses.map((course, index) => (
+                        <TableRow key={index} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
+                            <TableCell>{course.abbreviation} {course.courseNum} {course.section}</TableCell>
+                            <TableCell>{course.name}</TableCell>
+                            <TableCell>{course.faculty}</TableCell>
+                            <TableCell>{course.openSeats}/{course.totalSeats}</TableCell>
+                            <TableCell>{course.credits}</TableCell>
+                            <TableCell>{course.location}</TableCell>
+                            <TableCell>{course.times}</TableCell>
+                        </TableRow>
+
+                    ))}
+                </TableBody>
+            </Table>
+            </div>
+            )}
+
+
+
+            <CourseModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} course={courseForModal}/>
+
 
             <p className="mt-6">Message from backend: {message}</p>
         </div>

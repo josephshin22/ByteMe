@@ -70,7 +70,7 @@ export default function Profile() {
 
     return (
         <div>
-            <h1 className="text-2xl font-semibold mb-8 hover:text-blue-500">Username's Profile</h1>
+            <h1 className="text-2xl font-semibold mb-8 ">Username's Profile</h1>
 
             <Separator className="my-8" />
 

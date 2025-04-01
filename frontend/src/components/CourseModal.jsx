@@ -2,18 +2,24 @@ import React from "react";
 import {Bookmark, PlusCircle, X} from "lucide-react";
 import {Separator} from "@/components/ui/separator.jsx";
 
-const CourseModal = ({ isOpen, onClose }) => {
+const CourseModal = ({ isOpen, onClose, course }) => {
     if (!isOpen) return null;
 
+    const handleOutsideClick = (e) => {
+        if (e.target.id === "modal-overlay") {
+            onClose();
+        }
+    };
+
     return (
-        <div className="fixed inset-0 p-4 bg-black/50 flex flex-col items-center justify-center">
+        <div id="modal-overlay" className="fixed inset-0 p-4 bg-black/50 flex flex-col items-center justify-center" onClick={handleOutsideClick}>
             <div className="bg-background max-w-4xl max-h-[90vh] mx-4 rounded-lg shadow-lg relative flex flex-col"> {/* Flex column added */}
 
                 <X onClick={onClose} size={20} className="text-slate-500 cursor-pointer absolute top-3 right-3" />
 
                 <div className="p-6 pb-0">
-                    <h2 className="text-sm text-muted-foreground">ACCT 302 A</h2>
-                    <h1 className="text-lg font-semibold mb-2">Intermediate Accounting II</h1>
+                    <h2 className="text-sm text-muted-foreground">{course.abbreviation} {course.courseNum} {course.section}</h2>
+                    <h1 className="text-lg font-semibold mb-2">{course.name}</h1>
                     <Separator />
                 </div>
 
@@ -22,13 +28,13 @@ const CourseModal = ({ isOpen, onClose }) => {
 
                     {/* Course Info */}
                     <div className="mt-2 space-y-2 text-muted-foreground flex flex-wrap space-x-5 max-w-3xl">
-                        <p>&bull; Graybill, Keith B.</p>
-                        <p>&bull; MWF 8:00 AM - 8:50 AM</p>
-                        <p>&bull; GCC Main Campus, Staley Hall of Arts & Letters, 216</p>
-                        <p>&bull; 1/13/2025 - 5/6/2025</p>
-                        <p>&bull; 5/20 open seats</p>
-                        <p>&bull; 3 credits</p>
-                        <p>&bull; 558043</p>
+                        <p>&bull; {course.faculty}</p>
+                        <p>&bull; {course.times}</p>
+                        <p>&bull; {course.location}</p>
+                        <p>&bull; DATE RANGE</p>
+                        <p>&bull; {course.openSeats}/{course.totalSeats} open seats</p>
+                        <p>&bull; {course.credits} credits</p>
+                        <p>&bull; REF NUM</p>
                     </div>
 
                     {/* Course Description */}
