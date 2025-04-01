@@ -6,6 +6,7 @@ import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import MySchedules from "./pages/MySchedules.jsx";
 import SavedCourses from "./pages/SavedCourses.jsx";
+import Schedule from "@/pages/Schedule.jsx";
 
 function App() {
     return (
@@ -16,7 +17,8 @@ function App() {
                     <Routes>
                         <Route path="/" element={<FindCourses />} />
                         <Route path="/profile" element={<Profile />} />
-                        <Route path="/my-schedules" element={<MySchedules />} />
+                        <Route path="/schedules/" element={<MySchedules />} />
+                        <Route path="/schedules/:semester" element={<Schedule />} />
                         <Route path="/saved-courses" element={<SavedCourses />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>

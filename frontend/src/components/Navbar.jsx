@@ -2,6 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, User, Menu, X } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom";
 
+const schedules = ["Spring 2026", "Fall 2025", "Summer 2025", "Winter 2025"];
+
+const sortedSchedules = schedules.sort((a, b) => {
+    const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
+    const [seasonA, yearA] = a.split(' ');
+    const [seasonB, yearB] = b.split(' ');
+    return yearB - yearA || seasons[seasonB] - seasons[seasonA];
+});
+
 const Navbar = () => {
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -131,9 +140,9 @@ const Navbar = () => {
                     <div className="relative" ref={dropdownRef}>
                         <div
                             ref={scheduleButtonRef}
-                            className={`flex items-center space-x-1 ${location.pathname === "/my-schedules" && "underline underline-offset-6" }`}
+                            className={`flex items-center space-x-1 ${location.pathname === "/schedules" && "underline underline-offset-6" }`}
                         >
-                            <Link to="/my-schedules">
+                            <Link to="/schedules">
                                 My Schedules
                             </Link>
                             <ChevronDown className="h-4 w-4 cursor-pointer" />
@@ -144,8 +153,11 @@ const Navbar = () => {
                                 className="absolute top-full left-0  w-48 z-100"
                             >
                                 <div className="bg-background border border-border rounded-lg shadow-lg py-1 mt-2">
-                                    <Link to="#" className="block px-4 py-2 hover:bg-muted">Fall 2024</Link>
-                                    <Link to="#" className="block px-4 py-2 hover:bg-muted">Spring 2025</Link>
+                                    {sortedSchedules.map((semester) => (
+                                        <Link className="block px-4 py-2 hover:bg-muted" to={`/schedules/${semester}`} onClick={()=>{setIsScheduleOpen(false)}}>
+                                            {semester}
+                                        </Link>
+                                    ))}
                                     <Link to="#" className="block px-4 py-2 hover:bg-muted">+ Add New Schedule</Link>
                                 </div>
                             </div>
@@ -166,8 +178,8 @@ const Navbar = () => {
                             <Link to="/" className={`px-5 py-3 hover:bg-slate-100 ${
                                 location.pathname === "/" && "underline underline-offset-6"}` }>Find Courses</Link>
 
-                            <Link to="/my-schedules" className={`flex justify-between px-5 py-3 hover:bg-slate-100 ${
-                                location.pathname === "/my-schedules" && "underline underline-offset-6"}` }>My Schedules
+                            <Link to="/schedules" className={`flex justify-between px-5 py-3 hover:bg-slate-100 ${
+                                location.pathname === "/schedules" && "underline underline-offset-6"}` }>My Schedules
                                 <div
                                     className="cursor-pointer flex items-center justify-between font-medium "
                                     onClick={() => setIsMobileScheduleOpen(!isMobileScheduleOpen)}
