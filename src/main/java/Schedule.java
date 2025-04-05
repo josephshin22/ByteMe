@@ -3,6 +3,7 @@
     public class Schedule {
         private String name;
         private List<Course> courses;
+        private List<Event> events;
         private int scheduleID;
         private int studentID;
         private String semester;
@@ -19,6 +20,7 @@
             this.scheduleID = createScheduleID();
             this.studentID = s.getStudentID();
             this.courses = new ArrayList<Course>();
+            this.events = new ArrayList<Event>();
             this.name = "";
             s.setSchedule(this);
         }
