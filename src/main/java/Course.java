@@ -73,6 +73,9 @@ public class Course {
         this.semester = semester;
     }
 
+    public String loggingInfo() {
+        return "\n\t" + abbreviation + "\n\t" + courseNum + "\n\t" + section + "\n\t" + semester + "\n";
+    }
 
     public int getNumCredits() {
         return numCredits;
@@ -128,7 +131,7 @@ public class Course {
 
     @Override
     public String toString(){
-        return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
+        return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbreviation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
     }
 
     public boolean hasConflict(Course c2) {
