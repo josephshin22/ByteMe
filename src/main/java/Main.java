@@ -95,7 +95,7 @@ public class Main {
             // Check validation based on input type
             switch (inputType) {
                 case "username":
-                    if (input.isEmpty() || input.length() < 3) {
+                    if (input.length() < 3) {
                         System.out.println(errorMsg);
                     } else {
                         valid = true;
