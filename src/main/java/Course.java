@@ -73,6 +73,9 @@ public class Course {
         this.semester = semester;
     }
 
+    public String loggingInfo() {
+        return "\n\t" + abbreviation + "\n\t" + courseNum + "\n\t" + section + "\n\t" + semester + "\n";
+    }
 
     public int getNumCredits() {
         return numCredits;

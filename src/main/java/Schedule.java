@@ -1,3 +1,6 @@
+    import java.io.BufferedWriter;
+    import java.io.FileWriter;
+    import java.io.IOException;
     import java.util.*;
 
     public class Schedule {
@@ -39,21 +42,40 @@
                     }
                 }
                 this.courses.add(c1);
+                scheduleLog();
                 System.out.println("Course " + c1.getName() + " added to the schedule.");
             } else {
                 System.out.println("Course " + c1.getName() + " is not in the same semester as the schedule.");
             }
         }
 
-
         public void removeFromSchedule(Course c1) {
                 if (this.courses != null && this.courses.contains(c1)) {
                     this.courses.remove(c1);
+                    scheduleLog();
                     System.out.println("Course " + c1.getName() + " removed from the schedule.");
                 }
                 else {
                     System.out.println("Course not found in schedule.");
                 }
+        }
+
+        public void scheduleLog(){
+            String fileName = "scheduleLog.txt";
+            StringBuilder courseInfo = new StringBuilder();
+            for (Course c : courses) {
+                courseInfo.append(c.loggingInfo());
+            }
+            String log = "Schedule Name: " + name + "\nCourses: " + courseInfo.toString();
+            try {
+                FileWriter fw = new FileWriter(fileName, true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                bw.write(log);
+                bw.newLine();
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
