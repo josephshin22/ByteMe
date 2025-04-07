@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Bookmark, PlusCircle } from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
+import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 
 export default function CourseCard({ course }) {
 
@@ -16,20 +17,22 @@ export default function CourseCard({ course }) {
                     className="w-20 p-4 text-center font-semibold border-r border-slate-300 flex items-center"
                     onClick={() => setIsModalOpen(true)}
                 >
-                    {course.abbreviation} {course.courseNum} {course.section}</div>
+                    {course.subjCode} {course.number} {course.section}</div>
 
                 {/* Course Details */}
                 <div className="flex-1 p-4 space-y-1" onClick={() => setIsModalOpen(true)}>
                     <div className="flex justify-between">
                         <div className="font-medium">{course.name}</div>
-                        <div className="font-medium">{course.times}</div>
+                        <div className="font-medium">{formatCourseTimes(course.times)}</div>
                     </div>
                     <div className="flex justify-between ">
-                        <div className="text-slate-500">{course.faculty}</div>
-                        <div className="flex space-x-3 ">
-                            <div className="text-slate-500">• {course.location}</div>
-                            <div className="text-slate-500">• {course.openSeats}/{course.totalSeats} open seats</div>
-                            <div className="text-slate-500">• {course.credits} credits</div>
+                        <div className="text-slate-500">{course.faculty.join(", ")}</div>
+                        <div className="flex space-x-2 text-slate-500">
+                            <div>{course.location}</div>
+                            <p>&bull;</p>
+                            <div>{course.openSeats}/{course.totalSeats} seats open</div>
+                            <p>&bull;</p>
+                            <div>{course.credits} credit{course.credits !== 1 && "s"}</div>
                         </div>
                     </div>
                 </div>

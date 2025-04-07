@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import api from "../api.js";
 import CourseCard from "../components/CourseCard";
 import {Input} from "@/components/ui/input";
@@ -7,7 +7,7 @@ import {Button} from "@/components/ui/button";
 import {
     Check,
     ChevronDown,
-    ChevronDownIcon, Rows2, Rows3,
+    ChevronDownIcon, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Rows2, Rows3,
     SearchIcon,
     X
 } from "lucide-react";
@@ -26,61 +26,27 @@ import {
 } from "@/components/ui/table"
 import * as React from "react";
 import CourseModal from "@/components/CourseModal.jsx";
-
-const exampleCoursesJson = `[
-  {
-    "name": "Intro to Computer Science",
-    "courseNum": "101",
-    "abbreviation": "COMP",
-    "faculty": "Dr. Smith",
-    "location": "Room 101",
-    "numCredits": 3,
-    "times": "MWF 10:00-11:00 AM",
-    "openSeats": 5,
-    "totalSeats": 30,
-    "section": "A",
-    "semester": "Fall 2025"
-  },
-  {
-    "name": "Calculus I",
-    "courseNum": "201",
-    "abbreviation": "MATH",
-    "faculty": "Dr. Johnson",
-    "location": "Room 202",
-    "numCredits": 4,
-    "times": "TR 9:30-10:45 AM",
-    "openSeats": 2,
-    "totalSeats": 25,
-    "section": "B",
-    "semester": "Fall 2025"
-  },
-  {
-    "name": "Physics I",
-    "courseNum": "101",
-    "abbreviation": "PHYS",
-    "faculty": "Dr. Brown",
-    "location": "Room 303",
-    "numCredits": 4,
-    "times": "MWF 1:00-2:00 PM",
-    "openSeats": 8,
-    "totalSeats": 20,
-    "section": "C",
-    "semester": "Fall 2025"
-  }
-]`;
+import {
+    Pagination,
+    PaginationContent, PaginationEllipsis,
+    PaginationItem,
+    PaginationLink, PaginationNext,
+    PaginationPrevious
+} from "@/components/ui/pagination.jsx";
+import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 
 function FindCourses() {
-
-    const courses = JSON.parse(exampleCoursesJson);
 
     const availableSemesters = [
         'Fall 2025', 'Spring 2026'
     ];
-
-    const [message, setMessage] = useState("Loading...");
     const [selectedSemesters, setSelectedSemesters] = useState(['Fall 2025']);
     const [startTimeFilter, setStartTimeFilter] = useState('');
     const [endTimeFilter, setEndTimeFilter] = useState('');
+    const [courses, setCourses] = useState([]);
+    const [page, setPage] = useState(1);
+    const [coursesPerPage, setCoursesPerPage] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
 
     const handleSemesterChange = (index, value) => {
         const newSelectedSemesters = [...selectedSemesters];
@@ -93,12 +59,22 @@ function FindCourses() {
         setEndTimeFilter('');
     }
 
+    const coursesRef = useRef(null);
+
     useEffect(() => {
-        api
-            .get("/hello")
-            .then((res) => setMessage(res.data.message))
-            .catch((err) => console.error("Error fetching data:", err));
-    }, []);
+        api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
+            .then((res) => {
+                setCourses(res.data.courses);
+                setTotalPages(res.data.totalPages);
+                if (coursesRef.current) {
+                    const offset = 80;
+                    const topPosition = coursesRef.current.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top: topPosition, behavior: 'smooth' });
+                }
+            })
+            .catch((err) => console.error("Error fetching courses:", err));
+    }, [page]);
+    console.log("Courses:", courses);
 
     const options = [
         { label: "Option 1", value: "option1" },
@@ -126,13 +102,8 @@ function FindCourses() {
     }
 
     return (
-        <div>
-            <div className="flex justify-between">
-                <h1 className="font-semibold text-xl mb-4 ">Find Courses</h1>
-                <Button variant="icon" onClick={() => setCardView(!cardView)}>
-                    {cardView ? <Rows2/> : <Rows3/>}
-                </Button>
-            </div>
+        <div className="relative">
+            <h1 className="font-semibold text-xl mb-4 ">Find Courses</h1>
 
             {/* Search/Filters Card */}
             <div className="bg-background relative p-4 rounded-lg shadow z-0">
@@ -142,7 +113,7 @@ function FindCourses() {
 
                     {/* Search Bar */}
                     <div className="relative w-full">
-                        <Input id="search" placeholder="Search for classes..." className="pl-10" />
+                        <Input id="search" placeholder="Search for classes..." className="pl-10" autoFocus />
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <SearchIcon className="h-5 w-5 text-gray-400" />
                         </span>
@@ -296,52 +267,151 @@ function FindCourses() {
 
             <Separator className="my-4" />
 
-            {cardView ? (
-                // Card view
-                <div className="flex flex-col gap-3">
-                    {courses.map((course, index) => (
-                        <CourseCard key={index} course={course}/>
-                    ))}
-                </div>
-            ):(
-                // Table View
-                <div className="bg-background mt-6 rounded-lg shadow">
-                <Table>
-                <TableHeader>
-                    <TableRow className="hover:bg-background">
-                        <TableHead>Code</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Faculty</TableHead>
-                        <TableHead className="w-[100px]">Seats Open</TableHead>
-                        <TableHead>Credits</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {courses.map((course, index) => (
-                        <TableRow key={index} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
-                            <TableCell>{course.abbreviation} {course.courseNum} {course.section}</TableCell>
-                            <TableCell>{course.name}</TableCell>
-                            <TableCell>{course.faculty}</TableCell>
-                            <TableCell>{course.openSeats}/{course.totalSeats}</TableCell>
-                            <TableCell>{course.credits}</TableCell>
-                            <TableCell>{course.location}</TableCell>
-                            <TableCell>{course.times}</TableCell>
-                        </TableRow>
-
-                    ))}
-                </TableBody>
-            </Table>
+            <div className="flex justify-between">
+                <h2 className="font-medium text-lg text-">Results</h2>
+                <Button variant="ghost" onClick={() => setCardView(!cardView)}>
+                    {cardView ? <>Table <Rows3/></> : <>Cards <Rows2/></>}
+                </Button>
             </div>
-            )}
 
+            <div ref={coursesRef} className="mt-2 mb-8">
+
+                {cardView ? ( // Card view
+                    <>
+                        {courses.length ? (
+                            <div className="flex flex-col gap-3">
+                                {courses.map((course, index) => (
+                                    <CourseCard key={index} course={course}/>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
+                                    Fetching courses...
+                                </div>
+                            </div>
+                        )}
+                    </>
+                ):(
+                    // Table View
+                    <div className="bg-background rounded-lg shadow">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="hover:bg-background">
+                                    <TableHead>Code</TableHead>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Faculty</TableHead>
+                                    <TableHead>Seats</TableHead>
+                                    <TableHead>Credits</TableHead>
+                                    <TableHead>Location</TableHead>
+                                    <TableHead>Time</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {courses.length ? courses.map((course, index) => (
+                                    <TableRow key={index} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
+                                        <TableCell>{course.subjCode} {course.number} {course.section}</TableCell>
+                                        <TableCell>{course.name}</TableCell>
+                                        <TableCell>
+                                            {course.faculty.map((facultyMember, index) => (
+                                                <div key={index}>{facultyMember}</div>
+                                            ))}
+                                        </TableCell>
+                                        <TableCell>{course.openSeats}/{course.totalSeats}</TableCell>
+                                        <TableCell>{course.credits}</TableCell>
+                                        <TableCell>{course.location}</TableCell>
+                                        <TableCell>{formatCourseTimes(course.times)}</TableCell>
+                                    </TableRow>
+
+                                )) : (
+                                    <TableRow >
+                                        <TableCell colSpan={7} className="text-center animate-shine bg-gray-200">Fetching courses...</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+
+            </div>
+
+            {/* Pages navigation menu */}
+            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
+                <Pagination className="bg-background p-1 max-w-fit rounded-lg shadow-md" >
+                <PaginationContent>
+                    {/*<PaginationItem>*/}
+                    {/*    <Button variant="ghost" size="icon" onClick={() => setPage(1)} disabled={page === 1}>*/}
+                    {/*        <ChevronFirst/>*/}
+                    {/*    </Button>*/}
+                    {/*</PaginationItem>*/}
+                    <PaginationItem>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={page === 1}
+                        >
+                            <ChevronLeft/>
+                        </Button>
+                    </PaginationItem>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((num) => {
+                            return (
+                                num === 1 ||
+                                num === totalPages ||
+                                (num >= page - 1 && num <= page + 1)
+                            );
+                        })
+                        .reduce((acc, num, idx, arr) => {
+                            if (idx > 0 && num - arr[idx - 1] > 1) {
+                                acc.push("ellipsis");
+                            }
+                            acc.push(num);
+                            return acc;
+                        }, [])
+                        .map((item, idx) =>
+                            item === "ellipsis" ? (
+                                <PaginationItem key={`ellipsis-${idx}`}>
+                                    <PaginationEllipsis />
+                                </PaginationItem>
+                            ) : (
+                                <PaginationItem key={item}>
+                                    <PaginationLink
+                                        href="#"
+                                        isActive={item === page}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setPage(item);
+                                        }}
+                                    >
+                                        {item}
+                                    </PaginationLink>
+                                </PaginationItem>
+                            )
+                        )}
+
+                    <PaginationItem>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={page === totalPages}
+                        >
+                            <ChevronRight/>
+                        </Button>
+                    </PaginationItem>
+                    {/*<PaginationItem>*/}
+                    {/*    <Button variant="ghost" size="icon" onClick={() => setPage(totalPages)} disabled={page === totalPages}>*/}
+                    {/*        <ChevronLast/>*/}
+                    {/*    </Button>*/}
+                    {/*</PaginationItem>*/}
+                </PaginationContent>
+            </Pagination>
+            </div>
 
 
             <CourseModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} course={courseForModal}/>
-
-
-            <p className="mt-6">Message from backend: {message}</p>
         </div>
     );
 }

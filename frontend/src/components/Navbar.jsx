@@ -117,7 +117,7 @@ const Navbar = () => {
     // };
 
     return (
-        <nav className="sticky bg-background top-0 shadow z-50">
+        <nav className="sticky bg-background top-0 shadow z-10">
 
             <div className="w-full flex items-center justify-between max-w-6xl mx-auto md:px-6 py-3 px-4">
 
@@ -211,7 +211,6 @@ const Navbar = () => {
                                     type="text"
                                     placeholder="Search courses..."
                                     className="pl-10 pr-4 py-1.5 bg-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-300 min-w-full"
-                                    autoFocus
                                 />
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                             </div>
