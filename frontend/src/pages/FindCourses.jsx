@@ -72,6 +72,7 @@ function FindCourses() {
     useEffect(() => {
         api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
             .then((res) => {
+                setCourses(res.data.courses);
                 setFilteredCourses(res.data.courses);
                 // setCourses(res.data.courses);
                 //Initialize favorite courses
@@ -297,7 +298,7 @@ function FindCourses() {
                                 {/*got rid of index so I could give a unique identifier I guess I needed
                                 according to debug output*/}
                                 {filteredCourses.map((course) => (
-                                    <CourseCard key={`${course.subject||"N/A"}-${course.courseNum||"N/A"}-${course.section||"N/A"}-${course.semester || "N/A"}`} course={course}/>
+                                    <CourseCard key={`${course.subject||"N/A"}-${course.number||"N/A"}-${course.section||"N/A"}-${course.semester || "N/A"}`} course={course}/>
                                 ))}
                             </div>
                         ) : (
@@ -327,8 +328,8 @@ function FindCourses() {
                                 //courses.map previously
                                 {/*got rid of index so I could give a unique identifier I guess I needed*/}
                                 {courses.length ? filteredCourses.map((course) => (
-                                    <TableRow key={`${course.subject||"N/A"}-${course.courseNum||"N/A"}-${course.section||"N/A"}-${course.semester || "N/A"}`} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
-                                        <TableCell>{course.subject} {course.courseNum} {course.section}</TableCell>
+                                    <TableRow key={`${course.subject||"N/A"}-${course.number||"N/A"}-${course.section||"N/A"}-${course.semester || "N/A"}`} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
+                                        <TableCell>{course.subject} {course.number} {course.section}</TableCell>
                                         <TableCell>{course.name}</TableCell>
                                         <TableCell>
                                             {course.faculty.map((facultyMember, index) => (
