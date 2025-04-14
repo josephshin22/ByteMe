@@ -72,6 +72,7 @@ public class Main {
 
             ctx.json(response);
         });
+        //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
 
 
         app.start(7000);

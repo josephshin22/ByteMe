@@ -47,11 +47,19 @@ function FindCourses() {
     const [page, setPage] = useState(1);
     const [coursesPerPage, setCoursesPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
-
+    const [searchInput, setSearchInput] = useState('');
+    const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
     const handleSemesterChange = (index, value) => {
         const newSelectedSemesters = [...selectedSemesters];
         newSelectedSemesters[index] = value;
         setSelectedSemesters(newSelectedSemesters);
+    };
+    const handleSearch = () => {
+        const searchTerm = searchInput.toLowerCase();
+        const filtered = courses.filter((course) =>
+            course.name.toLowerCase().includes(searchTerm)
+        );
+        setFilteredCourses(filtered);
     };
 
     const clearTimeFilters = () => {
@@ -64,7 +72,9 @@ function FindCourses() {
     useEffect(() => {
         api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
             .then((res) => {
-                setCourses(res.data.courses);
+                setFilteredCourses(res.data.courses);
+                // setCourses(res.data.courses);
+                //Initialize favorite courses
                 setTotalPages(res.data.totalPages);
                 if (coursesRef.current) {
                     const offset = 80;
@@ -113,7 +123,8 @@ function FindCourses() {
 
                     {/* Search Bar */}
                     <div className="relative w-full">
-                        <Input id="search" placeholder="Search for classes..." className="pl-10" autoFocus />
+                        <Input id="search" placeholder="Search for classes..." className="pl-10" autoFocus
+                        value={searchInput} onChange={(e)=> setSearchInput(e.target.value)}/>
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <SearchIcon className="h-5 w-5 text-gray-400" />
                         </span>
@@ -147,7 +158,8 @@ function FindCourses() {
                         ))}
 
                         {/* Search Button - get rid of this if we can do live search results*/}
-                        <Button className="px-6">Search</Button>
+                        {/*uses handleSearch function*/}
+                        <Button className="px-6"onClick={handleSearch}>Search</Button>
                     </div>
                 </div>
 
@@ -278,10 +290,14 @@ function FindCourses() {
 
                 {cardView ? ( // Card view
                     <>
-                        {courses.length ? (
+                        {/*courses.length previously*/}
+                        {filteredCourses.length ? (
                             <div className="flex flex-col gap-3">
-                                {courses.map((course, index) => (
-                                    <CourseCard key={index} course={course}/>
+                                {/*previously courses.map*/}
+                                {/*got rid of index so I could give a unique identifier I guess I needed
+                                according to debug output*/}
+                                {filteredCourses.map((course) => (
+                                    <CourseCard key={`${course.subjCode}-${course.courseNum}-${course.section}-${course.semester}`} course={course}/>
                                 ))}
                             </div>
                         ) : (
@@ -308,8 +324,10 @@ function FindCourses() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {courses.length ? courses.map((course, index) => (
-                                    <TableRow key={index} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
+                                //courses.map previously
+                                {/*got rid of index so I could give a unique identifier I guess I needed*/}
+                                {courses.length ? filteredCourses.map((course) => (
+                                    <TableRow key={`${course.subjCode}-${course.courseNum}-${course.section}-${course.semester}`} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
                                         <TableCell>{course.subjCode} {course.number} {course.section}</TableCell>
                                         <TableCell>{course.name}</TableCell>
                                         <TableCell>
