@@ -2,11 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, User, Menu, X } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom";
 
+const schedules = ["Spring 2026", "Fall 2025", "Summer 2025", "Winter 2025"];
+
+const sortedSchedules = schedules.sort((a, b) => {
+    const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
+    const [seasonA, yearA] = a.split(' ');
+    const [seasonB, yearB] = b.split(' ');
+    return yearB - yearA || seasons[seasonB] - seasons[seasonA];
+});
+
 const Navbar = () => {
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = useState(window.innerWidth >= 880);
     const [isMobileScheduleOpen, setIsMobileScheduleOpen] = useState(false);
+    // const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
     const dropdownRef = useRef(null);
     const searchInputRef = useRef(null);
     const mobileMenuRef = useRef(null);
@@ -97,117 +107,146 @@ const Navbar = () => {
         };
     }, [isScheduleOpen]);
 
+    // useEffect(() => {
+    //     document.documentElement.classList.toggle('dark', theme === 'dark');
+    //     localStorage.setItem('theme', theme);
+    // }, [theme]);
+
+    // const toggleTheme = () => {
+    //     setTheme(theme === 'light' ? 'dark' : 'light');
+    // };
+
     return (
-        <nav className="sticky top-0 w-full flex items-center justify-between px-4 md:px-6 py-4 bg-white border-b border-slate-200">
-            <button
-                className="hamburger-btn md:hidden flex items-center justify-center"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-                {isMobileMenuOpen ? (
-                    <X className="cursor-pointer h-6 w-6 text-slate-700" />
-                ) : (
-                    <Menu className="cursor-pointer h-6 w-6 text-slate-700" />
-                )}
-            </button>
+        <nav className="sticky bg-background top-0 shadow z-10">
 
-            <div className="hidden md:flex items-center space-x-5 pr-6 text-sm">
-                <Link to="/" className={`${
-                    location.pathname === "/" && "underline underline-offset-6" }`}>
-                    Find Courses
-                </Link>
-                <div className="relative" ref={dropdownRef}>
-                    <div
-                        ref={scheduleButtonRef}
-                        className={`flex items-center space-x-1 ${location.pathname === "/my-schedules" && "underline underline-offset-6" }`}
-                    >
-                        <Link to="/my-schedules">
-                            My Schedules
-                        </Link>
-                        <ChevronDown className="h-4 w-4 cursor-pointer" />
-                    </div>
-                    {isScheduleOpen && (
-                        <div
-                            ref={scheduleMenuRef}
-                            className="absolute top-full left-0  w-48 z-10"
-                        >
-                            <div className="bg-white border border-slate-200 rounded shadow-lg py-1 mt-2">
-                            <Link to="#" className="block px-4 py-2 hover:bg-slate-100">Fall 2024</Link>
-                            <Link to="#" className="block px-4 py-2 hover:bg-slate-100">Spring 2025</Link>
-                            <Link to="#" className="block px-4 py-2 hover:bg-slate-100">+ Add New Schedule</Link>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <Link to="saved-courses" className={`hidden md:inline-block mr-2 ${
-                    location.pathname === "/saved-courses" && "underline underline-offset-6" }
-                        `}
-                >Saved Courses</Link>
-            </div>
+            <div className="w-full flex items-center justify-between max-w-6xl mx-auto md:px-6 py-3 px-4">
 
-            {isMobileMenuOpen && (
-                <div
-                    ref={mobileMenuRef}
-                    className=" fixed top-16 left-0 h-screen w-64 bg-white border-r border-slate-200 shadow-lg z-20 transform transition-transform duration-300 ease-in-out"
+                <button
+                    className="hamburger-btn md:hidden flex items-center justify-center"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
-                    <div className=" flex flex-col py-4">
-                        <Link to="/" className={`px-5 py-3 hover:bg-slate-100 ${
-                            location.pathname === "/" && "underline underline-offset-6"}` }>Find Courses</Link>
+                    {isMobileMenuOpen ? (
+                        <X className="cursor-pointer h-6 w-6 text-slate-700" />
+                    ) : (
+                        <Menu className="cursor-pointer h-6 w-6 text-slate-700" />
+                    )}
+                </button>
 
-                        <Link to="/my-schedules" className={`flex justify-between px-5 py-3 hover:bg-slate-100 ${
-                            location.pathname === "/my-schedules" && "underline underline-offset-6"}` }>My Schedules
+                <div className="hidden md:flex items-center space-x-5 pr-6 text-sm">
+                    <Link to="/" className={`${
+                        location.pathname === "/" && "underline underline-offset-6" }`}>
+                        Find Courses
+                    </Link>
+                    <div className="relative" ref={dropdownRef}>
+                        <div
+                            ref={scheduleButtonRef}
+                            className={`flex items-center space-x-1 ${location.pathname === "/schedules" && "underline underline-offset-6" }`}
+                        >
+                            <Link to="/schedules">
+                                My Schedules
+                            </Link>
+                            <ChevronDown className="h-4 w-4 cursor-pointer" />
+                        </div>
+                        {isScheduleOpen && (
                             <div
-                                className="cursor-pointer flex items-center justify-between font-medium "
-                                onClick={() => setIsMobileScheduleOpen(!isMobileScheduleOpen)}
+                                ref={scheduleMenuRef}
+                                className="absolute top-full left-0  w-48 z-100"
                             >
-                                <ChevronDown strokeWidth={2} className={` h-5 w-5 transition-transform ${isMobileScheduleOpen ? 'rotate-180' : ''}`} />
-                            </div>
-                        </Link>
-
-
-                        {isMobileScheduleOpen && (
-                            <div className="my-2 ml-8 flex flex-col space-y-2 text-sm">
-                                <Link to="#" className="hover:text-slate-500">Fall 2024</Link>
-                                <Link to="#" className="hover:text-slate-500">Spring 2025</Link>
-                                <Link to="#" className="hover:text-slate-500">+ Add New Schedule</Link>
+                                <div className="bg-background border border-border rounded-lg shadow-lg py-1 mt-2">
+                                    {sortedSchedules.map((semester) => (
+                                        <Link className="block px-4 py-2 hover:bg-muted" to={`/schedules/${semester}`} onClick={()=>{setIsScheduleOpen(false)}}>
+                                            {semester}
+                                        </Link>
+                                    ))}
+                                    <Link to="#" className="block px-4 py-2 hover:bg-muted">+ Add New Schedule</Link>
+                                </div>
                             </div>
                         )}
-
-                        <Link to="/saved-courses" className={`px-5 py-3 hover:bg-slate-100 ${
-                            location.pathname === "/saved-courses" && "underline underline-offset-6"}`}>Saved Courses</Link>
                     </div>
+                    <Link to="saved-courses" className={`hidden md:inline-block mr-4 ${
+                        location.pathname === "/saved-courses" && "underline underline-offset-6" }
+                            `}
+                    >Saved Courses</Link>
+                    <Link to="chatbot" className={`hidden md:inline-block mr-2 ${
+                        location.pathname === "/chatbot" && "underline underline-offset-6" }
+                            `}
+                    >Chatbot</Link>
                 </div>
-            )}
 
-            <div className="flex items-center space-x-5 text-sm">
-                <div className="relative">
-                    {isSearchExpanded ? (
-                        <div ref={searchInputRef} className="flex items-center">
-                            <input
-                                type="text"
-                                placeholder="Search courses..."
-                                className="pl-10 pr-4 py-1.5 bg-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-300 min-w-full"
-                                autoFocus
-                            />
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                {isMobileMenuOpen && (
+                    <div
+                        ref={mobileMenuRef}
+                        className=" fixed top-16 left-0 h-screen w-64 bg-white border-r border-slate-200 shadow-lg z-20 transform transition-transform duration-300 ease-in-out"
+                    >
+                        <div className=" flex flex-col py-4">
+                            <Link to="/" className={`px-5 py-3 hover:bg-slate-100 ${
+                                location.pathname === "/" && "underline underline-offset-6"}` }>Find Courses</Link>
+
+                            <Link to="/schedules" className={`flex justify-between px-5 py-3 hover:bg-slate-100 ${
+                                location.pathname === "/schedules" && "underline underline-offset-6"}` }>My Schedules
+                                <div
+                                    className="cursor-pointer flex items-center justify-between font-medium "
+                                    onClick={() => setIsMobileScheduleOpen(!isMobileScheduleOpen)}
+                                >
+                                    <ChevronDown strokeWidth={2} className={` h-5 w-5 transition-transform ${isMobileScheduleOpen ? 'rotate-180' : ''}`} />
+                                </div>
+                            </Link>
+
+
+                            {isMobileScheduleOpen && (
+                                <div className="my-2 ml-8 flex flex-col space-y-2 text-sm">
+                                    <Link to="#" className="hover:text-slate-500">Fall 2024</Link>
+                                    <Link to="#" className="hover:text-slate-500">Spring 2025</Link>
+                                    <Link to="#" className="hover:text-slate-500">+ Add New Schedule</Link>
+                                </div>
+                            )}
+
+                            <Link to="/saved-courses" className={`px-5 py-3 hover:bg-slate-100 ${
+                                location.pathname === "/saved-courses" && "underline underline-offset-6"}`}>Saved Courses</Link>
                         </div>
-                    ) : (
-                        <button
-                            onClick={() => setIsSearchExpanded(true)}
-                            className="flex items-center justify-center cursor-pointer"
-                        >
-                            <Search className="h-5 w-5 text-slate-500 hover:text-slate-700" />
-                        </button>
-                    )}
-                </div>
-
-                <Link to="/profile" className="flex items-center">
-                    <span className={`hidden md:inline-block mr-2 ${
-                        location.pathname === "/profile" && "underline underline-offset-6" }
-                        `}>Username</span>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200">
-                        <User className="h-5 w-5 text-slate-500 hover:text-slate-700" />
                     </div>
-                </Link>
+                )}
+
+                <div className="flex items-center space-x-5 text-sm">
+                    <div className="relative">
+                        {isSearchExpanded ? (
+                            <div ref={searchInputRef} className="flex items-center">
+                                <input
+                                    type="text"
+                                    placeholder="Search courses..."
+                                    className="pl-10 pr-4 py-1.5 bg-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-300 min-w-full"
+                                />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setIsSearchExpanded(true)}
+                                className="flex items-center justify-center cursor-pointer"
+                            >
+                                <Search className="h-5 w-5 text-slate-500 hover:text-slate-700" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Light/dark mode toggle */}
+                    {/*<button onClick={toggleTheme} className="flex items-center justify-center cursor-pointer">*/}
+                    {/*    {theme === 'light' ? (*/}
+                    {/*        <Moon className="h-5 w-5 text-slate-500 hover:text-slate-700" />*/}
+                    {/*    ) : (*/}
+                    {/*        <Sun className="h-5 w-5 text-slate-500 hover:text-slate-700" />*/}
+                    {/*    )}*/}
+                    {/*</button>*/}
+
+                    {/* Profile */}
+                    <Link to="/profile" className="flex items-center">
+                        <span className={`hidden md:inline-block mr-2 ${
+                            location.pathname === "/profile" && "underline underline-offset-6" }
+                            `}>Username</span>
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200">
+                            <User className="h-5 w-5 text-slate-500 hover:text-slate-700" />
+                        </div>
+                    </Link>
+                </div>
             </div>
         </nav>
     );

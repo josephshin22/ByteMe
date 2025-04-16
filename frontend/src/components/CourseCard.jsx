@@ -1,35 +1,38 @@
 import React, { useState } from "react";
 import { Bookmark, PlusCircle } from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
+import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 
-export default function CourseCard() {
+export default function CourseCard({ course }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
-        <>
+        <div className="group">
             <div
-                className="flex items-stretch shadow-md w-full bg-white rounded-lg cursor-pointer text-sm outline-0 outline-slate-300 hover:outline-1 outline-offset-[-1px]"
+                className="flex items-stretch shadow w-full bg-background rounded-lg cursor-pointer text-sm outline-0 outline-border transition-all duration-100 group-hover:outline-1 group-hover:shadow-lg group-hover:-translate-y-0.5"
             >
                 {/* Course Code and Section */}
                 <div
                     className="w-20 p-4 text-center font-semibold border-r border-slate-300 flex items-center"
                     onClick={() => setIsModalOpen(true)}
                 >
-                    ACCT 302 A</div>
+                    {course.subjCode} {course.number} {course.section}</div>
 
                 {/* Course Details */}
-                <div className="flex-1 p-4 space-y-2" onClick={() => setIsModalOpen(true)}>
+                <div className="flex-1 p-4 space-y-1" onClick={() => setIsModalOpen(true)}>
                     <div className="flex justify-between">
-                        <div className="font-medium">INTERMEDIATE ACCOUNTING II</div>
-                        <div className="font-medium">MWF 9:00-9:50am</div>
+                        <div className="font-medium">{course.name}</div>
+                        <div className="font-medium">{formatCourseTimes(course.times)}</div>
                     </div>
                     <div className="flex justify-between ">
-                        <div className="text-gray-500">Graybill, Keith B.</div>
-                        <div className="flex space-x-3 ">
-                            <div className="text-gray-500">• STEM 376</div>
-                            <div className="text-gray-500">• 5/20 open seats</div>
-                            <div className="text-gray-500">• 3 seats</div>
+                        <div className="text-slate-500">{course.faculty.join(", ")}</div>
+                        <div className="flex space-x-2 text-slate-500">
+                            <div>{course.location}</div>
+                            <p>&bull;</p>
+                            <div>{course.openSeats}/{course.totalSeats} seats open</div>
+                            <p>&bull;</p>
+                            <div>{course.credits} credit{course.credits !== 1 && "s"}</div>
                         </div>
                     </div>
                 </div>
@@ -47,7 +50,7 @@ export default function CourseCard() {
                 </div>
             </div>
 
-            <CourseModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} />
-        </>
+            <CourseModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} course={course}/>
+        </div>
     );
 }

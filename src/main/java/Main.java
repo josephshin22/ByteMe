@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -56,6 +54,25 @@ public class Main {
 
         // Define a test API endpoint
         app.get("/api/hello", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
+
+//        app.get("/api/courses", ctx -> ctx.json(courses));
+        app.get("/api/courses", ctx -> {
+            int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
+            int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(30);
+
+            int start = (page - 1) * limit;
+            int end = Math.min(start + limit, courses.size());
+
+            List<Course> paginatedCourses = courses.subList(start, end);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("courses", paginatedCourses);
+            response.put("totalCourses", courses.size());
+            response.put("totalPages", (int) Math.ceil((double) courses.size() / limit));
+
+            ctx.json(response);
+        });
+
 
         app.start(7000);
         //--------------------------------------------------------------------------------------
