@@ -7,6 +7,22 @@ export default function CourseCard({ course }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const handleSave = (course) => {
+        const saved = JSON.parse(localStorage.getItem("savedCourses")) || [];
+
+        const isAlreadySaved = saved.some(
+            (c) => c.subjCode === course.subjCode && c.number === course.number && c.section === course.section
+        );
+
+        if (!isAlreadySaved) {
+            saved.push(course);
+            localStorage.setItem("savedCourses", JSON.stringify(saved));
+            console.log("Course saved:", course);
+        } else {
+            console.log("Course already saved");
+        }
+    };
+
     return (
         <div className="group">
             <div
@@ -39,7 +55,9 @@ export default function CourseCard({ course }) {
 
                 {/* Buttons */}
                 <div className="flex items-center">
-                    <div className="cursor-pointer flex-col space-y-0.5 bg-blue-100 hover:bg-blue-200 text-blue-800 flex items-center justify-center px-4 h-full w-20 font-medium">
+                    <div className="cursor-pointer flex-col space-y-0.5 bg-blue-100 hover:bg-blue-200 text-blue-800 flex items-center justify-center px-4 h-full w-20 font-medium"
+                         onClick={() => handleSave(course)}
+                    >
                         <Bookmark  className="h-5 w-5 mt-0.5" />
                         <p>Save</p>
                     </div>
