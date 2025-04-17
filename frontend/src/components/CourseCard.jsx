@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Bookmark, PlusCircle } from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
-
 export default function CourseCard({ course }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);

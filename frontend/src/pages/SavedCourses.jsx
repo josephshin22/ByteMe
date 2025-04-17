@@ -2,7 +2,6 @@ import {useEffect, useState} from "react";
 import CourseCard from "../components/CourseCard";
 import * as React from "react";
 
-
 function SavedCourses() {
 
     const [courses, setCourses] = useState([]);
