@@ -1,6 +1,5 @@
 import {useEffect, useState} from "react";
 import CourseCard from "../components/CourseCard";
-import {Button} from "@/components/ui/button";
 import * as React from "react";
 
 
