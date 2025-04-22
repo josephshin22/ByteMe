@@ -55,11 +55,23 @@ function FindCourses() {
         setSelectedSemesters(newSelectedSemesters);
     };
     const handleSearch = () => {
-        const searchTerm = searchInput.toLowerCase();
-        const filtered = courses.filter((course) =>
-            course.name.toLowerCase().includes(searchTerm)
-        );
-        setFilteredCourses(filtered);
+        // Make an API call to the backend search endpoint
+        fetch(`/api/search-courses?searchTerm=${searchInput}&page=${page}&limit=${coursesPerPage}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch search results");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Update state with the filtered and paginated results
+                setFilteredCourses(data.courses);
+                setTotalPages(data.totalPages);
+                setPage(1); // Reset to the first page
+            })
+            .catch((error) => {
+                console.error("Error fetching search results:", error);
+            });
     };
 
     const clearTimeFilters = () => {
@@ -124,7 +136,7 @@ function FindCourses() {
 
                     {/* Search Bar */}
                     <div className="relative w-full">
-                        <Input id="search" placeholder="Search for classes..." className="pl-10" autoFocus
+                        <Input id="search" placeholder="Search for stuff..." className="pl-10" autoFocus
                         value={searchInput} onChange={(e)=> setSearchInput(e.target.value)}/>
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <SearchIcon className="h-5 w-5 text-gray-400" />
@@ -292,20 +304,23 @@ function FindCourses() {
                 {cardView ? ( // Card view
                     <>
                         {/*courses.length previously*/}
-                        {filteredCourses.length ? (
+                        {filteredCourses.length > 0 ? (
                             <div className="flex flex-col gap-3">
-                                {/*previously courses.map*/}
-                                {/*got rid of index so I could give a unique identifier I guess I needed
-                                according to debug output*/}
                                 {filteredCourses.map((course) => (
-                                    <CourseCard key={`${course.subject||"N/A"}-${course.number||"N/A"}-${course.section||"N/A"}-${course.semester || "N/A"}`} course={course}/>
+                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
                                 ))}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-3">
-                                <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
-                                    Fetching courses...
-                                </div>
+                                {courses.length > 0 ? (
+                                    courses.map((course) => (
+                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
+                                    ))
+                                ) : (
+                                    <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
+                                        Fetching courses...
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>

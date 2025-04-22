@@ -73,7 +73,30 @@ public class Main {
             ctx.json(response);
         });
         //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
+        app.get("/api/search-courses", ctx -> {
+            String searchTerm = ctx.queryParamAsClass("searchTerm", String.class).getOrDefault("").toLowerCase();
+            int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
+            int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
 
+            // Filter courses based on the search term
+            List<Course> filteredCourses = courses.stream()
+                .filter(course -> course.getName().toLowerCase().contains(searchTerm) ||
+                                  course.getSubjCode().toLowerCase().contains(searchTerm))
+                .toList();
+
+            // Paginate the filtered results
+            int start = (page - 1) * limit;
+            int end = Math.min(start + limit, filteredCourses.size());
+            List<Course> paginatedCourses = filteredCourses.subList(start, end);
+
+            // Prepare the response
+            Map<String, Object> response = new HashMap<>();
+            response.put("courses", paginatedCourses);
+            response.put("totalCourses", filteredCourses.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredCourses.size() / limit));
+
+            ctx.json(response);
+        });
 
         app.start(7000);
         //--------------------------------------------------------------------------------------
