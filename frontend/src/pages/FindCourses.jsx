@@ -314,8 +314,7 @@ function FindCourses() {
                             <div className="flex items-center space-x-2 min-w-fit">
                                 <Switch
                                     id="hide-full-switch"
-                                    checked={hideFullCourses}
-                                    onCheckedChange={(checked) => setHideFullCourses(!checked)}
+                                    onCheckedChange={() => setHideFullCourses(!hideFullCourses)}
                                 />
                                 <Label htmlFor="hide-full-switch" className="font-normal">Hide full classes</Label>
                             </div>
