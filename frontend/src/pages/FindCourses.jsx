@@ -55,6 +55,15 @@ function FindCourses() {
         setPage(1);
         console.log("Selected semester:", value);
     };
+    const [searchInput, setSearchInput] = useState('');
+    const [code, setCode] = useState('');
+    const [day1, setDay1] = useState('');
+    const [day2, setDay2] = useState('');
+    const [day3, setDay3] = useState('');
+    const [day4, setDay4] = useState('');
+    const [day5, setDay5] = useState('');
+    const [hideFullCourses, setHideFullCourses] = useState(false); // State to control showing full courses
+    const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
 
     const clearTimeFilters = () => {
         setStartTimeFilter('');
@@ -64,9 +73,14 @@ function FindCourses() {
     const coursesRef = useRef(null);
 
     useEffect(() => {
-        api.get(`/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`)
+        const endpoint = searchInput
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
+            : `/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`;
+
+        api.get(endpoint)
             .then((res) => {
                 setCourses(res.data.courses);
+                setFilteredCourses(res.data.courses);
                 setTotalPages(res.data.totalPages);
                 if (coursesRef.current && !doNotSrcoll) {
                     const offset = 80;
@@ -76,21 +90,50 @@ function FindCourses() {
                 setDoNotSrcoll(false);
             })
             .catch((err) => console.error("Error fetching courses:", err));
-    }, [page, selectedSemester]);
+    }, [searchInput, page, selectedSemester]);
     console.log("Courses:", courses);
 
     const options = [
-        { label: "Option 1", value: "option1" },
-        { label: "Option 2", value: "option2" },
-        { label: "Option 3", value: "option3" },
+        {label: "Monday", value: "M"},
+        { label: "Tuesday", value: "T" },
+        { label: "Wednesday", value: "W" },
+        { label: "Thursday", value: "R" },
+        {label: "Friday", value: "F"},
     ];
 
     const [selected, setSelected] = useState([]);
 
     const toggleSelection = (value) => {
-        setSelected((prev) =>
-            prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-        );
+        // setSelected((prev) =>
+        //     prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+        // );
+        setSelected((prev) => {
+            if (prev.includes(value)) {
+                // Deselect the value
+                const updated = prev.filter((v) => v !== value);
+
+                // Reset the corresponding day state
+                if (day1 === value) setDay1('');
+                else if (day2 === value) setDay2('');
+                else if (day3 === value) setDay3('');
+                else if (day4 === value) setDay4('');
+                else if (day5 === value) setDay5('');
+
+                return updated;
+            } else {
+                // Select the value
+                const updated = [...prev, value];
+
+                // Set the first empty day state
+                if (!day1) setDay1(value);
+                else if (!day2) setDay2(value);
+                else if (!day3) setDay3(value);
+                else if (!day4) setDay4(value);
+                else if (!day5) setDay5(value);
+
+                return updated;
+            }
+        });
     };
 
     const [cardView, setCardView] = useState(true);
@@ -98,6 +141,17 @@ function FindCourses() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [courseForModal, setCourseForModal] = useState('');
+
+    const handleTimeChange = (value, setTime) => {
+        // Allow typing any value
+        setTime(value);
+        console.log("Updated state:", value);
+        // Validate the input when it's complete
+        // const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Matches "HH:mm" format
+        // if (!timeRegex.test(value) && value.length === 5) {
+        //     console.error("Invalid time format. Please use HH:mm.");
+        // }
+    };
 
     function handleTableRowClick(course) {
         setCourseForModal(course);
@@ -116,7 +170,10 @@ function FindCourses() {
 
                     {/* Search Bar */}
                     <div className="relative w-full">
-                        <Input id="search" placeholder="Search for classes..." className="pl-10" autoFocus />
+                        <Input id="search" placeholder="Search for courses..." className="pl-10" autoFocus
+                               value={searchInput} onChange={(e)=> {setSearchInput(e.target.value);
+                            console.log("Search Input:", e.target.value);}} //log current value
+                        />
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <SearchIcon className="h-5 w-5 text-gray-400" />
                         </span>
@@ -144,7 +201,9 @@ function FindCourses() {
                         </Select>
 
                         {/* Search Button - get rid of this if we can do live search results*/}
-                        <Button className="px-6">Search</Button>
+                        <Button className="px-6" onClick={() => setSearchInput(searchInput.trim())}>
+                            Search
+                        </Button>
                     </div>
                 </div>
 
@@ -159,6 +218,8 @@ function FindCourses() {
                                 <Input
                                     className="h-8 shadow-none rounded-l-none max-w-36"
                                     placeholder='"HUMA 200"'
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
                                 />
                             </div>
 
@@ -198,35 +259,19 @@ function FindCourses() {
                             {/* Time */}
                             <div className="h-8 flex items-center rounded-lg bg-input shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">TIME</div>
-                                <Select
+                                <Input
+                                    className="h-8 shadow-none rounded-none max-w-28"
+                                    placeholder="ex: '08:00'"
                                     value={startTimeFilter}
-                                    onValueChange={(value) => setStartTimeFilter(value)}
-                                >
-                                    <SelectTrigger className="max-h-8 shadow-none rounded-none">
-                                        <SelectValue placeholder="--:--" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="freshman">Freshman</SelectItem>
-                                        <SelectItem value="sophomore">Sophomore</SelectItem>
-                                        <SelectItem value="junior">Junior</SelectItem>
-                                        <SelectItem value="senior">Senior</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    onChange={(e) => handleTimeChange(e.target.value, setStartTimeFilter)}
+                                />
                                 <div className=" text-slate-500 font-medium text-xs px-2">to</div>
-                                <Select
+                                <Input
+                                    className="h-8 shadow-none rounded-none rounded-r-lg max-w-28"
+                                    placeholder="ex: '16:00'"
                                     value={endTimeFilter}
-                                    onValueChange={(value) => setEndTimeFilter(value)}
-                                >
-                                    <SelectTrigger className={`max-h-8 shadow-none ${startTimeFilter === '' && endTimeFilter === '' ? 'rounded-l-none' : 'rounded-none'}`}>
-                                        <SelectValue placeholder="--:--" />
-                                    </SelectTrigger>
-                                    <SelectContent >
-                                        <SelectItem value="freshman">Freshman</SelectItem>
-                                        <SelectItem value="sophomore">Sophomore</SelectItem>
-                                        <SelectItem value="junior">Junior</SelectItem>
-                                        <SelectItem value="senior">Senior</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    onChange={(e) => handleTimeChange(e.target.value, setEndTimeFilter)}
+                                />
                                 {startTimeFilter !== '' || endTimeFilter !== '' && (
                                     <div className=" text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
                                 )}
@@ -246,7 +291,10 @@ function FindCourses() {
                                 <Label htmlFor="hide-completed" className="font-normal">Hide complete classes</Label>
                             </div>
                             <div className="flex items-center space-x-2 min-w-fit">
-                                <Switch id="hide-full-switch" />
+                                <Switch
+                                    id="hide-full-switch"
+                                    onCheckedChange={() => setHideFullCourses(!hideFullCourses)}
+                                />
                                 <Label htmlFor="hide-full-switch" className="font-normal">Hide full classes</Label>
                             </div>
                         </div>
@@ -275,17 +323,30 @@ function FindCourses() {
 
                 {cardView ? ( // Card view
                     <>
-                        {courses.length ? (
+                        {/*{courses.length ? (*/}
+                        {filteredCourses.length > 0 ? (
                             <div className="flex flex-col gap-3">
-                                {courses.map((course, index) => (
-                                    <CourseCard key={index} course={course}/>
+                                {/*{courses.map((course, index) => (*/}
+                                {/*    <CourseCard key={index} course={course}/>*/}
+                                {filteredCourses.map((course) => (
+                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
                                 ))}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-3">
-                                <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
-                                    Fetching courses...
-                                </div>
+                                {/*<div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">*/}
+                                {/*    Fetching courses...*/}
+                                {/*</div>*/}
+
+                                {courses.length > 0 ? (
+                                    courses.map((course) => (
+                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
+                                    ))
+                                ) : (
+                                    <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
+                                        Fetching courses...
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>
@@ -305,9 +366,12 @@ function FindCourses() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {courses.length ? courses.map((course, index) => (
-                                    <TableRow key={index} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
-                                        <TableCell>{course.subjCode} {course.number} {course.section}</TableCell>
+                                {/*{courses.length ? courses.map((course, index) => (*/}
+                                {/*    <TableRow key={index} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>*/}
+                                {/*        <TableCell>{course.subjCode} {course.number} {course.section}</TableCell>*/}
+                                {courses.length ? filteredCourses.map((course) => (
+                                    <TableRow key={`${course.subject||"N/A"}-${course.number||"N/A"}-${course.section||"N/A"}-${course.semester || "N/A"}`} className="cursor-pointer hover:shadow-sm" onClick={() => handleTableRowClick(course) }>
+                                        <TableCell>{course.subject} {course.number} {course.section}</TableCell>
                                         <TableCell>{course.name}</TableCell>
                                         <TableCell>
                                             {course.faculty.map((facultyMember, index) => (
