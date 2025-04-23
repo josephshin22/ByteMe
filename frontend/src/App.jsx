@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound.jsx";
 import MySchedules from "./pages/MySchedules.jsx";
 import SavedCourses from "./pages/SavedCourses.jsx";
 import Schedule from "@/pages/Schedule.jsx";
+import Chatbot from "@/pages/Chatbot.jsx";
 
 function App() {
     return (
@@ -20,6 +21,8 @@ function App() {
                         <Route path="/schedules/" element={<MySchedules />} />
                         <Route path="/schedules/:semester" element={<Schedule />} />
                         <Route path="/saved-courses" element={<SavedCourses />} />
+                        <Route path="/chatbot" element={<Chatbot />} />
+
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </div>

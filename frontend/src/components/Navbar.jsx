@@ -163,10 +163,14 @@ const Navbar = () => {
                             </div>
                         )}
                     </div>
-                    <Link to="saved-courses" className={`hidden md:inline-block mr-2 ${
+                    <Link to="saved-courses" className={`hidden md:inline-block mr-4 ${
                         location.pathname === "/saved-courses" && "underline underline-offset-6" }
                             `}
                     >Saved Courses</Link>
+                    <Link to="chatbot" className={`hidden md:inline-block mr-2 ${
+                        location.pathname === "/chatbot" && "underline underline-offset-6" }
+                            `}
+                    >Chatbot</Link>
                 </div>
 
                 {isMobileMenuOpen && (
