@@ -3,6 +3,7 @@ import CourseCard from "../components/CourseCard";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
 
+
 function SavedCourses() {
 
     const [courses, setCourses] = useState([]);
