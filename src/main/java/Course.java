@@ -134,6 +134,13 @@ public class Course {
     public String toString(){
         return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
     }
+    public String daysString(){
+        StringBuilder days = new StringBuilder();
+        for (timeBlock timeBlock : times) {
+            days.append(timeBlock.getDay()).append(" ");
+        }
+        return days.toString().trim().toLowerCase();
+    }
 
     public boolean hasConflict(Course c2) {
         for(timeBlock t1 : this.times) {

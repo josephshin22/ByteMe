@@ -78,6 +78,12 @@ public class Main {
             int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
             int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
             String code = ctx.queryParamAsClass("code", String.class).getOrDefault("").toLowerCase();
+            String day1 = ctx.queryParamAsClass("day1", String.class).getOrDefault("").toLowerCase();
+            String day2 = ctx.queryParamAsClass("day2", String.class).getOrDefault("").toLowerCase();
+            String day3 = ctx.queryParamAsClass("day3", String.class).getOrDefault("").toLowerCase();
+            String day4 = ctx.queryParamAsClass("day4", String.class).getOrDefault("").toLowerCase();
+            String day5 = ctx.queryParamAsClass("day5", String.class).getOrDefault("").toLowerCase();
+
 
             // Filter courses based on the search term
             List<Course> filteredCourses = courses.stream()
@@ -90,6 +96,16 @@ public class Main {
                       .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
                       .toList();
               }
+            filteredCourses = filteredCourses.stream()
+
+                    .filter(course -> course.daysString().trim().toLowerCase().contains(day1)&&
+                            course.daysString().trim().toLowerCase().contains(day2)&&
+                            course.daysString().trim().toLowerCase().contains(day3)&&
+                            course.daysString().trim().toLowerCase().contains(day4)&&
+                            course.daysString().trim().toLowerCase().contains(day5))
+                    .toList();
+
+
 
 
             // Paginate the filtered results

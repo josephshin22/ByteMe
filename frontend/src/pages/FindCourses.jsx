@@ -49,7 +49,13 @@ function FindCourses() {
     const [totalPages, setTotalPages] = useState(1);
     const [searchInput, setSearchInput] = useState('');
     const [code, setCode] = useState('');
+    const [day1, setDay1] = useState('');
+    const [day2, setDay2] = useState('');
+    const [day3, setDay3] = useState('');
+    const [day4, setDay4] = useState('');
+    const [day5, setDay5] = useState('');
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
+
     const handleSemesterChange = (index, value) => {
         const newSelectedSemesters = [...selectedSemesters];
         newSelectedSemesters[index] = value;
@@ -100,7 +106,7 @@ function FindCourses() {
     // }, [page]);
     useEffect(() => {
         const endpoint = searchInput
-            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}`
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}`
             : `/courses?page=${page}&limit=${coursesPerPage}`;
 
         api.get(endpoint)
@@ -118,17 +124,43 @@ function FindCourses() {
     console.log("Courses:", courses);
 
     const options = [
-        { label: "Option 1", value: "option1" },
-        { label: "Option 2", value: "option2" },
-        { label: "Option 3", value: "option3" },
+        {label: "Monday", value: "M"},
+        { label: "Tuesday", value: "T" },
+        { label: "Wednesday", value: "W" },
+        { label: "Thursday", value: "R" },
+        {label: "Friday", value: "F"},
     ];
 
     const [selected, setSelected] = useState([]);
 
     const toggleSelection = (value) => {
-        setSelected((prev) =>
-            prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-        );
+        setSelected((prev) => {
+            if (prev.includes(value)) {
+                // Deselect the value
+                const updated = prev.filter((v) => v !== value);
+
+                // Reset the corresponding day state
+                if (day1 === value) setDay1('');
+                else if (day2 === value) setDay2('');
+                else if (day3 === value) setDay3('');
+                else if (day4 === value) setDay4('');
+                else if (day5 === value) setDay5('');
+
+                return updated;
+            } else {
+                // Select the value
+                const updated = [...prev, value];
+
+                // Set the first empty day state
+                if (!day1) setDay1(value);
+                else if (!day2) setDay2(value);
+                else if (!day3) setDay3(value);
+                else if (!day4) setDay4(value);
+                else if (!day5) setDay5(value);
+
+                return updated;
+            }
+        });
     };
 
     const [cardView, setCardView] = useState(true);

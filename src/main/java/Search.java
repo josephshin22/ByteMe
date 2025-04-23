@@ -246,7 +246,6 @@ public class Search {
              !c.fullCourseCode().trim().toLowerCase().contains(input.trim().toLowerCase()))
             {
                 return false;
-
             }
         }
         if(searchFilter.getCourseCode() != null && !searchFilter.getCourseCode().trim().isEmpty())
