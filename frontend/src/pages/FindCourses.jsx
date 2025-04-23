@@ -54,25 +54,25 @@ function FindCourses() {
         newSelectedSemesters[index] = value;
         setSelectedSemesters(newSelectedSemesters);
     };
-    const handleSearch = () => {
-        // Make an API call to the backend search endpoint
-        fetch(`/api/search-courses?searchTerm=${searchInput}&page=${page}&limit=${coursesPerPage}`)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch search results");
-                }
-                return response.json();
-            })
-            .then((data) => {
-                // Update state with the filtered and paginated results
-                setFilteredCourses(data.courses);
-                setTotalPages(data.totalPages);
-                setPage(1); // Reset to the first page
-            })
-            .catch((error) => {
-                console.error("Error fetching search results:", error);
-            });
-    };
+    // const handleSearch = () => {
+    //     // Make an API call to the backend search endpoint
+    //     fetch(`/api/search-courses?searchTerm=${searchInput}&page=${page}&limit=${coursesPerPage}`)
+    //         .then((response) => {
+    //             if (!response.ok) {
+    //                 throw new Error("Failed to fetch search results");
+    //             }
+    //             return response.json();
+    //         })
+    //         .then((data) => {
+    //             // Update state with the filtered and paginated results
+    //             setFilteredCourses(data.courses);
+    //             setTotalPages(data.totalPages);
+    //             setPage(1); // Reset to the first page
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error fetching search results:", error);
+    //         });
+    // };
 
     const clearTimeFilters = () => {
         setStartTimeFilter('');
@@ -81,13 +81,30 @@ function FindCourses() {
 
     const coursesRef = useRef(null);
 
+    // useEffect(() => {
+    //     api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
+    //         .then((res) => {
+    //             setCourses(res.data.courses);
+    //             setFilteredCourses(res.data.courses);
+    //             // setCourses(res.data.courses);
+    //             //Initialize favorite courses
+    //             setTotalPages(res.data.totalPages);
+    //             if (coursesRef.current) {
+    //                 const offset = 80;
+    //                 const topPosition = coursesRef.current.getBoundingClientRect().top + window.pageYOffset - offset;
+    //                 window.scrollTo({ top: topPosition, behavior: 'smooth' });
+    //             }
+    //         })
+    //         .catch((err) => console.error("Error fetching courses:", err));
+    // }, [page]);
     useEffect(() => {
-        api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
+        const endpoint = searchInput
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}`
+            : `/courses?page=${page}&limit=${coursesPerPage}`;
+
+        api.get(endpoint)
             .then((res) => {
-                setCourses(res.data.courses);
                 setFilteredCourses(res.data.courses);
-                // setCourses(res.data.courses);
-                //Initialize favorite courses
                 setTotalPages(res.data.totalPages);
                 if (coursesRef.current) {
                     const offset = 80;
@@ -96,7 +113,7 @@ function FindCourses() {
                 }
             })
             .catch((err) => console.error("Error fetching courses:", err));
-    }, [page]);
+    }, [searchInput, page]);
     console.log("Courses:", courses);
 
     const options = [
@@ -137,7 +154,10 @@ function FindCourses() {
                     {/* Search Bar */}
                     <div className="relative w-full">
                         <Input id="search" placeholder="Search for stuff..." className="pl-10" autoFocus
-                        value={searchInput} onChange={(e)=> setSearchInput(e.target.value)}/>
+                        value={searchInput} onChange={(e)=> {setSearchInput(e.target.value);
+
+                        console.log("Search Input:", e.target.value);}} //log current value
+                            />
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <SearchIcon className="h-5 w-5 text-gray-400" />
                         </span>
@@ -172,7 +192,9 @@ function FindCourses() {
 
                         {/* Search Button - get rid of this if we can do live search results*/}
                         {/*uses handleSearch function*/}
-                        <Button className="px-6"onClick={handleSearch}>Search</Button>
+                        <Button className="px-6" onClick={() => setSearchInput(searchInput.trim())}>
+                            Search
+                        </Button>
                     </div>
                 </div>
 
