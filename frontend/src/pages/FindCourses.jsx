@@ -48,9 +48,8 @@ function FindCourses() {
     const [coursesPerPage, setCoursesPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
-    const [doNotSrcoll, setDoNotSrcoll] = useState(false);
+    const [pageButtonClicked, setPageButtonClicked] = useState(false);
     const handleSemesterChange = (value) => {
-        setDoNotSrcoll(true);
         setSelectedSemester(value);
         setPage(1);
         console.log("Selected semester:", value);
@@ -82,12 +81,12 @@ function FindCourses() {
                 setCourses(res.data.courses);
                 setFilteredCourses(res.data.courses);
                 setTotalPages(res.data.totalPages);
-                if (coursesRef.current && !doNotSrcoll) {
+                if (coursesRef.current && pageButtonClicked) {
                     const offset = 80;
                     const topPosition = coursesRef.current.getBoundingClientRect().top + window.pageYOffset - offset;
                     window.scrollTo({ top: topPosition, behavior: 'smooth' });
+                    setPageButtonClicked(false);
                 }
-                setDoNotSrcoll(false);
             })
             .catch((err) => console.error("Error fetching courses:", err));
     }, [searchInput, page, selectedSemester]);
@@ -399,8 +398,8 @@ function FindCourses() {
             </div>
 
             {/* Pages navigation menu */}
-            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
-                <Pagination className="bg-background p-1 max-w-fit rounded-lg shadow-md" >
+            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 ">
+                <Pagination className="bg-background p-1 max-w-fit rounded-lg shadow-md border border-slate-200" >
                 <PaginationContent>
                     {/*<PaginationItem>*/}
                     {/*    <Button variant="ghost" size="icon" onClick={() => setPage(1)} disabled={page === 1}>*/}
@@ -411,7 +410,10 @@ function FindCourses() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                            onClick={() => {
+                                setPage((prev) => Math.max(prev - 1, 1))
+                                setPageButtonClicked(true);
+                            }}
                             disabled={page === 1}
                         >
                             <ChevronLeft/>
@@ -446,6 +448,7 @@ function FindCourses() {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             setPage(item);
+                                            setPageButtonClicked(true);
                                         }}
                                     >
                                         {item}
@@ -458,7 +461,10 @@ function FindCourses() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                            onClick={() => {
+                                setPage((prev) => Math.min(prev + 1, totalPages))
+                                setPageButtonClicked(true);
+                            }}
                             disabled={page === totalPages}
                         >
                             <ChevronRight/>

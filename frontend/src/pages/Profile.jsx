@@ -71,7 +71,7 @@ export default function Profile() {
 
     return (
         <div>
-            <h1 className="text-2xl font-semibold mb-8 ">Username's Profile</h1>
+            <h1 className="text-xl font-semibold mb-8 ">Username's Profile</h1>
 
             <Separator className="my-8" />
 
@@ -97,7 +97,7 @@ export default function Profile() {
                     </div>
 
                     <div className="grid w-full max-w-sm items-center gap-2">
-                        <FavoriteColorForm />
+                        {/*<FavoriteColorForm />*/}
                     </div>
 
 

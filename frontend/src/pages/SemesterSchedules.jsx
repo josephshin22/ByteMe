@@ -47,7 +47,7 @@ function SemesterSchedules() {
         <div className="">
             
             <div className="z-[1] fixed top-24 flex justify-between w-full max-w-6xl pr-6 sm:pr-8 md:pr-12">
-                <div className="p-1 px-4 pr-1 bg-white rounded-lg shadow-md flex align-middle items-center justify-center">
+                <div className="p-1 px-4 pr-1 bg-white rounded-lg shadow-md flex align-middle items-center justify-center border border-slate-200">
                     <h1 className="text-lg font-semibold">{selectedSemester.replaceAll("_", " ")}</h1>
 
                     {/* Semester Picker */}
@@ -71,7 +71,7 @@ function SemesterSchedules() {
 
 
                 </div>
-                <div className="flex align-middle justify-center items-center p-1 bg-white rounded-lg shadow-md">
+                <div className="flex align-middle justify-center items-center p-1 bg-white rounded-lg shadow-md border border-slate-200">
                     <Button variant="ghost" onClick={() => setAbbreviateName(!abbreviateName)}>{abbreviateName ? "Show Names" : "Show Codes"}</Button>
                     <Button variant="ghost" onClick={() => setMoreInfo(!moreInfo)}>
                         {moreInfo ? <ChevronsDownUp/> : <ChevronsUpDown/>}

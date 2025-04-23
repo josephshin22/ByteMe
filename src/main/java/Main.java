@@ -140,6 +140,7 @@ public class Main {
             String searchTerm = ctx.queryParamAsClass("searchTerm", String.class).getOrDefault("").toLowerCase();
             int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
             int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
+            String semester = ctx.queryParam("semester");
             String code = ctx.queryParamAsClass("code", String.class).getOrDefault("").toLowerCase();
             String day1 = ctx.queryParamAsClass("day1", String.class).getOrDefault("").toLowerCase();
             String day2 = ctx.queryParamAsClass("day2", String.class).getOrDefault("").toLowerCase();
@@ -149,6 +150,7 @@ public class Main {
             String startTime = ctx.queryParamAsClass("startTime", String.class).getOrDefault("").toLowerCase();
             String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
             Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
+
             // Filter courses based on the search term
             List<Course> filteredCourses = courses;
             if(searchTerm != null && !searchTerm.trim().isEmpty()) {
