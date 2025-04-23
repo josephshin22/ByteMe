@@ -54,6 +54,7 @@ function FindCourses() {
     const [day3, setDay3] = useState('');
     const [day4, setDay4] = useState('');
     const [day5, setDay5] = useState('');
+    const [showFullCourses, setShowFullCourses] = useState(false); // State to control showing full courses
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
 
     const handleSemesterChange = (index, value) => {
@@ -88,25 +89,10 @@ function FindCourses() {
 
     const coursesRef = useRef(null);
 
-    // useEffect(() => {
-    //     api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
-    //         .then((res) => {
-    //             setCourses(res.data.courses);
-    //             setFilteredCourses(res.data.courses);
-    //             // setCourses(res.data.courses);
-    //             //Initialize favorite courses
-    //             setTotalPages(res.data.totalPages);
-    //             if (coursesRef.current) {
-    //                 const offset = 80;
-    //                 const topPosition = coursesRef.current.getBoundingClientRect().top + window.pageYOffset - offset;
-    //                 window.scrollTo({ top: topPosition, behavior: 'smooth' });
-    //             }
-    //         })
-    //         .catch((err) => console.error("Error fetching courses:", err));
-    // }, [page]);
+
     useEffect(() => {
         const endpoint = searchInput
-            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}`
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&showFullCourses=${showFullCourses}`
             : `/courses?page=${page}&limit=${coursesPerPage}`;
 
         api.get(endpoint)

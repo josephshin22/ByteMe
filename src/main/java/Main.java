@@ -85,6 +85,7 @@ public class Main {
             String day5 = ctx.queryParamAsClass("day5", String.class).getOrDefault("").toLowerCase();
             String startTime = ctx.queryParamAsClass("startTime", String.class).getOrDefault("").toLowerCase();
             String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
+            Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
             // Filter courses based on the search term
             List<Course> filteredCourses = courses;
             if(searchTerm != null && !searchTerm.trim().isEmpty()) {
@@ -120,6 +121,11 @@ public class Main {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getTimes().stream()
                                 .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime+":00").trim()) <= 0))
+                        .toList();
+            }
+            if(hideFullCourses){
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getIs_open())
                         .toList();
             }
             // Paginate the filtered results
