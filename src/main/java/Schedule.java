@@ -65,6 +65,11 @@
             return courses;
         }
 
+        // getter for name
+        public String getName() {
+            return name;
+        }
+
         public void setSemester(String semester){
             this.semester = semester;
         }

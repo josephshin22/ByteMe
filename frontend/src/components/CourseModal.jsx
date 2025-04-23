@@ -19,23 +19,31 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                 <X onClick={onClose} size={20} className="text-slate-500 cursor-pointer absolute top-3 right-3" />
 
                 <div className="p-6 pb-0">
-                    <div className="flex space-x-3 flex-wrap">
+                    <div className="flex space-x-1 flex-wrap">
                         <h1 className="text-lg font-semibold">{course.subjCode} {course.number} {course.section}</h1>
+                        <h1 className="text-lg font-thin text-slate-500">&bull;</h1>
                         <h1 className="text-lg mb-2">{course.name.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}</h1>
                     </div>
                     <Separator />
                 </div>
 
-                <div className="block sm:hidden px-6 mt-4">
-                    <div className="mt-2 space-y-2 flex flex-wrap space-x-5 max-w-3xl items-start">
+                {/* Smaller info */}
+                <div className="block sm:hidden px-6 mt-4 space-y-2">
+                    <div className="space-y-2 flex flex-wrap space-x-5 max-w-3xl items-start">
                         <div className="flex gap-2 items-center justify-center">
                             <User size={18}/>
                             <p>{course.faculty.join(", ")}</p>
                         </div>
-                
+                    </div>
+                    <div className="space-y-2 flex flex-wrap space-x-5 max-w-3xl items-start">
                         <div className="flex gap-2 items-center">
                             <Clock size={18}/>
                             <p>{formatCourseTimes(course.times)}</p>
+                        </div>
+
+                        <div className="flex gap-2 items-center">
+                            <Calendar size={18}/>
+                            <p>{course.semester.replaceAll("_", " ")}</p>
                         </div>
                     </div>
                     <div className="space-y-2 flex flex-wrap space-x-5 max-w-3xl items-start">
@@ -43,12 +51,12 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                             <School size={18}/>
                             <p>{course.location}</p>
                         </div>
-                
+
                         <div className="flex gap-2 items-center">
                             <Armchair size={18}/>
                             <p>{course.openSeats}/{course.totalSeats} seats open</p>
                         </div>
-                
+
                         <div className="flex gap-2 items-center">
                             <CircleDollarSign size={18}/>
                             <p>{course.credits} credit{course.credits !== 1 && "s"}</p>
@@ -60,7 +68,7 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                 <div className="mt-4 p-6 pt-2 overflow-y-auto flex-1 flex gap-12">
 
                     {/* Course Description */}
-                    <div>
+                    <div className="pb-4">
                         <div>
                             <h3 className="font-semibold">Course Description</h3>
                             <p className="text-muted-foreground text-sm">
@@ -69,38 +77,45 @@ const CourseModal = ({ isOpen, onClose, course }) => {
                         </div>
 
                         {/* Prerequisites */}
-                        <div className="mt-4">
+                        <div className="mt-4 pb-4">
                             <h3 className="font-semibold">Prerequisites:</h3>
                             <p className="text-muted-foreground text-sm">Accounting 202. Three hours.</p>
                         </div>
                     </div>
 
                     {/* Course Info */}
-                    <div className="hidden sm:flex space-y-2 flex-col space-x-5 max-w-3xl items-start min-w-fit">
+                    <div className="hidden sm:flex space-y-2 flex-col space-x-5 max-w-128 min-w-2/5 items-start">
                         <div className="flex gap-2 items-center justify-center">
-                            <User size={18}/>
+                            <User className="min-w-[18px]" size={18}/>
                             <p>{course.faculty.join(", ")}</p>
                         </div>
 
                         <div className="flex gap-2 items-center">
-                            <Clock size={18}/>
+                            <Clock className="min-w-[18px]" size={18}/>
                             <p>{formatCourseTimes(course.times)}</p>
                         </div>
+
+                        <div className="flex gap-2 items-center">
+                            <Calendar className="min-w-[18px]" size={18}/>
+                            <p>{course.semester.replaceAll("_"," ")}</p>
+                        </div>
+
+
 
                         <Separator className="my-2"/>
 
                         <div className="flex gap-2 items-center">
-                            <School size={18}/>
+                            <School className="min-w-[18px]" size={18}/>
                             <p>{course.location}</p>
                         </div>
 
                         <div className="flex gap-2 items-center">
-                            <Armchair size={18}/>
+                            <Armchair className="min-w-[18px]" size={18}/>
                             <p>{course.openSeats}/{course.totalSeats} seats open</p>
                         </div>
 
                         <div className="flex gap-2 items-center">
-                            <CircleDollarSign size={18}/>
+                            <CircleDollarSign className="min-w-[18px]" size={18}/>
                             <p>{course.credits} credit{course.credits !== 1 && "s"}</p>
                         </div>
                     </div>

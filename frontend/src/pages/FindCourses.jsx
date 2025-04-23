@@ -5,9 +5,10 @@ import {Input} from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
 import {
+    Bookmark,
     Check,
     ChevronDown,
-    ChevronDownIcon, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight, Rows2, Rows3,
+    ChevronDownIcon, ChevronLeft, ChevronRight, PlusCircle, Rows2, Rows3,
     SearchIcon,
     X
 } from "lucide-react";
@@ -30,17 +31,16 @@ import {
     Pagination,
     PaginationContent, PaginationEllipsis,
     PaginationItem,
-    PaginationLink, PaginationNext,
-    PaginationPrevious
+    PaginationLink
 } from "@/components/ui/pagination.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
+import {saveCourse} from "@/utils/saveCourse.jsx";
 
 function FindCourses() {
 
-    const availableSemesters = [
-        'Fall 2025', 'Spring 2026'
-    ];
-    const [selectedSemesters, setSelectedSemesters] = useState(['Fall 2025']);
+    const availableSemesters = ['2023_Fall', '2023_Winter_Online', '2024_Spring', '2024_Early_Summer', '2024_Fall', '2025_Spring'];
+    const [selectedSemester, setSelectedSemester] = useState('2025_Spring');
+
     const [startTimeFilter, setStartTimeFilter] = useState('');
     const [endTimeFilter, setEndTimeFilter] = useState('');
     const [courses, setCourses] = useState([]);
@@ -48,10 +48,12 @@ function FindCourses() {
     const [coursesPerPage, setCoursesPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
-    const handleSemesterChange = (index, value) => {
-        const newSelectedSemesters = [...selectedSemesters];
-        newSelectedSemesters[index] = value;
-        setSelectedSemesters(newSelectedSemesters);
+    const [doNotSrcoll, setDoNotSrcoll] = useState(false);
+    const handleSemesterChange = (value) => {
+        setDoNotSrcoll(true);
+        setSelectedSemester(value);
+        setPage(1);
+        console.log("Selected semester:", value);
     };
 
     const clearTimeFilters = () => {
@@ -62,18 +64,19 @@ function FindCourses() {
     const coursesRef = useRef(null);
 
     useEffect(() => {
-        api.get(`/courses?page=${page}&limit=${coursesPerPage}`)
+        api.get(`/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`)
             .then((res) => {
                 setCourses(res.data.courses);
                 setTotalPages(res.data.totalPages);
-                if (coursesRef.current) {
+                if (coursesRef.current && !doNotSrcoll) {
                     const offset = 80;
                     const topPosition = coursesRef.current.getBoundingClientRect().top + window.pageYOffset - offset;
                     window.scrollTo({ top: topPosition, behavior: 'smooth' });
                 }
+                setDoNotSrcoll(false);
             })
             .catch((err) => console.error("Error fetching courses:", err));
-    }, [page]);
+    }, [page, selectedSemester]);
     console.log("Courses:", courses);
 
     const options = [
@@ -122,29 +125,23 @@ function FindCourses() {
                     <div className="flex justify-between gap-2">
 
                         {/* Semester Picker */}
-                        {selectedSemesters.map((semester, index) => (
-                            <Select
-                                value={semester}
-                                onValueChange={(value) => handleSemesterChange(index, value)}
-                            >
-                                <SelectTrigger className="sm:w-auto w-full">
-                                    <SelectValue placeholder="Select Semester" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableSemesters
-                                        .filter(
-                                            // Filter out already selected minors and the current minor
-                                            s => !selectedSemesters.includes(s) || s === semester
-                                        )
-                                        .map((s) => (
-                                            <SelectItem key={s} value={s}>
-                                                {s}
-                                            </SelectItem>
-                                        ))
-                                    }
-                                </SelectContent>
-                            </Select>
-                        ))}
+                        <Select
+                            value={selectedSemester}
+                            onValueChange={(value) => handleSemesterChange(value)}
+                        >
+                            <SelectTrigger className="sm:w-auto w-full">
+                                <SelectValue placeholder="Select Semester" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableSemesters
+                                    .map((s) => (
+                                        <SelectItem key={s} value={s}>
+                                            {s.replaceAll("_", " ")}
+                                        </SelectItem>
+                                    ))
+                                }
+                            </SelectContent>
+                        </Select>
 
                         {/* Search Button - get rid of this if we can do live search results*/}
                         <Button className="px-6">Search</Button>
@@ -268,7 +265,7 @@ function FindCourses() {
             <Separator className="my-4" />
 
             <div className="flex justify-between">
-                <h2 className="font-medium text-lg text-">Results</h2>
+                <h2 className="font-medium text-lg text-">{selectedSemester.replaceAll("_", " ")} Results</h2>
                 <Button variant="ghost" onClick={() => setCardView(!cardView)}>
                     {cardView ? <>Table <Rows3/></> : <>Cards <Rows2/></>}
                 </Button>
@@ -321,6 +318,8 @@ function FindCourses() {
                                         <TableCell>{course.credits}</TableCell>
                                         <TableCell>{course.location}</TableCell>
                                         <TableCell>{formatCourseTimes(course.times)}</TableCell>
+                                        <TableCell onClick={(e) => { e.stopPropagation(); saveCourse(course); }}><Bookmark size={16}/></TableCell>
+                                        <TableCell onClick={(e) => { e.stopPropagation(); console.log("add"); }}><PlusCircle size={16}/></TableCell>
                                     </TableRow>
 
                                 )) : (

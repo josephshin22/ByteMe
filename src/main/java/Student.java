@@ -15,6 +15,7 @@ public class Student {
 
     public Student() {
         this.schedules = new ArrayList<Schedule>();
+        this.savedCourses = new ArrayList<Course>();
     }
 
     public Student(String username, int studentID, String password) {
@@ -22,6 +23,7 @@ public class Student {
         this.studentID = studentID;
         this.password = password;
         this.schedules = new ArrayList<Schedule>();
+        this.savedCourses = new ArrayList<Course>();
     }
 
 //    public void showSavedCourses() {
@@ -155,6 +157,18 @@ public class Student {
 
     public ArrayList<Schedule> getSchedules() {
         return schedules;
+    }
+
+    public ArrayList<Course> getSavedCourses() {
+        return savedCourses;
+    }
+
+    public void addSavedCourse(Course course) {
+        savedCourses.add(course);
+    }
+
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
     }
 
     public void setSchedule(Schedule schedule) {
