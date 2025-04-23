@@ -80,9 +80,16 @@ public class Main {
 
             // Filter courses based on the search term
             List<Course> filteredCourses = courses.stream()
-                .filter(course -> course.getName().toLowerCase().contains(searchTerm) ||
-                                  course.getSubjCode().toLowerCase().contains(searchTerm))
+                    //searchTerm.trim().toLowerCase().contains(course.getSubjCode()) || (searchTerm.trim().toLowerCase().contains(course.getSubjCode()))&&searchTerm.trim().toLowerCase().contains(String.valueOf(course.getCourseNum()))
+                .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase()) || course.getFullCourseCode().trim().toLowerCase().contains(searchTerm.trim().toLowerCase()))
                 .toList();
+
+//            filteredCourses = filteredCourses.stream()
+//                    //searchTerm.trim().toLowerCase().contains(course.getSubjCode()) || (searchTerm.trim().toLowerCase().contains(course.getSubjCode()))&&searchTerm.trim().toLowerCase().contains(String.valueOf(course.getCourseNum()))
+//                    .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase())
+//                    )
+//                    .toList();
+
 
             // Paginate the filtered results
             int start = (page - 1) * limit;

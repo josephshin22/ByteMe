@@ -74,6 +74,7 @@ public class Course {
     }
 
 
+
     public int getNumCredits() {
         return numCredits;
     }
@@ -119,6 +120,9 @@ public class Course {
     }
     public int getTotalSeats() {
         return totalSeats;
+    }
+    public String getFullCourseCode() {
+        return abbreviation + " " + courseNum + " " + section;
     }
 
     public List<timeBlock> getTimes() {
