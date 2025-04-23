@@ -77,18 +77,19 @@ public class Main {
             String searchTerm = ctx.queryParamAsClass("searchTerm", String.class).getOrDefault("").toLowerCase();
             int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
             int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
+            String code = ctx.queryParamAsClass("code", String.class).getOrDefault("").toLowerCase();
 
             // Filter courses based on the search term
             List<Course> filteredCourses = courses.stream()
                     //searchTerm.trim().toLowerCase().contains(course.getSubjCode()) || (searchTerm.trim().toLowerCase().contains(course.getSubjCode()))&&searchTerm.trim().toLowerCase().contains(String.valueOf(course.getCourseNum()))
                 .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase()) || course.getFullCourseCode().trim().toLowerCase().contains(searchTerm.trim().toLowerCase()))
                 .toList();
+              if(code!="") {
+              filteredCourses = filteredCourses.stream()
 
-//            filteredCourses = filteredCourses.stream()
-//                    //searchTerm.trim().toLowerCase().contains(course.getSubjCode()) || (searchTerm.trim().toLowerCase().contains(course.getSubjCode()))&&searchTerm.trim().toLowerCase().contains(String.valueOf(course.getCourseNum()))
-//                    .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase())
-//                    )
-//                    .toList();
+                      .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
+                      .toList();
+              }
 
 
             // Paginate the filtered results

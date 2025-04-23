@@ -48,6 +48,7 @@ function FindCourses() {
     const [coursesPerPage, setCoursesPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [searchInput, setSearchInput] = useState('');
+    const [code, setCode] = useState('');
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
     const handleSemesterChange = (index, value) => {
         const newSelectedSemesters = [...selectedSemesters];
@@ -99,7 +100,7 @@ function FindCourses() {
     // }, [page]);
     useEffect(() => {
         const endpoint = searchInput
-            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}`
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}`
             : `/courses?page=${page}&limit=${coursesPerPage}`;
 
         api.get(endpoint)
@@ -209,6 +210,8 @@ function FindCourses() {
                                 <Input
                                     className="h-8 shadow-none rounded-l-none max-w-36"
                                     placeholder='"HUMA 200"'
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
                                 />
                             </div>
 
