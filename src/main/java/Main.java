@@ -96,16 +96,17 @@ public class Main {
                       .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
                       .toList();
               }
-            filteredCourses = filteredCourses.stream()
 
-                    .filter(course -> course.daysString().trim().toLowerCase().contains(day1)&&
-                            course.daysString().trim().toLowerCase().contains(day2)&&
-                            course.daysString().trim().toLowerCase().contains(day3)&&
-                            course.daysString().trim().toLowerCase().contains(day4)&&
-                            course.daysString().trim().toLowerCase().contains(day5))
-                    .toList();
+            StringBuilder days = new StringBuilder();
+              days.append(day1).append(" ").append(day2).append(" ").append(day3).append(" ").append(day4).append(" ").append(day5);
+              String daysString = days.toString().trim().toLowerCase();
+              if(daysString!="") {
+                  filteredCourses = filteredCourses.stream()
 
+                          .filter(course -> daysString.contains(course.daysString().trim().toLowerCase()))
+                          .toList();
 
+              }
 
 
             // Paginate the filtered results
