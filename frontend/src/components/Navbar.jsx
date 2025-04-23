@@ -1,15 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, User, Menu, X } from 'lucide-react';
 import { Link, useLocation } from "react-router-dom";
+import api from "@/api.js";
 
-const schedules = ["Spring 2026", "Fall 2025", "Summer 2025", "Winter 2025"];
 
-const sortedSchedules = schedules.sort((a, b) => {
-    const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
-    const [seasonA, yearA] = a.split(' ');
-    const [seasonB, yearB] = b.split(' ');
-    return yearB - yearA || seasons[seasonB] - seasons[seasonA];
-});
 
 const Navbar = () => {
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
@@ -24,6 +18,25 @@ const Navbar = () => {
     const scheduleMenuRef = useRef(null);
 
     const location = useLocation(); // Get the current path
+
+    // const schedules = ["Spring 2026", "Fall 2025", "Summer 2025", "Winter 2025"];
+    const [schedules, setSchedules] = useState([]);
+    useEffect(() => {
+        api.get("/schedules")
+            .then((response) => {
+                setSchedules(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching schedules:", error);
+            });
+    }, []);
+
+    const sortedSchedules = schedules.sort((a, b) => {
+        const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
+        const [seasonA, yearA] = a.split('_');
+        const [seasonB, yearB] = b.split('_');
+        return yearB - yearA || seasons[seasonB] - seasons[seasonA];
+    });
 
     useEffect(() => {
         if (isMobileMenuOpen) {
@@ -116,8 +129,10 @@ const Navbar = () => {
     //     setTheme(theme === 'light' ? 'dark' : 'light');
     // };
 
+
+
     return (
-        <nav className="sticky bg-background top-0 shadow z-10">
+        <nav className="fixed w-full bg-background top-0 shadow z-10">
 
             <div className="w-full flex items-center justify-between max-w-6xl mx-auto md:px-6 py-3 px-4">
 
@@ -142,7 +157,7 @@ const Navbar = () => {
                             ref={scheduleButtonRef}
                             className={`flex items-center space-x-1 ${location.pathname === "/schedules" && "underline underline-offset-6" }`}
                         >
-                            <Link to="/schedules">
+                            <Link to="/schedules" onClick={() => setIsScheduleOpen(false)}>
                                 My Schedules
                             </Link>
                             <ChevronDown className="h-4 w-4 cursor-pointer" />
@@ -150,15 +165,15 @@ const Navbar = () => {
                         {isScheduleOpen && (
                             <div
                                 ref={scheduleMenuRef}
-                                className="absolute top-full left-0  w-48 z-100"
+                                className="absolute top-full left-0 w-48 z-100"
                             >
                                 <div className="bg-background border border-border rounded-lg shadow-lg py-1 mt-2">
-                                    {sortedSchedules.map((semester) => (
-                                        <Link className="block px-4 py-2 hover:bg-muted" to={`/schedules/${semester}`} onClick={()=>{setIsScheduleOpen(false)}}>
-                                            {semester}
+                                    {sortedSchedules.map((semester, index) => (
+                                        <Link key={index} className="block px-4 py-2 hover:bg-muted" to={`/schedules/${semester}`} onClick={()=>{setIsScheduleOpen(false)}}>
+                                            {semester.replaceAll("_", " ")}
                                         </Link>
                                     ))}
-                                    <Link to="#" className="block px-4 py-2 hover:bg-muted">+ Add New Schedule</Link>
+                                    {/*<Link to="#" className="block px-4 py-2 hover:bg-muted">+ Add New Schedule</Link>*/}
                                 </div>
                             </div>
                         )}

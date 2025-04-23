@@ -37,6 +37,30 @@ public class Main {
             e.printStackTrace();
         }
 
+        // default user
+        student = new Student("testUser", 123456, "password123");
+        Schedule testSchedule1 = new Schedule(student, new ArrayList<>(), "My Schedule");
+        testSchedule1.setSemester("2023_Fall");
+        Course testCourse1 = courses.get(33);
+        Course testCourse3 = courses.get(300);
+        Course testCourse4 = courses.get(361);
+        testSchedule1.addToSchedule(testCourse1);
+        testSchedule1.addToSchedule(testCourse3);
+        testSchedule1.addToSchedule(testCourse4);
+        Schedule testSchedule2 = new Schedule(student, new ArrayList<>(), "Backup #1");
+        testSchedule2.setSemester("2023_Fall");
+        Course testCourse2 = courses.get(1);
+        Course testCourse5 = courses.get(273);
+        testSchedule2.addToSchedule(testCourse2);
+        testSchedule2.addToSchedule(testCourse5);
+        Schedule testSchedule3 = new Schedule(student, new ArrayList<>(), "Spring!");
+        testSchedule3.setSemester("2024_Spring");
+        Course testCourse6 = courses.get(895);
+        testSchedule3.addToSchedule(testCourse6);
+
+        student.addSavedCourse(testCourse1);
+
+
 
         // Frontend testing --------------------------------------------------------------------
         // Configure Jackson ObjectMapper
@@ -57,22 +81,59 @@ public class Main {
 
 //        app.get("/api/courses", ctx -> ctx.json(courses));
         app.get("/api/courses", ctx -> {
+            String semester = ctx.queryParam("semester");
             int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
-            int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(30);
+            int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
+
+            List<Course> filteredCourses = (semester != null && !semester.isEmpty())
+                ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
+                : courses;
 
             int start = (page - 1) * limit;
-            int end = Math.min(start + limit, courses.size());
+            int end = Math.min(start + limit, filteredCourses.size());
 
-            List<Course> paginatedCourses = courses.subList(start, end);
+            List<Course> paginatedCourses = filteredCourses.subList(start, end);
 
             Map<String, Object> response = new HashMap<>();
             response.put("courses", paginatedCourses);
-            response.put("totalCourses", courses.size());
-            response.put("totalPages", (int) Math.ceil((double) courses.size() / limit));
+            response.put("totalCourses", filteredCourses.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredCourses.size() / limit));
 
             ctx.json(response);
         });
 
+        app.get("/api/schedules", ctx -> {
+            String semester = ctx.queryParam("semester");
+            if (semester == null || semester.isEmpty()) {
+                List<String> allSemesters = student.getSchedules().stream()
+                    .map(Schedule::getSemester)
+                    .distinct()
+                    .toList();
+                ctx.json(allSemesters);
+                return;
+            }
+
+            List<Schedule> filteredSchedules = student.getSchedules().stream()
+                .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
+                .toList();
+
+            ctx.json(filteredSchedules);
+        });
+
+        // ADD SCHEDULE
+       app.post("/api/schedules", ctx -> {
+           String name = ctx.queryParam("name");
+           String semester = ctx.queryParam("semester");
+
+           if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
+               ctx.status(400).json(Map.of("error", "Name and semester are required."));
+               return;
+           }
+
+           Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
+           newSchedule.setSemester(semester);
+           ctx.status(201).json(Map.of("message", "Schedule created successfully."));
+       });
 
         app.start(7000);
         //--------------------------------------------------------------------------------------

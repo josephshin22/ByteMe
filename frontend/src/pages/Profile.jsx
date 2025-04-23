@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label"
 import {Minus, Plus} from "lucide-react";
+import FavoriteColorForm from "@/components/FavoriteColorForm.jsx";
 
 export default function Profile() {
     const availableMajors = [
@@ -94,6 +95,12 @@ export default function Profile() {
                         <Label htmlFor="email">Email</Label>
                         <Input type="email" id="email" placeholder="Email" className="max-w-sm" />
                     </div>
+
+                    <div className="grid w-full max-w-sm items-center gap-2">
+                        <FavoriteColorForm />
+                    </div>
+
+
 
                 </div>
             </div>

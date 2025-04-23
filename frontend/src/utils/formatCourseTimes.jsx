@@ -21,8 +21,8 @@ export function formatCourseTimes(times) {
     return Object.entries(dayGroups).map(([time, days]) => {
         const formattedDays = days.join("");
         const [start, end] = time.split("-");
-        const startTime = new Date(`1970-01-01T${start}Z`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        const endTime = new Date(`1970-01-01T${end}Z`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const startTime = new Date(`1970-01-01T${start}`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const endTime = new Date(`1970-01-01T${end}`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         return `${formattedDays} ${startTime}-${endTime}`;
     }).join(", ");
 }

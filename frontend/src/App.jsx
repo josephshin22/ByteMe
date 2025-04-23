@@ -6,7 +6,7 @@ import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import MySchedules from "./pages/MySchedules.jsx";
 import SavedCourses from "./pages/SavedCourses.jsx";
-import Schedule from "@/pages/Schedule.jsx";
+import SemesterSchedules from "@/pages/SemesterSchedules.jsx";
 import Chatbot from "@/pages/Chatbot.jsx";
 
 function App() {
@@ -14,12 +14,12 @@ function App() {
         <Router>
             <div className="flex flex-col bg-slate-50">
                 <Navbar className="z-50"/>
-                <div className=" p-6 py-10 px-3 sm:px-4 md:px-6 flex flex-col w-full max-w-6xl mx-auto">
+                <div className="p-6 pb-10 pt-24 px-3 sm:px-4 md:px-6 flex flex-col w-full max-w-6xl mx-auto">
                     <Routes>
                         <Route path="/" element={<FindCourses />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/schedules/" element={<MySchedules />} />
-                        <Route path="/schedules/:semester" element={<Schedule />} />
+                        <Route path="/schedules/:semester" element={<SemesterSchedules />} />
                         <Route path="/saved-courses" element={<SavedCourses />} />
                         <Route path="/chatbot" element={<Chatbot />} />
 
