@@ -38,9 +38,9 @@ import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 function FindCourses() {
 
     const availableSemesters = [
-        'Fall 2025', 'Spring 2026'
+        'Fall 2025', 'Spring 2026', '2025-2026', 
     ];
-    const [selectedSemesters, setSelectedSemesters] = useState(['Fall 2025']);
+    const [selectedSemesters, setSelectedSemesters] = useState('Fall 2025');
     const [startTimeFilter, setStartTimeFilter] = useState('');
     const [endTimeFilter, setEndTimeFilter] = useState('');
     const [courses, setCourses] = useState([]);
@@ -57,10 +57,8 @@ function FindCourses() {
     const [hideFullCourses, setHideFullCourses] = useState(false); // State to control showing full courses
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
 
-    const handleSemesterChange = (index, value) => {
-        const newSelectedSemesters = [...selectedSemesters];
-        newSelectedSemesters[index] = value;
-        setSelectedSemesters(newSelectedSemesters);
+    const handleSemesterChange = (value) => {
+        setSelectedSemesters(value);
     };
     // const handleSearch = () => {
     //     // Make an API call to the backend search endpoint
@@ -194,29 +192,22 @@ function FindCourses() {
                     <div className="flex justify-between gap-2">
 
                         {/* Semester Picker */}
-                        {selectedSemesters.map((semester, index) => (
-                            <Select
-                                value={semester}
-                                onValueChange={(value) => handleSemesterChange(index, value)}
-                            >
-                                <SelectTrigger className="sm:w-auto w-full">
-                                    <SelectValue placeholder="Select Semester" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableSemesters
-                                        .filter(
-                                            // Filter out already selected minors and the current minor
-                                            s => !selectedSemesters.includes(s) || s === semester
-                                        )
-                                        .map((s) => (
-                                            <SelectItem key={s} value={s}>
-                                                {s}
-                                            </SelectItem>
-                                        ))
-                                    }
-                                </SelectContent>
-                            </Select>
-                        ))}
+                        <Select
+                            value={selectedSemesters}
+                            onValueChange={handleSemesterChange}
+                        >
+                            <SelectTrigger className="sm:w-auto w-full">
+                                <SelectValue placeholder="Select Semester" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableSemesters.map((semester) => (
+                                    <SelectItem key={semester} value={semester}>
+                                        {semester}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
 
                         {/* Search Button - get rid of this if we can do live search results*/}
                         {/*uses handleSearch function*/}
