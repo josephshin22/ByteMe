@@ -54,7 +54,7 @@ function FindCourses() {
     const [day3, setDay3] = useState('');
     const [day4, setDay4] = useState('');
     const [day5, setDay5] = useState('');
-    const [showFullCourses, setShowFullCourses] = useState(false); // State to control showing full courses
+    const [hideFullCourses, setHideFullCourses] = useState(false); // State to control showing full courses
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
 
     const handleSemesterChange = (index, value) => {
@@ -92,7 +92,7 @@ function FindCourses() {
 
     useEffect(() => {
         const endpoint = searchInput
-            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&showFullCourses=${showFullCourses}`
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
             : `/courses?page=${page}&limit=${coursesPerPage}`;
 
         api.get(endpoint)
@@ -312,7 +312,11 @@ function FindCourses() {
                                 <Label htmlFor="hide-completed" className="font-normal">Hide complete classes</Label>
                             </div>
                             <div className="flex items-center space-x-2 min-w-fit">
-                                <Switch id="hide-full-switch" />
+                                <Switch
+                                    id="hide-full-switch"
+                                    checked={hideFullCourses}
+                                    onCheckedChange={(checked) => setHideFullCourses(!checked)}
+                                />
                                 <Label htmlFor="hide-full-switch" className="font-normal">Hide full classes</Label>
                             </div>
                         </div>
