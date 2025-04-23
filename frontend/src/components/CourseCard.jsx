@@ -2,25 +2,10 @@ import React, { useState } from "react";
 import { Bookmark, PlusCircle } from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
+import {handleSave} from "@/utils/courseUtils.jsx";
 export default function CourseCard({ course }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const handleSave = (course) => {
-        const saved = JSON.parse(localStorage.getItem("savedCourses")) || [];
-
-        const isAlreadySaved = saved.some(
-            (c) => c.subjCode === course.subjCode && c.number === course.number && c.section === course.section
-        );
-
-        if (!isAlreadySaved) {
-            saved.push(course);
-            localStorage.setItem("savedCourses", JSON.stringify(saved));
-            console.log("Course saved:", course);
-        } else {
-            console.log("Course already saved");
-        }
-    };
 
     return (
         <div className="group">
