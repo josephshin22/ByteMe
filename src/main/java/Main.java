@@ -83,8 +83,8 @@ public class Main {
             String day3 = ctx.queryParamAsClass("day3", String.class).getOrDefault("").toLowerCase();
             String day4 = ctx.queryParamAsClass("day4", String.class).getOrDefault("").toLowerCase();
             String day5 = ctx.queryParamAsClass("day5", String.class).getOrDefault("").toLowerCase();
-
-
+            String startTime = ctx.queryParamAsClass("startTime", String.class).getOrDefault("").toLowerCase();
+            String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
             // Filter courses based on the search term
             List<Course> filteredCourses = courses.stream()
                     //searchTerm.trim().toLowerCase().contains(course.getSubjCode()) || (searchTerm.trim().toLowerCase().contains(course.getSubjCode()))&&searchTerm.trim().toLowerCase().contains(String.valueOf(course.getCourseNum()))
@@ -107,8 +107,19 @@ public class Main {
                           .toList();
 
               }
+            if(startTime!="") {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getTimes().stream()
+                                .anyMatch(timeBlock -> timeBlock.getStartTime().compareTo((startTime+":00").trim()) >= 0))
+                        .toList();
 
-
+            }
+            if(endTime!="") {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getTimes().stream()
+                                .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime+":00").trim()) <= 0))
+                        .toList();
+            }
             // Paginate the filtered results
             int start = (page - 1) * limit;
             int end = Math.min(start + limit, filteredCourses.size());

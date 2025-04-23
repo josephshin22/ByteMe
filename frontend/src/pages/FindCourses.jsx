@@ -106,7 +106,7 @@ function FindCourses() {
     // }, [page]);
     useEffect(() => {
         const endpoint = searchInput
-            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}`
+            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}`
             : `/courses?page=${page}&limit=${coursesPerPage}`;
 
         api.get(endpoint)
@@ -168,7 +168,16 @@ function FindCourses() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [courseForModal, setCourseForModal] = useState('');
-
+    const handleTimeChange = (value, setTime) => {
+        // Allow typing any value
+        setTime(value);
+        console.log("Updated state:", value);
+        // Validate the input when it's complete
+        // const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Matches "HH:mm" format
+        // if (!timeRegex.test(value) && value.length === 5) {
+        //     console.error("Invalid time format. Please use HH:mm.");
+        // }
+    };
     function handleTableRowClick(course) {
         setCourseForModal(course);
         setIsModalOpen(true);
@@ -186,7 +195,7 @@ function FindCourses() {
 
                     {/* Search Bar */}
                     <div className="relative w-full">
-                        <Input id="search" placeholder="Search for stuff..." className="pl-10" autoFocus
+                        <Input id="search" placeholder="Search for courses..." className="pl-10" autoFocus
                         value={searchInput} onChange={(e)=> {setSearchInput(e.target.value);
 
                         console.log("Search Input:", e.target.value);}} //log current value
@@ -283,35 +292,21 @@ function FindCourses() {
                             {/* Time */}
                             <div className="h-8 flex items-center rounded-lg bg-input shadow-xs">
                                 <div className=" text-slate-500 font-medium text-xs px-2">TIME</div>
-                                <Select
-                                    value={startTimeFilter}
-                                    onValueChange={(value) => setStartTimeFilter(value)}
-                                >
-                                    <SelectTrigger className="max-h-8 shadow-none rounded-none">
-                                        <SelectValue placeholder="--:--" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="freshman">Freshman</SelectItem>
-                                        <SelectItem value="sophomore">Sophomore</SelectItem>
-                                        <SelectItem value="junior">Junior</SelectItem>
-                                        <SelectItem value="senior">Senior</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <div className=" text-slate-500 font-medium text-xs px-2">to</div>
-                                <Select
-                                    value={endTimeFilter}
-                                    onValueChange={(value) => setEndTimeFilter(value)}
-                                >
-                                    <SelectTrigger className={`max-h-8 shadow-none ${startTimeFilter === '' && endTimeFilter === '' ? 'rounded-l-none' : 'rounded-none'}`}>
-                                        <SelectValue placeholder="--:--" />
-                                    </SelectTrigger>
-                                    <SelectContent >
-                                        <SelectItem value="freshman">Freshman</SelectItem>
-                                        <SelectItem value="sophomore">Sophomore</SelectItem>
-                                        <SelectItem value="junior">Junior</SelectItem>
-                                        <SelectItem value="senior">Senior</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                       <div className="h-8 flex items-center rounded-lg bg-input shadow-xs">
+
+                           <Input
+                               className="h-8 shadow-none rounded-none max-w-36"
+                               placeholder="ex: '08:00'"
+                               value={startTimeFilter}
+                               onChange={(e) => handleTimeChange(e.target.value, setStartTimeFilter)}
+                           />
+                           <Input
+                               className="h-8 shadow-none rounded-none max-w-36"
+                               placeholder="ex: '16:00'"
+                               value={endTimeFilter}
+                               onChange={(e) => handleTimeChange(e.target.value, setEndTimeFilter)}
+                           />
+                       </div>
                                 {startTimeFilter !== '' || endTimeFilter !== '' && (
                                     <div className=" text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
                                 )}
