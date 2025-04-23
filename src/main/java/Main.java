@@ -135,6 +135,78 @@ public class Main {
            ctx.status(201).json(Map.of("message", "Schedule created successfully."));
        });
 
+        //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
+        app.get("/api/search-courses", ctx -> {
+            String searchTerm = ctx.queryParamAsClass("searchTerm", String.class).getOrDefault("").toLowerCase();
+            int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
+            int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
+            String semester = ctx.queryParam("semester");
+            String code = ctx.queryParamAsClass("code", String.class).getOrDefault("").toLowerCase();
+            String day1 = ctx.queryParamAsClass("day1", String.class).getOrDefault("").toLowerCase();
+            String day2 = ctx.queryParamAsClass("day2", String.class).getOrDefault("").toLowerCase();
+            String day3 = ctx.queryParamAsClass("day3", String.class).getOrDefault("").toLowerCase();
+            String day4 = ctx.queryParamAsClass("day4", String.class).getOrDefault("").toLowerCase();
+            String day5 = ctx.queryParamAsClass("day5", String.class).getOrDefault("").toLowerCase();
+            String startTime = ctx.queryParamAsClass("startTime", String.class).getOrDefault("").toLowerCase();
+            String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
+            Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
+
+            // Filter courses based on the search term
+            List<Course> filteredCourses = courses;
+            if(searchTerm != null && !searchTerm.trim().isEmpty()) {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase()) || course.getFullCourseCode().trim().toLowerCase().contains(searchTerm.trim().toLowerCase()))
+                        .toList();
+            }
+            if(code!="") {
+                filteredCourses = filteredCourses.stream()
+
+                        .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
+                        .toList();
+            }
+
+            StringBuilder days = new StringBuilder();
+            days.append(day1).append(" ").append(day2).append(" ").append(day3).append(" ").append(day4).append(" ").append(day5);
+            String daysString = days.toString().trim().toLowerCase();
+            if(daysString!="") {
+                filteredCourses = filteredCourses.stream()
+
+                        .filter(course -> daysString.contains(course.daysString().trim().toLowerCase()))
+                        .toList();
+
+            }
+            if(startTime!="") {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getTimes().stream()
+                                .anyMatch(timeBlock -> timeBlock.getStartTime().compareTo((startTime+":00").trim()) >= 0))
+                        .toList();
+
+            }
+            if(endTime!="") {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getTimes().stream()
+                                .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime+":00").trim()) <= 0))
+                        .toList();
+            }
+            if(hideFullCourses){
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getIs_open())
+                        .toList();
+            }
+            // Paginate the filtered results
+            int start = (page - 1) * limit;
+            int end = Math.min(start + limit, filteredCourses.size());
+            List<Course> paginatedCourses = filteredCourses.subList(start, end);
+
+            // Prepare the response
+            Map<String, Object> response = new HashMap<>();
+            response.put("courses", paginatedCourses);
+            response.put("totalCourses", filteredCourses.size());
+            response.put("totalPages", (int) Math.ceil((double) filteredCourses.size() / limit));
+
+            ctx.json(response);
+        });
+
         app.start(7000);
         //--------------------------------------------------------------------------------------
 
