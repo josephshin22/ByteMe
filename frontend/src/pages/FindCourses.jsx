@@ -38,7 +38,7 @@ import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 function FindCourses() {
 
     const availableSemesters = [
-        'Fall 2025', 'Spring 2026', '2025-2026', 
+        'Fall 2025', 'Spring 2026'
     ];
     const [selectedSemesters, setSelectedSemesters] = useState('Fall 2025');
     const [startTimeFilter, setStartTimeFilter] = useState('');
