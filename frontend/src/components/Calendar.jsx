@@ -17,6 +17,7 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         // Add more course codes and colors as needed
     };
 
+
     // Map schedule.courses to a compatible format
     const mapCoursesToClasses = (courses) => {
         return courses.map((course) => ({
@@ -112,8 +113,8 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         return classes.filter(cls => cls.days.includes(day));
     };
 
-    const exportToPDF = () => {
-        const calendarElement = document.querySelector(".flex.flex-col.bg-white.rounded-lg.shadow-lg.p-4.h-full.mr-8"); // Adjust selector if needed
+    const exportToPDF = (schedule) => {
+        const calendarElement = document.querySelector(`[data-schedule-id="schedule-${schedule.id}"]`);
 
         if (!calendarElement) {
             console.error("Calendar element not found");
@@ -122,6 +123,14 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
 
         // Clone the calendar element to avoid modifying the original
         const clonedElement = calendarElement.cloneNode(true);
+
+        // Update the header with the current schedule name
+        const header = clonedElement.querySelector("h2");
+        if (header) {
+            header.textContent = schedule.name;
+        }
+
+        // Apply styles to the cloned element
         clonedElement.style.width = "1200px";
         clonedElement.style.padding = "20px";
         clonedElement.style.margin = "20px";
@@ -137,10 +146,8 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                 const pdf = new jsPDF("landscape", "mm", "a4");
 
                 // Calculate image dimensions to fit A4 size
-                const pdfWidth = 200
-                const pdfHeight = 220
-                console.log(pdfWidth);
-                console.log(pdfHeight)
+                const pdfWidth = 200;
+                const pdfHeight = 220;
                 pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
                 pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
             })
@@ -160,7 +167,7 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
             {/*Calendar Header*/}
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-slate-500">{schedule.name}</h2>
-                <Button variant="ghost" onClick={exportToPDF}>
+                <Button variant="ghost" onClick={() => exportToPDF(schedule)}>
                     Export to PDF
                 </Button>
             </div>

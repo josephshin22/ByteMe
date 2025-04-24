@@ -82,7 +82,7 @@ function SemesterSchedules() {
 
             <div className="mt-16 flex">
                 {schedules.map((schedule, index) => (
-                    <div key={index} className="min-w-[900px]">
+                    <div key={index} className="min-w-[900px]" data-schedule-id={`schedule-${schedule.id}`}>
                         <Calendar key={schedule.id} schedule={schedule} abbreviateName={abbreviateName} moreInfo={moreInfo} />
                     </div>
                 ))}
