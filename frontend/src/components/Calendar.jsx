@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {Button} from "@/components/ui/button.jsx";
 import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
-
+import { jsPDF } from "jspdf";
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
     const courseColors = {
         ACCT: 'bg-red-200',
@@ -109,12 +109,38 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
     const getClassesForDay = (day) => {
         return classes.filter(cls => cls.days.includes(day));
     };
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.text(`Weekly Schedule: ${schedule.name}`, 10, 10);
+
+        daysOfWeek.forEach((day, dayIndex) => {
+            doc.text(day, 10, 20 + dayIndex * 10);
+            const dayClasses = getClassesForDay(day);
+            if (dayClasses.length) {
+                dayClasses.forEach((cls, index) => {
+                    doc.text(
+                        `${index + 1}. ${cls.title} (${formatTime(cls.startTime)} - ${formatTime(cls.endTime)})`,
+                        20,
+                        30 + dayIndex * 10 + index * 10
+                    );
+                });
+            } else {
+                doc.text("No classes", 20, 30 + dayIndex * 10);
+            }
+        });
+
+        doc.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
+    };
 
     return (
+
         <div className="flex flex-col bg-white rounded-lg shadow-lg p-4 h-full mr-8">
-            {/* Calendar Header */}
+            {/*Calendar Header*/}
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-slate-500">{schedule.name}</h2>
+                <Button variant="ghost" onClick={exportToPDF}>
+                    Export to PDF
+                </Button>
             </div>
 
             {/* Week View */}
