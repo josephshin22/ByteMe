@@ -4,6 +4,7 @@ import api from "@/api.js";
 const ScheduleCard = ({semester}) => {
 
     const [schedules, setSchedules] = useState([]);
+    const [showDeleteOptions, setShowDeleteOptions] = useState(false);
 
     useEffect(() => {
         api.get(`/schedules?semester=${semester}`)
@@ -14,6 +15,17 @@ const ScheduleCard = ({semester}) => {
                 console.error("Error fetching schedules:", error);
             });
     }, [semester]);
+
+    const handleDelete = (scheduleId) => {
+        api.delete(`/schedules/${scheduleId}`)
+            .then(() => {
+                setSchedules((prev) => prev.filter(s => s.scheduleID !== scheduleId));
+                setShowDeleteOptions(false);
+            })
+            .catch(err => {
+                console.error("Error deleting schedule:", err);
+            });
+    };
 
     return (
         <div className="group ">
@@ -31,8 +43,8 @@ const ScheduleCard = ({semester}) => {
                   ):(
                       <p className="text-slate-500">No schedules</p>
                   )}
-
               </div>
+
           </div>
         </div>
     );
