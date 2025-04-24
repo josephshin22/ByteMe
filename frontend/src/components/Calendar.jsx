@@ -4,6 +4,7 @@ import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
     const courseColors = {
         ACCT: 'bg-red-200',
@@ -111,11 +112,12 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         return classes.filter(cls => cls.days.includes(day));
     };
 
+
     const exportToPDF = () => {
-        const calendarElement = document.querySelector(".calendar-container"); // Replace with the class or ID of your calendar container
+        const calendarElement = document.querySelector(".flex.flex-col.bg-white.rounded-lg.shadow-lg.p-4.h-full.mr-8"); // Adjust selector if needed
 
         if (!calendarElement) {
-            console.error("Calendar element not found!");
+            console.error("Calendar element not found");
             return;
         }
 
@@ -123,13 +125,14 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
             const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF("landscape", "mm", "a4");
 
+            // Calculate image dimensions to fit A4 size
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
             pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
             pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
         }).catch((error) => {
-            console.error("Error generating PDF:", error);
+            console.error("Error exporting calendar to PDF:", error);
         });
     };
 
