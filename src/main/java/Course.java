@@ -201,6 +201,49 @@ public class Course {
         return getSubjCode() + " " + getCourseNum() + " " + getSection();
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
+
+    public void setCourseNum(int courseNum) {
+        this.courseNum = courseNum;
+    }
+
+    public void setNumCredits(int numCredits) {
+        this.numCredits = numCredits;
+    }
+
+    public void setIs_lab(boolean isLab) {
+        this.is_lab = isLab;
+    }
+
+    public void setSubjCode(String subjCode) {
+        this.abbreviation = subjCode;
+    }
+    public void setTotalSeats(int totalSeats) {
+        this.totalSeats = totalSeats;
+    }
+
+    public void setFaculty(List<String> faculty) {
+        this.faculty = faculty.toArray(new String[0]);
+    }
+
+    public void setTimes(List<timeBlock> times) {
+        this.times = times;
+    }
+
 }
 
 
