@@ -122,8 +122,9 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
 
         // Clone the calendar element to avoid modifying the original
         const clonedElement = calendarElement.cloneNode(true);
-
-        // Replace unsupported "oklch" colors with a supported format in the cloned element
+        clonedElement.style.width = "1200px";
+        clonedElement.style.padding = "20px";
+        clonedElement.style.margin = "20px";
 
         // Append the cloned element to the body (hidden) for rendering
         clonedElement.style.position = "absolute";
@@ -136,9 +137,10 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                 const pdf = new jsPDF("landscape", "mm", "a4");
 
                 // Calculate image dimensions to fit A4 size
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
+                const pdfWidth = 200
+                const pdfHeight = 220
+                console.log(pdfWidth);
+                console.log(pdfHeight)
                 pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
                 pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
             })
