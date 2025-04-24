@@ -3,6 +3,7 @@ import {Button} from "@/components/ui/button.jsx";
 import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
 import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
     const courseColors = {
         ACCT: 'bg-red-200',
@@ -109,27 +110,27 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
     const getClassesForDay = (day) => {
         return classes.filter(cls => cls.days.includes(day));
     };
+
     const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.text(`Weekly Schedule: ${schedule.name}`, 10, 10);
+        const calendarElement = document.querySelector(".calendar-container"); // Replace with the class or ID of your calendar container
 
-        daysOfWeek.forEach((day, dayIndex) => {
-            doc.text(day, 10, 20 + dayIndex * 10);
-            const dayClasses = getClassesForDay(day);
-            if (dayClasses.length) {
-                dayClasses.forEach((cls, index) => {
-                    doc.text(
-                        `${index + 1}. ${cls.title} (${formatTime(cls.startTime)} - ${formatTime(cls.endTime)})`,
-                        20,
-                        30 + dayIndex * 10 + index * 10
-                    );
-                });
-            } else {
-                doc.text("No classes", 20, 30 + dayIndex * 10);
-            }
+        if (!calendarElement) {
+            console.error("Calendar element not found!");
+            return;
+        }
+
+        html2canvas(calendarElement, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("landscape", "mm", "a4");
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
+        }).catch((error) => {
+            console.error("Error generating PDF:", error);
         });
-
-        doc.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
     };
 
     return (
