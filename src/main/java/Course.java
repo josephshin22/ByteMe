@@ -124,6 +124,10 @@ public class Course {
         return totalSeats;
     }
 
+    public String getFullCourseCode() {
+        return abbreviation + " " + courseNum + " " + section;
+    }
+
     public List<timeBlock> getTimes() {
         return times;
     }
@@ -132,6 +136,14 @@ public class Course {
     @Override
     public String toString(){
         return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbreviation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
+    }
+
+    public String daysString(){
+        StringBuilder days = new StringBuilder();
+        for (timeBlock timeBlock : times) {
+            days.append(timeBlock.getDay()).append(" ");
+        }
+        return days.toString().trim().toLowerCase();
     }
 
     public boolean hasConflict(Course c2) {

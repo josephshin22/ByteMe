@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Bookmark, PlusCircle } from "lucide-react";
+import {Bookmark, BookMarked, PlusCircle, School} from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {handleSave} from "@/utils/courseUtils.jsx";
+
 export default function CourseCard({ course }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,9 +44,10 @@ export default function CourseCard({ course }) {
                          onClick={() => handleSave(course)}
                     >
                         <Bookmark  className="h-5 w-5 mt-0.5" />
+
                         <p>Save</p>
                     </div>
-                    <div className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-r-lg font-medium">
+                    <div className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium">
                         <PlusCircle className="h-5 w-5 mt-0.5" />
                         <p>Add</p>
                     </div>
