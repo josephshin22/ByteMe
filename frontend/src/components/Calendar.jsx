@@ -3,7 +3,7 @@ import {Button} from "@/components/ui/button.jsx";
 import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
     const courseColors = {
@@ -120,21 +120,29 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
             return;
         }
 
-        // Replace unsupported "oklch" colors with a supported format
+        // Clone the calendar element to avoid modifying the original
+        const clonedElement = calendarElement.cloneNode(true);
+
+        // Replace unsupported "oklch" colors with a supported format in the cloned element
         const replaceUnsupportedColors = (element) => {
             const computedStyle = window.getComputedStyle(element);
             for (const property of computedStyle) {
                 const value = computedStyle.getPropertyValue(property);
                 if (value.includes("oklch")) {
-                    element.style.setProperty(property, "rgb(255, 255, 255)"); // Replace with white as a fallback
+                    element.style.setProperty(property, "rgb(0, 0, 0)"); // Replace with black as a fallback
                 }
             }
             Array.from(element.children).forEach(replaceUnsupportedColors);
         };
 
-        replaceUnsupportedColors(calendarElement);
+        replaceUnsupportedColors(clonedElement);
 
-        html2canvas(calendarElement, { scale: 2 })
+        // Append the cloned element to the body (hidden) for rendering
+        clonedElement.style.position = "absolute";
+        clonedElement.style.top = "-9999px";
+        document.body.appendChild(clonedElement);
+
+        html2canvas(clonedElement, { scale: 2 })
             .then((canvas) => {
                 const imgData = canvas.toDataURL("image/png");
                 const pdf = new jsPDF("landscape", "mm", "a4");
@@ -148,6 +156,10 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
             })
             .catch((error) => {
                 console.error("Error exporting calendar to PDF:", error);
+            })
+            .finally(() => {
+                // Remove the cloned element from the DOM
+                document.body.removeChild(clonedElement);
             });
     };
 
