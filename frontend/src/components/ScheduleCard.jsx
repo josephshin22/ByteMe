@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from "react";
+import { Button } from "@/components/ui/button.jsx";
+import { jsPDF } from "jspdf";
 import api from "@/api.js";
 
 const ScheduleCard = ({semester}) => {
@@ -14,6 +16,14 @@ const ScheduleCard = ({semester}) => {
                 console.error("Error fetching schedules:", error);
             });
     }, [semester]);
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.text(`Schedule: ${semester}`, 10, 10); // Example content
+        schedules.forEach((schedule, index) => {
+            doc.text(`${index + 1}. ${schedule.name}`, 10, 20 + index * 10);
+        });
+        doc.save(`${semester}.pdf`);
+    };
 
     return (
         <div className="group ">
@@ -33,6 +43,13 @@ const ScheduleCard = ({semester}) => {
                   )}
 
               </div>
+              <Button
+                  variant="ghost"
+                  className="mt-4"
+                  onClick={exportToPDF}
+              >
+                  Export as PDF
+              </Button>
           </div>
         </div>
     );
