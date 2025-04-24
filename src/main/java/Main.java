@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.sql.*;
 
 public class Main {
 
@@ -20,8 +21,8 @@ public class Main {
     private static Student student; // Store the student object globally
     public static List<Course> courses;
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws SQLException {
+        String url = "jdbc:sqlite:database.db";
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             // Read the root node of the JSON file
@@ -60,6 +61,121 @@ public class Main {
 
         student.addSavedCourse(testCourse1);
 
+        // Step 1: Create tables
+        try (Connection conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement()) {
+
+            String createCoursesSQL = """
+                CREATE TABLE IF NOT EXISTS courses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    location TEXT,
+                    section TEXT,
+                    semester TEXT,
+                    courseNum INTEGER,
+                    numCredits INTEGER,
+                    is_lab BOOLEAN,
+                    subjCode TEXT,
+                    totalSeats INTEGER
+                );
+            """;
+
+            String createTimesSQL = """
+                CREATE TABLE IF NOT EXISTS course_times (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    course_id INTEGER,
+                    day TEXT,
+                    start_time TEXT,
+                    end_time TEXT,
+                    FOREIGN KEY(course_id) REFERENCES courses(id)
+                );
+            """;
+
+            String createFacultySQL = """
+                CREATE TABLE IF NOT EXISTS course_faculty (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    course_id INTEGER,
+                    faculty_name TEXT,
+                    FOREIGN KEY(course_id) REFERENCES courses(id)
+                );
+            """;
+            String createUserCoursesSQL = """
+                CREATE TABLE IF NOT EXISTS user_courses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    course_id INTEGER NOT NULL,
+                    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(course_id) REFERENCES courses(id),
+                    UNIQUE(user_id, course_id)
+                );
+            """;
+
+            stmt.execute(createCoursesSQL);
+            stmt.execute(createTimesSQL);
+            stmt.execute(createFacultySQL);
+            stmt.execute(createUserCoursesSQL);
+
+            System.out.println("All tables created or already exist.");
+        } catch (SQLException e) {
+            System.out.println("Error creating tables: " + e.getMessage());
+        }
+
+        // Step 2: Insert course + times + faculty
+        try (Connection conn = DriverManager.getConnection(url)) {
+            String insertCourseSQL = """
+                INSERT INTO courses (
+                    name, location, section, semester, courseNum,
+                    numCredits, is_lab, subjCode, totalSeats
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+
+            PreparedStatement courseStmt = conn.prepareStatement(insertCourseSQL, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement timeStmt = conn.prepareStatement("""
+                INSERT INTO course_times (course_id, day, start_time, end_time) VALUES (?, ?, ?, ?)
+            """);
+
+            PreparedStatement facultyStmt = conn.prepareStatement("""
+                INSERT INTO course_faculty (course_id, faculty_name) VALUES (?, ?)
+            """);
+
+            for (Course c : courses) {
+                // Insert course
+                courseStmt.setString(1, c.getName());
+                courseStmt.setString(2, c.getLocation());
+                courseStmt.setString(3, c.getSection());
+                courseStmt.setString(4, c.getSemester());
+                courseStmt.setInt(5, c.getCourseNum());
+                courseStmt.setInt(6, c.getNumCredits());
+                courseStmt.setBoolean(7, c.getIs_lab());
+                courseStmt.setString(8, c.getSubjCode());
+                courseStmt.setInt(9, c.getTotalSeats());
+                courseStmt.executeUpdate();
+
+                // Get course ID
+                ResultSet rs = courseStmt.getGeneratedKeys();
+                int courseId = -1;
+                if (rs.next()) {
+                    courseId = rs.getInt(1);
+                }
+
+                // Insert times
+                for (timeBlock t : c.getTimes()) {
+                    timeStmt.setInt(1, courseId);
+                    timeStmt.setString(2, t.getDay());
+                    timeStmt.setString(3, t.getStartTime());
+                    timeStmt.setString(4, t.getEndTime());
+                    timeStmt.executeUpdate();
+                }
+
+                // Insert faculty
+                for (String prof : c.getFaculty()) {
+                    facultyStmt.setInt(1, courseId);
+                    facultyStmt.setString(2, prof);
+                    facultyStmt.executeUpdate();
+                }
+            }
+
+        System.out.println("All courses, times, and faculty inserted.");
 
 
         // Frontend testing --------------------------------------------------------------------
@@ -76,7 +192,11 @@ public class Main {
             });
         });
 
-        // Define a test API endpoint
+        int totalCoursesCount = getTotalCoursesCount();
+        List<Course> allCoursesFromDB = getCoursesFromDB(totalCoursesCount, 0);
+
+
+            // Define a test API endpoint
         app.get("/api/hello", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
 
 //        app.get("/api/courses", ctx -> ctx.json(courses));
@@ -84,6 +204,7 @@ public class Main {
             String semester = ctx.queryParam("semester");
             int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
             int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
+            int offset = (page - 1) * limit;
 
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
                 ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
@@ -140,6 +261,8 @@ public class Main {
             String searchTerm = ctx.queryParamAsClass("searchTerm", String.class).getOrDefault("").toLowerCase();
             int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
             int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
+            int offset = (page - 1) * limit;
+
             String semester = ctx.queryParam("semester");
             String code = ctx.queryParamAsClass("code", String.class).getOrDefault("").toLowerCase();
             String day1 = ctx.queryParamAsClass("day1", String.class).getOrDefault("").toLowerCase();
@@ -151,10 +274,13 @@ public class Main {
             String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
             Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
 
+//            List<Course> courses_from_db = getCoursesFromDB(limit, offset);
+
+
             // Filter courses based on the search term and semester
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
-                    ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
-                    : courses;
+                    ? allCoursesFromDB.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
+                    : allCoursesFromDB;
 
             // Filter courses based on the search term
 //            List<Course> filteredCourses = courses;
@@ -214,256 +340,95 @@ public class Main {
 
         app.start(7000);
         //--------------------------------------------------------------------------------------
-
-        // Backend Testing ---------------------------------------------------------------------
-        while(true) {
-            showMenu();
-            int choice = getUserChoice();
-            handlechoice(choice);
         }
 
+
+
+
     }
+    public static List<Course> getCoursesFromDB(int limit, int offset) {
+        List<Course> courseList = new ArrayList<>();
+        String url = "jdbc:sqlite:database.db";
+        String courseSql = "SELECT * FROM courses LIMIT ? OFFSET ?";
 
-    private static void showMenu() {
-        System.out.println("\nWhat would you like to do?");
-        System.out.println("1. Create a new profile");
-        System.out.println("2. Login (required before modification)");
-        System.out.println("3. Create a new schedule");
-        System.out.println("4. Remove a schedule");
-        System.out.println("5. View calendar");
-        System.out.println("6. Add course to schedule");
-        System.out.println("7. Remove course from schedule");
-        System.out.println("8. Search for a course");
-        System.out.println("9. Print all schedules");
-        System.out.println("10. Exit");
-        System.out.print("Enter your choice: ");
-    }
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement courseStmt = conn.prepareStatement(courseSql)) {
 
-    private static String validateInput(String prompt, String errorMsg, String inputType){
-        String input = "";
-        boolean valid = false;
+            courseStmt.setInt(1, limit);
+            courseStmt.setInt(2, offset);
 
-        while (!valid) {
-            System.out.println(prompt);
-            input = scnr.nextLine().trim();
+            var rs = courseStmt.executeQuery();
 
-            // Check validation based on input type
-            switch (inputType) {
-                case "username":
-                    if (input.isEmpty() || input.length() < 3) {
-                        System.out.println(errorMsg);
-                    } else {
-                        valid = true;
+            while (rs.next()) {
+                Course c = new Course();
+                int courseId = rs.getInt("id"); // Get the course ID for related data
+
+                c.setName(rs.getString("name"));
+                c.setLocation(rs.getString("location"));
+                c.setSection(rs.getString("section"));
+                c.setSemester(rs.getString("semester"));
+                c.setCourseNum(rs.getInt("courseNum"));
+                c.setNumCredits(rs.getInt("numCredits"));
+                c.setIs_lab(rs.getBoolean("is_lab"));
+                c.setSubjCode(rs.getString("subjCode"));
+                c.setTotalSeats(rs.getInt("totalSeats"));
+
+                // Get times for this course
+                String timesSql = "SELECT * FROM course_times WHERE course_id = ?";
+                try (PreparedStatement timeStmt = conn.prepareStatement(timesSql)) {
+                    timeStmt.setInt(1, courseId);
+                    var timesRs = timeStmt.executeQuery();
+
+                    List<timeBlock> times = new ArrayList<>();
+                    while (timesRs.next()) {
+                        timeBlock time = new timeBlock();
+                        time.setDay(timesRs.getString("day"));
+                        time.setStartTime(timesRs.getString("start_time"));
+                        time.setEndTime(timesRs.getString("end_time"));
+                        times.add(time);
                     }
-                    break;
+                    c.setTimes(times);
+                }
 
-                case "ID":
-                    if (input.length() != 6 || !input.matches("\\d{6}")) {
-                        System.out.println(errorMsg);
-                    } else {
-                        valid = true;
-                    }
-                    break;
+                // Get faculty for this course
+                String facultySql = "SELECT * FROM course_faculty WHERE course_id = ?";
+                try (PreparedStatement facultyStmt = conn.prepareStatement(facultySql)) {
+                    facultyStmt.setInt(1, courseId);
+                    var facultyRs = facultyStmt.executeQuery();
 
-                case "password":
-                    if (input.length() < 6 || !input.matches("[a-zA-Z0-9]+")) {
-                        System.out.println(errorMsg);
-                    } else {
-                        valid = true;
+                    List<String> faculty = new ArrayList<>();
+                    while (facultyRs.next()) {
+                        faculty.add(facultyRs.getString("faculty_name"));
                     }
-                    break;
-                case "semester":
-                    if (input.isEmpty() || !input.matches("\\d{4}_[a-zA-Z]+")) {
-                        System.out.println(errorMsg);
-                    } else {
-                        valid = true;
-                    }
-                    break;
+                    c.setFaculty(faculty);
+                }
+
+                courseList.add(c);
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return input;
+
+        return courseList;
     }
+    public static int getTotalCoursesCount() {
+        String url = "jdbc:sqlite:database.db";
+        String sql = "SELECT COUNT(*) AS total FROM courses";
 
-    private static int getUserChoice() {
-        int choice = -1;
-        try {
-            choice = Integer.parseInt(scnr.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement();
+             var rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return choice;
-    }
 
-    private static void handlechoice(int choice) {
-        switch (choice) {
-            case 1:
-                String username = validateInput("Please enter a username:", "Username must be at least 3 characters long.", "username");
-                int studentID = Integer.parseInt(validateInput("Please enter student ID:", "ID must be exactly 6 digits.", "ID"));
-                String password = validateInput("Please enter a password:", "Password must be at least 6 alphanumeric characters long.", "password");
-
-                student = new Student(username, studentID, password);
-                break;
-            case 2:
-                for (int i = 0; i < 3; i++) {
-                    System.out.println("Please enter your username:");
-                    String usernameAttempt = scnr.nextLine();
-                    System.out.println("Please enter your password:");
-                    String passwordAttempt = scnr.nextLine();
-                    if(student.verifyLogin(usernameAttempt, passwordAttempt)) {
-                        loggedIn = true;
-                        System.out.println("Login successful.");
-                        break;
-                    } else {
-                        System.out.println("Incorrect username or password. Please try again.");
-                    }
-                }
-                break;
-            case 3:
-                if (loggedIn) {
-                    Schedule newSchedule = new Schedule(student); // Create a new schedule under student
-                    String input = validateInput("What semester is this schedule for? Enter Year_Semester:", "Semester must be in the format YYYY_Semester", "semester");
-                    newSchedule.setSemester(input);
-                    System.out.println("New schedule created for " + input + " with ID: " + newSchedule.getScheduleID());                } else {
-                    System.out.println("You must be logged in to modify schedules.");
-                }
-                break;
-            case 4:
-                if (loggedIn) {
-                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to remove? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
-                    // check that schedule exists
-                    for (Schedule sched : student.getSchedules()){
-                        if (scheduleID == sched.getScheduleID()){
-                            student.deleteSchedule(scheduleID);
-                            System.out.println("Schedule removed.");
-                            break;
-                        } else {
-                            System.out.println("Schedule not found.");
-                        }
-                    }
-
-                } else {
-                    System.out.println("You must be logged in to modify schedules.");
-                }
-                break;
-            case 5:
-                if (loggedIn) {
-                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to view? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));//                    System.out.println(student.getSchedules().get(0).getScheduleID());
-                    for (Schedule schedule : student.getSchedules()) {
-//                        System.out.println(schedule.getScheduleID());
-                        if (schedule.getScheduleID() == scheduleID) {
-                            System.out.println(schedule.calendarView());
-                            break;
-                        } else {
-                            System.out.println("Schedule not found. Check ID and try again.");
-                        }
-                    }
-
-                } else {
-                    System.out.println("You must be logged in to modify schedules.");
-                }
-                break;
-            case 6:
-                if (loggedIn) {
-                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to modify? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
-                    System.out.println("Enter the course subject code:");
-                    String subjCode = scnr.nextLine().trim();
-                    System.out.println("Enter the course number:");
-                    int courseNum = 0;
-                    try {
-                        courseNum = Integer.parseInt(scnr.nextLine().trim());
-                    } catch (NumberFormatException e) {
-                        System.out.println("Error: Invalid input. Please enter a valid numeric course number.");
-                    }
-                    System.out.println("Enter the section:");
-                    String section = scnr.nextLine();
-
-                    System.out.println("Enter the semester:");
-                    String semester = scnr.nextLine();
-                    boolean courseFound = false;
-                    for (Course course : courses) {
-                        if (course.getSubjCode().equalsIgnoreCase(subjCode) && course.getCourseNum() == courseNum && course.getSection().equalsIgnoreCase(section) && course.getSemester().equals(semester)) {
-                            courseFound = true;
-                            for (Schedule schedule : student.getSchedules()) {
-                                if (schedule.getScheduleID() == scheduleID) {
-                                    schedule.addToSchedule(course);
-//                                    System.out.println("Course successfully added to schedule.");
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    if (!courseFound) {
-                        System.out.println("Schedule/course not found. Check ID and try again.");
-                        break;
-                    }
-                } else {
-                    System.out.println("You must be logged in to modify schedules.");
-                }
-                break;
-            case 7:
-                if (loggedIn) {
-                    // remove course
-                    int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to modify? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
-                    System.out.println("Enter the course subject code:");
-                    String subjCode = scnr.nextLine().trim();
-                    System.out.println("Enter the course number:");
-                    int courseNum = 0;
-                    try {
-                        courseNum = Integer.parseInt(scnr.nextLine().trim());
-                    } catch (NumberFormatException e) {
-                        System.out.println("Error: Invalid input. Please enter a valid numeric course number.");
-                    }
-                    System.out.println("Enter the section:");
-                    String section = scnr.nextLine().trim();
-
-                    System.out.println("Enter the semester:");
-                    String semester = scnr.nextLine();
-
-                    boolean courseFound2 = false;
-                    for (Course course : courses) {
-                        if (course.getSubjCode().equalsIgnoreCase(subjCode) && course.getCourseNum() == courseNum && course.getSection().equalsIgnoreCase(section) && course.getSemester().equals(semester)) {
-                            courseFound2 = true;
-                            for (Schedule schedule : student.getSchedules()) {
-                                if (schedule.getScheduleID() == scheduleID) {
-                                    schedule.removeFromSchedule(course);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    if (!courseFound2) {
-                        System.out.println("Schedule/course not found. Check ID and try again.");
-                        break;
-                    }
-
-                } else {
-                    System.out.println("You must be logged in to modify schedules.");
-                }
-                break;
-            case 8:
-                Search search = new Search();
-                search.conductSearchLoop((ArrayList<Course>) courses);
-                break;
-            case 9:
-                // print all schedules
-                if (loggedIn){
-                    for (Schedule schedule : student.getSchedules()) {
-                        System.out.println(schedule);
-                    }
-                    break;
-                } else {
-                    System.out.println("You must be logged in to view schedules.");
-                    break;
-                }
-            case 10:
-                System.out.println("Exiting the application...");
-                System.exit(0);
-                break;
-            default:
-                System.out.println("Invalid choice. Please select a valid option.");
-        }
+        return 0;
     }
 
     // Data class for JSON response - frontend testing
@@ -475,3 +440,5 @@ public class Main {
         }
     }
 }
+
+

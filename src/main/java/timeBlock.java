@@ -38,4 +38,16 @@ public class timeBlock {
     public String getEndTime() {
         return endTime;
     }
+
+    public void setDay(String day) {
+        this.day = day;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
 }

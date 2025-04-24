@@ -50,7 +50,7 @@ export default function CourseCard({ course }) {
                         )}
                         <p>Save</p>
                     </div>
-                    <div className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium">
+                    <div onClick={() => handleAddCourse(course)} className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium">
                         <PlusCircle className="h-5 w-5 mt-0.5" />
                         <p>Add</p>
                     </div>
