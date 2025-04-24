@@ -91,7 +91,7 @@ function FindCourses() {
                 }
             })
             .catch((err) => console.error("Error fetching courses:", err));
-    }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter]);
+    }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter, credits]);
     console.log("Courses:", courses);
 
     const options = [
