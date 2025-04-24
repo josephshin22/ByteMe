@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import api from "@/api.js";
+import {Button} from "@/components/ui/button.jsx";
 
 const ScheduleCard = ({semester}) => {
 
@@ -45,6 +46,39 @@ const ScheduleCard = ({semester}) => {
                   )}
               </div>
 
+              {!showDeleteOptions && schedules.length > 0 && (
+                  <Button
+                      onClick={() => setShowDeleteOptions(true)}
+                      className="mt-2 w-28 bg-red-100 hover:bg-red-200 text-red-800 transition-colors duration-150"
+                      size="sm"
+                  >
+                      Remove
+                  </Button>
+              )}
+
+              {showDeleteOptions && schedules.length > 0 && (
+                  <div className="absolute top-0 left-0 w-full h-full bg-white/90 p-4 flex flex-col gap-2 rounded-lg shadow-md">
+                      <p className="font-medium">Select schedule to remove:</p>
+                      {schedules.map((s) => (
+                          <div key={s.scheduleID} className="w-28">
+                              <Button
+                                  onClick={() => handleDelete(s.scheduleID)}
+                                  className="h-full w-full bg-red-100 hover:bg-red-200 text-red-800 transition-colors duration-150"
+                                  size="sm"
+                              >
+                                  {s.name}
+                              </Button>
+                          </div>
+                      ))}
+                      <Button
+                          variant="ghost"
+                          onClick={() => setShowDeleteOptions(false)}
+                          size="sm"
+                      >
+                          Cancel
+                      </Button>
+                  </div>
+              )}
           </div>
         </div>
     );
