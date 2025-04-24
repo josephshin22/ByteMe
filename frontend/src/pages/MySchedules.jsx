@@ -61,13 +61,13 @@ function MySchedules() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-5xl">
 
                 {sortedSchedules.map((semester) => (
-                    <div className="relative group">
-                        <Link to={`/schedules/${semester}`}>
+                   <div className="relative group border rounded-lg p-4 flex flex-col justify-between">
+                        <Link to={`/schedules/${semester}`} className="mb-4">
                             <ScheduleCard semester={semester} />
                         </Link>
                         <Button
                             variant="ghost"
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
+                            className="mt-auto"
                             onClick={() => exportToPDF(semester)}
                         >
                             Export as PDF
