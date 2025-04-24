@@ -62,6 +62,7 @@ function FindCourses() {
     const [day4, setDay4] = useState('');
     const [day5, setDay5] = useState('');
     const [hideFullCourses, setHideFullCourses] = useState(false); // State to control showing full courses
+    const [credits, setCredits] = useState('');
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
 
     const clearTimeFilters = () => {
@@ -75,7 +76,7 @@ function FindCourses() {
         // const endpoint = searchInput
         //     ? `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
         //     : `/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`;
-        const endpoint = `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
+        const endpoint = `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}&credits=${credits}`
 
         api.get(endpoint)
             .then((res) => {
@@ -283,7 +284,16 @@ function FindCourses() {
                                     <div className=" text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
                                 )}
                             </div>
-
+                            {/* Credits Filter */}
+                            <div className="h-8 flex items-center rounded-lg bg-input shadow-xs">
+                                <div className="text-slate-500 font-medium text-xs px-2">CREDITS</div>
+                                <Input
+                                    className="h-8 shadow-none rounded-none max-w-36"
+                                    placeholder="ex: '3'"
+                                    value={credits}
+                                    onChange={(e) => setCredits(e.target.value)}
+                                />
+                            </div>
 
                         </div>
 

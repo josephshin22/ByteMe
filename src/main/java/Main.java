@@ -150,6 +150,9 @@ public class Main {
             String startTime = ctx.queryParamAsClass("startTime", String.class).getOrDefault("").toLowerCase();
             String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
             Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
+            String credits = ctx.queryParamAsClass("credits", String.class).getOrDefault("").toLowerCase();
+
+
 
             // Filter courses based on the search term and semester
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
@@ -196,6 +199,11 @@ public class Main {
             if(hideFullCourses){
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getIs_open())
+                        .toList();
+            }
+            if(credits!="") {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getNumCredits() == Integer.parseInt(credits))
                         .toList();
             }
             // Paginate the filtered results
