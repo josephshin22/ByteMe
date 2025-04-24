@@ -112,7 +112,6 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         return classes.filter(cls => cls.days.includes(day));
     };
 
-
     const exportToPDF = () => {
         const calendarElement = document.querySelector(".flex.flex-col.bg-white.rounded-lg.shadow-lg.p-4.h-full.mr-8"); // Adjust selector if needed
 
@@ -121,20 +120,37 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
             return;
         }
 
-        html2canvas(calendarElement, { scale: 2 }).then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("landscape", "mm", "a4");
+        // Replace unsupported "oklch" colors with a supported format
+        const replaceUnsupportedColors = (element) => {
+            const computedStyle = window.getComputedStyle(element);
+            for (const property of computedStyle) {
+                const value = computedStyle.getPropertyValue(property);
+                if (value.includes("oklch")) {
+                    element.style.setProperty(property, "rgb(255, 255, 255)"); // Replace with white as a fallback
+                }
+            }
+            Array.from(element.children).forEach(replaceUnsupportedColors);
+        };
 
-            // Calculate image dimensions to fit A4 size
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        replaceUnsupportedColors(calendarElement);
 
-            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
-        }).catch((error) => {
-            console.error("Error exporting calendar to PDF:", error);
-        });
+        html2canvas(calendarElement, { scale: 2 })
+            .then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+                const pdf = new jsPDF("landscape", "mm", "a4");
+
+                // Calculate image dimensions to fit A4 size
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
+            })
+            .catch((error) => {
+                console.error("Error exporting calendar to PDF:", error);
+            });
     };
+
 
     return (
 
