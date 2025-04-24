@@ -1,10 +1,11 @@
 import java.util.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class Student {
 
     private String username;
     private int studentID;
-    private String password;
+    private String hashedPassword;
     private String[] major;
     private String[] minor;
     private String gradYear;
@@ -12,6 +13,7 @@ public class Student {
     private Course[] takenCourses;
     private ArrayList<Schedule> schedules;
     private ArrayList<Course> savedCourses;
+
 
     public Student() {
         this.schedules = new ArrayList<Schedule>();
@@ -21,9 +23,17 @@ public class Student {
     public Student(String username, int studentID, String password) {
         this.username = username;
         this.studentID = studentID;
-        this.password = password;
+        this.hashedPassword = hashPassword(password);
         this.schedules = new ArrayList<Schedule>();
         this.savedCourses = new ArrayList<Course>();
+    }
+
+    public String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    public boolean checkPassword(String password){
+        return BCrypt.checkpw(password, this.hashedPassword);
     }
 
 //    public void showSavedCourses() {
@@ -128,11 +138,8 @@ public class Student {
 
 
 
-    public boolean verifyPassword(String passwordAttempt) {
-        return passwordAttempt.equals(password);
-    }
     public boolean verifyLogin(String usernameAttempt, String passwordAttempt) {
-        return usernameAttempt.equals(username) && passwordAttempt.equals(password);
+        return usernameAttempt.equals(username) && checkPassword(passwordAttempt);
     }
 
     public String getUsername() {
@@ -143,12 +150,8 @@ public class Student {
         this.username = username;
     }
 
-    public String getPassword(String password) {
-        return password;
-    }
-
     public void setPassword(String password) {
-        this.password = password;
+        this.hashedPassword = hashPassword(password);
     }
 
     public int getStudentID() {
