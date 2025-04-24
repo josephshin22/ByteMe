@@ -151,8 +151,13 @@ public class Main {
             String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
             Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
 
+            // Filter courses based on the search term and semester
+            List<Course> filteredCourses = (semester != null && !semester.isEmpty())
+                    ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
+                    : courses;
+
             // Filter courses based on the search term
-            List<Course> filteredCourses = courses;
+//            List<Course> filteredCourses = courses;
             if(searchTerm != null && !searchTerm.trim().isEmpty()) {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase()) || course.getFullCourseCode().trim().toLowerCase().contains(searchTerm.trim().toLowerCase()))
