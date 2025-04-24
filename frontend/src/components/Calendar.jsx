@@ -114,7 +114,9 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
     };
 
     const exportToPDF = (schedule) => {
-        const calendarElement = document.querySelector(`[data-schedule-id="schedule-${schedule.id}"]`);
+        const calendarElement = document.querySelector(
+            `[data-schedule-semester="${schedule.semester}"][data-schedule-name="${schedule.name}"]`
+        );
 
         if (!calendarElement) {
             console.error("Calendar element not found");
