@@ -61,7 +61,6 @@ public class Main {
         student.addSavedCourse(testCourse1);
 
 
-
         // Frontend testing --------------------------------------------------------------------
         // Configure Jackson ObjectMapper
         ObjectMapper objectMapper1 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
@@ -86,8 +85,8 @@ public class Main {
             int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
 
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
-                ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
-                : courses;
+                    ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
+                    : courses;
 
             int start = (page - 1) * limit;
             int end = Math.min(start + limit, filteredCourses.size());
@@ -106,34 +105,62 @@ public class Main {
             String semester = ctx.queryParam("semester");
             if (semester == null || semester.isEmpty()) {
                 List<String> allSemesters = student.getSchedules().stream()
-                    .map(Schedule::getSemester)
-                    .distinct()
-                    .toList();
+                        .map(Schedule::getSemester)
+                        .distinct()
+                        .toList();
                 ctx.json(allSemesters);
                 return;
             }
 
             List<Schedule> filteredSchedules = student.getSchedules().stream()
-                .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
-                .toList();
+                    .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
+                    .toList();
 
             ctx.json(filteredSchedules);
         });
 
         // ADD SCHEDULE
-       app.post("/api/schedules", ctx -> {
-           String name = ctx.queryParam("name");
-           String semester = ctx.queryParam("semester");
+        app.post("/api/schedules", ctx -> {
+            String name = ctx.queryParam("name");
+            String semester = ctx.queryParam("semester");
 
-           if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
-               ctx.status(400).json(Map.of("error", "Name and semester are required."));
-               return;
-           }
+            if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
+                ctx.status(400).json(Map.of("error", "Name and semester are required."));
+                return;
+            }
 
-           Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
-           newSchedule.setSemester(semester);
-           ctx.status(201).json(Map.of("message", "Schedule created successfully."));
-       });
+            Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
+            newSchedule.setSemester(semester);
+            ctx.status(201).json(Map.of("message", "Schedule created successfully."));
+        });
+
+        // DELETE SCHEDULE by ID
+        app.delete("/api/schedules/{scheduleId}", ctx -> {
+            String scheduleIdStr = ctx.pathParam("scheduleId");
+            int scheduleId;
+
+            try {
+                scheduleId = Integer.parseInt(scheduleIdStr);
+            } catch (NumberFormatException e) {
+                ctx.status(400).json(Map.of("error", "Invalid schedule ID format"));
+                return;
+            }
+
+            // Find the schedule with the given ID
+            Optional<Schedule> scheduleToRemove = student.getSchedules()
+                    .stream()
+                    .filter(schedule -> schedule.getScheduleID() == scheduleId)
+                    .findFirst();
+
+            if (scheduleToRemove.isPresent()) {
+                // Remove the schedule from the student's schedules
+                student.getSchedules().remove(scheduleToRemove.get());
+                ctx.status(200).json(Map.of("message", "Schedule deleted successfully"));
+            } else {
+                ctx.status(404).json(Map.of("error", "Schedule not found"));
+            }
+        });
+
 
         //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
         app.get("/api/search-courses", ctx -> {
@@ -158,12 +185,12 @@ public class Main {
 
             // Filter courses based on the search term
 //            List<Course> filteredCourses = courses;
-            if(searchTerm != null && !searchTerm.trim().isEmpty()) {
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase()) || course.getFullCourseCode().trim().toLowerCase().contains(searchTerm.trim().toLowerCase()))
                         .toList();
             }
-            if(code!="") {
+            if (code != "") {
                 filteredCourses = filteredCourses.stream()
 
                         .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
@@ -173,27 +200,27 @@ public class Main {
             StringBuilder days = new StringBuilder();
             days.append(day1).append(" ").append(day2).append(" ").append(day3).append(" ").append(day4).append(" ").append(day5);
             String daysString = days.toString().trim().toLowerCase();
-            if(daysString!="") {
+            if (daysString != "") {
                 filteredCourses = filteredCourses.stream()
 
                         .filter(course -> daysString.contains(course.daysString().trim().toLowerCase()))
                         .toList();
 
             }
-            if(startTime!="") {
+            if (startTime != "") {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getTimes().stream()
-                                .anyMatch(timeBlock -> timeBlock.getStartTime().compareTo((startTime+":00").trim()) >= 0))
+                                .anyMatch(timeBlock -> timeBlock.getStartTime().compareTo((startTime + ":00").trim()) >= 0))
                         .toList();
 
             }
-            if(endTime!="") {
+            if (endTime != "") {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getTimes().stream()
-                                .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime+":00").trim()) <= 0))
+                                .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime + ":00").trim()) <= 0))
                         .toList();
             }
-            if(hideFullCourses){
+            if (hideFullCourses) {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getIs_open())
                         .toList();
@@ -216,7 +243,7 @@ public class Main {
         //--------------------------------------------------------------------------------------
 
         // Backend Testing ---------------------------------------------------------------------
-        while(true) {
+        while (true) {
             showMenu();
             int choice = getUserChoice();
             handlechoice(choice);
@@ -239,7 +266,7 @@ public class Main {
         System.out.print("Enter your choice: ");
     }
 
-    private static String validateInput(String prompt, String errorMsg, String inputType){
+    private static String validateInput(String prompt, String errorMsg, String inputType) {
         String input = "";
         boolean valid = false;
 
@@ -309,7 +336,7 @@ public class Main {
                     String usernameAttempt = scnr.nextLine();
                     System.out.println("Please enter your password:");
                     String passwordAttempt = scnr.nextLine();
-                    if(student.verifyLogin(usernameAttempt, passwordAttempt)) {
+                    if (student.verifyLogin(usernameAttempt, passwordAttempt)) {
                         loggedIn = true;
                         System.out.println("Login successful.");
                         break;
@@ -323,7 +350,8 @@ public class Main {
                     Schedule newSchedule = new Schedule(student); // Create a new schedule under student
                     String input = validateInput("What semester is this schedule for? Enter Year_Semester:", "Semester must be in the format YYYY_Semester", "semester");
                     newSchedule.setSemester(input);
-                    System.out.println("New schedule created for " + input + " with ID: " + newSchedule.getScheduleID());                } else {
+                    System.out.println("New schedule created for " + input + " with ID: " + newSchedule.getScheduleID());
+                } else {
                     System.out.println("You must be logged in to modify schedules.");
                 }
                 break;
@@ -331,8 +359,8 @@ public class Main {
                 if (loggedIn) {
                     int scheduleID = Integer.parseInt(validateInput("Which schedule would you like to remove? Enter schedule ID:", "ID must be exactly 6 digits.", "ID"));
                     // check that schedule exists
-                    for (Schedule sched : student.getSchedules()){
-                        if (scheduleID == sched.getScheduleID()){
+                    for (Schedule sched : student.getSchedules()) {
+                        if (scheduleID == sched.getScheduleID()) {
                             student.deleteSchedule(scheduleID);
                             System.out.println("Schedule removed.");
                             break;
@@ -448,7 +476,7 @@ public class Main {
                 break;
             case 9:
                 // print all schedules
-                if (loggedIn){
+                if (loggedIn) {
                     for (Schedule schedule : student.getSchedules()) {
                         System.out.println(schedule);
                     }
