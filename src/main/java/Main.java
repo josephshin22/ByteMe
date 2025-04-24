@@ -177,7 +177,6 @@ public class Main {
 
         System.out.println("All courses, times, and faculty inserted.");
 
-
         // Frontend testing --------------------------------------------------------------------
         // Configure Jackson ObjectMapper
         ObjectMapper objectMapper1 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
@@ -207,8 +206,8 @@ public class Main {
             int offset = (page - 1) * limit;
 
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
-                ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
-                : courses;
+                    ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
+                    : courses;
 
             int start = (page - 1) * limit;
             int end = Math.min(start + limit, filteredCourses.size());
@@ -227,34 +226,62 @@ public class Main {
             String semester = ctx.queryParam("semester");
             if (semester == null || semester.isEmpty()) {
                 List<String> allSemesters = student.getSchedules().stream()
-                    .map(Schedule::getSemester)
-                    .distinct()
-                    .toList();
+                        .map(Schedule::getSemester)
+                        .distinct()
+                        .toList();
                 ctx.json(allSemesters);
                 return;
             }
 
             List<Schedule> filteredSchedules = student.getSchedules().stream()
-                .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
-                .toList();
+                    .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
+                    .toList();
 
             ctx.json(filteredSchedules);
         });
 
         // ADD SCHEDULE
-       app.post("/api/schedules", ctx -> {
-           String name = ctx.queryParam("name");
-           String semester = ctx.queryParam("semester");
+        app.post("/api/schedules", ctx -> {
+            String name = ctx.queryParam("name");
+            String semester = ctx.queryParam("semester");
 
-           if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
-               ctx.status(400).json(Map.of("error", "Name and semester are required."));
-               return;
-           }
+            if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
+                ctx.status(400).json(Map.of("error", "Name and semester are required."));
+                return;
+            }
 
-           Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
-           newSchedule.setSemester(semester);
-           ctx.status(201).json(Map.of("message", "Schedule created successfully."));
-       });
+            Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
+            newSchedule.setSemester(semester);
+            ctx.status(201).json(Map.of("message", "Schedule created successfully."));
+        });
+
+        // DELETE SCHEDULE by ID
+        app.delete("/api/schedules/{scheduleId}", ctx -> {
+            String scheduleIdStr = ctx.pathParam("scheduleId");
+            int scheduleId;
+
+            try {
+                scheduleId = Integer.parseInt(scheduleIdStr);
+            } catch (NumberFormatException e) {
+                ctx.status(400).json(Map.of("error", "Invalid schedule ID format"));
+                return;
+            }
+
+            // Find the schedule with the given ID
+            Optional<Schedule> scheduleToRemove = student.getSchedules()
+                    .stream()
+                    .filter(schedule -> schedule.getScheduleID() == scheduleId)
+                    .findFirst();
+
+            if (scheduleToRemove.isPresent()) {
+                // Remove the schedule from the student's schedules
+                student.getSchedules().remove(scheduleToRemove.get());
+                ctx.status(200).json(Map.of("message", "Schedule deleted successfully"));
+            } else {
+                ctx.status(404).json(Map.of("error", "Schedule not found"));
+            }
+        });
+
 
         //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
         app.get("/api/search-courses", ctx -> {
@@ -273,6 +300,9 @@ public class Main {
             String startTime = ctx.queryParamAsClass("startTime", String.class).getOrDefault("").toLowerCase();
             String endTime = ctx.queryParamAsClass("endTime", String.class).getOrDefault("").toLowerCase();
             Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
+            String credits = ctx.queryParamAsClass("credits", String.class).getOrDefault("").toLowerCase();
+
+
 
 //            List<Course> courses_from_db = getCoursesFromDB(limit, offset);
 
@@ -284,12 +314,12 @@ public class Main {
 
             // Filter courses based on the search term
 //            List<Course> filteredCourses = courses;
-            if(searchTerm != null && !searchTerm.trim().isEmpty()) {
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getName().toLowerCase().contains(searchTerm.trim().toLowerCase()) || course.getFullCourseCode().trim().toLowerCase().contains(searchTerm.trim().toLowerCase()))
                         .toList();
             }
-            if(code!="") {
+            if (code != "") {
                 filteredCourses = filteredCourses.stream()
 
                         .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
@@ -299,29 +329,34 @@ public class Main {
             StringBuilder days = new StringBuilder();
             days.append(day1).append(" ").append(day2).append(" ").append(day3).append(" ").append(day4).append(" ").append(day5);
             String daysString = days.toString().trim().toLowerCase();
-            if(daysString!="") {
+            if (daysString != "") {
                 filteredCourses = filteredCourses.stream()
 
                         .filter(course -> daysString.contains(course.daysString().trim().toLowerCase()))
                         .toList();
 
             }
-            if(startTime!="") {
+            if (startTime != "") {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getTimes().stream()
-                                .anyMatch(timeBlock -> timeBlock.getStartTime().compareTo((startTime+":00").trim()) >= 0))
+                                .anyMatch(timeBlock -> timeBlock.getStartTime().compareTo((startTime + ":00").trim()) >= 0))
                         .toList();
 
             }
-            if(endTime!="") {
+            if (endTime != "") {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getTimes().stream()
-                                .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime+":00").trim()) <= 0))
+                                .anyMatch(timeBlock -> timeBlock.getEndTime().compareTo((endTime + ":00").trim()) <= 0))
                         .toList();
             }
-            if(hideFullCourses){
+            if (hideFullCourses) {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getIs_open())
+                        .toList();
+            }
+            if(credits!="") {
+                filteredCourses = filteredCourses.stream()
+                        .filter(course -> course.getNumCredits() == Integer.parseInt(credits))
                         .toList();
             }
             // Paginate the filtered results
@@ -340,8 +375,8 @@ public class Main {
 
         app.start(7000);
         //--------------------------------------------------------------------------------------
-        }
 
+        }
 
 
 
@@ -415,6 +450,7 @@ public class Main {
     public static int getTotalCoursesCount() {
         String url = "jdbc:sqlite:database.db";
         String sql = "SELECT COUNT(*) AS total FROM courses";
+
 
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement();

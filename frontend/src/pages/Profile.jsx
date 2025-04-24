@@ -97,7 +97,7 @@ export default function Profile() {
                     </div>
 
                     <div className="grid w-full max-w-sm items-center gap-2">
-                        {/*<FavoriteColorForm />*/}
+                        <FavoriteColorForm />
                     </div>
 
 
