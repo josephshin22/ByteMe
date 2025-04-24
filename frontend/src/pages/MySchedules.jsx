@@ -6,6 +6,7 @@ import {Button} from "@/components/ui/button.jsx";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import FormModal from "@/components/FormModal.jsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { jsPDF } from "jspdf";
 
 const schedules = ["2023_Fall", "2024_Spring"];
 
@@ -32,6 +33,12 @@ function MySchedules() {
 
     const availableSemesters = ['2023_Fall', '2023_Winter_Online', '2024_Spring', '2024_Early_Summer', '2024_Fall', '2025_Spring'];
 
+    const exportToPDF = (schedule) => {
+        const doc = new jsPDF();
+        doc.text(`Schedule: ${schedule}`, 10, 10); // Example content
+        doc.save(`${schedule}.pdf`);
+    };
+
     return (
         <div>
             <div className="flex justify-between">
@@ -54,9 +61,18 @@ function MySchedules() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-5xl">
 
                 {sortedSchedules.map((semester) => (
-                    <Link to={`/schedules/${semester}`}>
-                        <ScheduleCard semester={semester} />
-                    </Link>
+                    <div className="relative group">
+                        <Link to={`/schedules/${semester}`}>
+                            <ScheduleCard semester={semester} />
+                        </Link>
+                        <Button
+                            variant="ghost"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
+                            onClick={() => exportToPDF(semester)}
+                        >
+                            Export as PDF
+                        </Button>
+                    </div>
                 ))}
 
                 <div
