@@ -124,25 +124,13 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         const clonedElement = calendarElement.cloneNode(true);
 
         // Replace unsupported "oklch" colors with a supported format in the cloned element
-        const replaceUnsupportedColors = (element) => {
-            const computedStyle = window.getComputedStyle(element);
-            for (const property of computedStyle) {
-                const value = computedStyle.getPropertyValue(property);
-                if (value.includes("oklch")) {
-                    element.style.setProperty(property, "rgb(0, 0, 0)"); // Replace with black as a fallback
-                }
-            }
-            Array.from(element.children).forEach(replaceUnsupportedColors);
-        };
-
-        replaceUnsupportedColors(clonedElement);
 
         // Append the cloned element to the body (hidden) for rendering
         clonedElement.style.position = "absolute";
         clonedElement.style.top = "-9999px";
         document.body.appendChild(clonedElement);
 
-        html2canvas(clonedElement, { scale: 2 })
+        html2canvas(clonedElement, { scale: 7 })
             .then((canvas) => {
                 const imgData = canvas.toDataURL("image/png");
                 const pdf = new jsPDF("landscape", "mm", "a4");
