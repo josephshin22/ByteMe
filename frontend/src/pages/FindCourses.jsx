@@ -52,7 +52,7 @@ function FindCourses() {
     const handleSemesterChange = (value) => {
         setSelectedSemester(value);
         setPage(1);
-        console.log("Selected semester:", value);
+        // console.log("Selected semester:", value);
     };
     const [searchInput, setSearchInput] = useState('');
     const [code, setCode] = useState('');
@@ -72,9 +72,10 @@ function FindCourses() {
     const coursesRef = useRef(null);
 
     useEffect(() => {
-        const endpoint = searchInput
-            ? `/search-courses?searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
-            : `/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`;
+        // const endpoint = searchInput
+        //     ? `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
+        //     : `/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`;
+        const endpoint = `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
 
         api.get(endpoint)
             .then((res) => {
@@ -89,7 +90,7 @@ function FindCourses() {
                 }
             })
             .catch((err) => console.error("Error fetching courses:", err));
-    }, [searchInput, page, selectedSemester]);
+    }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter]);
     console.log("Courses:", courses);
 
     const options = [
@@ -144,7 +145,7 @@ function FindCourses() {
     const handleTimeChange = (value, setTime) => {
         // Allow typing any value
         setTime(value);
-        console.log("Updated state:", value);
+        // console.log("Updated state:", value);
         // Validate the input when it's complete
         // const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Matches "HH:mm" format
         // if (!timeRegex.test(value) && value.length === 5) {
@@ -155,6 +156,10 @@ function FindCourses() {
     function handleTableRowClick(course) {
         setCourseForModal(course);
         setIsModalOpen(true);
+    }
+
+    function updateSearch(){
+        setPage(1);
     }
 
     return (
@@ -218,7 +223,10 @@ function FindCourses() {
                                     className="h-8 shadow-none rounded-l-none max-w-36"
                                     placeholder='"HUMA 200"'
                                     value={code}
-                                    onChange={(e) => setCode(e.target.value)}
+                                    onChange={(e) => {
+                                        setCode(e.target.value);
+                                        updateSearch();
+                                    }}
                                 />
                             </div>
 
@@ -342,8 +350,11 @@ function FindCourses() {
                                         <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
                                     ))
                                 ) : (
-                                    <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
-                                        Fetching courses...
+                                    // <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
+                                    //     Fetching courses...
+                                    // </div>
+                                    <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm text-slate-600 bg-slate-100">
+                                        No courses found
                                     </div>
                                 )}
                             </div>
