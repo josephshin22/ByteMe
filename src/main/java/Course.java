@@ -39,8 +39,10 @@ public class Course {
 
     // Three digit, 101, 220, etc.....
 //    private int courseNum;
+    @JsonProperty("openSeats")
     private int openSeats;
 
+    @JsonProperty("totalSeats")
     private int totalSeats;
 
     //Like A, or B

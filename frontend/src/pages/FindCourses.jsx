@@ -92,7 +92,7 @@ function FindCourses() {
             })
             .catch((err) => console.error("Error fetching courses:", err));
     }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter, credits]);
-    console.log("Courses:", courses);
+    // console.log("Courses:", courses);
 
     const options = [
         {label: "Monday", value: "M"},
@@ -163,6 +163,25 @@ function FindCourses() {
         setPage(1);
     }
 
+    const [savedCourses, setSavedCourses] = useState([]);
+
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem("savedCourses")) || [];
+        setSavedCourses(saved);
+    }, []);
+
+    function courseIsSaved(course) {
+        return savedCourses.some(savedCourse => {
+            const match =  savedCourse.subjCode === course.subjCode &&
+                savedCourse.number === course.number &&
+                savedCourse.section === course.section &&
+                savedCourse.semester === course.semester;
+
+            // console.log("match? ", match)
+            return match;
+        });
+    }
+
     return (
         <div className="relative">
             <h1 className="font-semibold text-xl mb-4 ">Find Courses</h1>
@@ -206,9 +225,9 @@ function FindCourses() {
                         </Select>
 
                         {/* Search Button - get rid of this if we can do live search results*/}
-                        <Button className="px-6" onClick={() => setSearchInput(searchInput.trim())}>
-                            Search
-                        </Button>
+                        {/*<Button className="px-6" onClick={() => setSearchInput(searchInput.trim())}>*/}
+                        {/*    Search*/}
+                        {/*</Button>*/}
                     </div>
                 </div>
 
@@ -288,7 +307,7 @@ function FindCourses() {
                             <div className="h-8 flex items-center rounded-lg bg-input shadow-xs">
                                 <div className="text-slate-500 font-medium text-xs px-2">CREDITS</div>
                                 <Input
-                                    className="h-8 shadow-none rounded-none max-w-36"
+                                    className="h-8 shadow-none rounded-none rounded-r-lg max-w-36"
                                     placeholder="ex: '3'"
                                     value={credits}
                                     onChange={(e) => setCredits(e.target.value)}
@@ -298,23 +317,23 @@ function FindCourses() {
                         </div>
 
                         {/* Switch Filters */}
-                        <div className="mb-2 mr-6 flex gap-4 flex-wrap ">
-                            <div className="flex items-center space-x-2 min-w-fit">
-                                <Switch id="required-switch" />
-                                <Label htmlFor="required-switch" className="font-normal">Required for me</Label>
-                            </div>
-                            <div className="flex items-center space-x-2 min-w-fit">
-                                <Switch id="hide-completed-switch" />
-                                <Label htmlFor="hide-completed" className="font-normal">Hide complete classes</Label>
-                            </div>
-                            <div className="flex items-center space-x-2 min-w-fit">
-                                <Switch
-                                    id="hide-full-switch"
-                                    onCheckedChange={() => setHideFullCourses(!hideFullCourses)}
-                                />
-                                <Label htmlFor="hide-full-switch" className="font-normal">Hide full classes</Label>
-                            </div>
-                        </div>
+                        {/*<div className="mb-2 mr-6 flex gap-4 flex-wrap ">*/}
+                        {/*    <div className="flex items-center space-x-2 min-w-fit">*/}
+                        {/*        <Switch id="required-switch" />*/}
+                        {/*        <Label htmlFor="required-switch" className="font-normal">Required for me</Label>*/}
+                        {/*    </div>*/}
+                        {/*    <div className="flex items-center space-x-2 min-w-fit">*/}
+                        {/*        <Switch id="hide-completed-switch" />*/}
+                        {/*        <Label htmlFor="hide-completed" className="font-normal">Hide completed classes</Label>*/}
+                        {/*    </div>*/}
+                        {/*    <div className="flex items-center space-x-2 min-w-fit">*/}
+                        {/*        <Switch*/}
+                        {/*            id="hide-full-switch"*/}
+                        {/*            onCheckedChange={() => setHideFullCourses(!hideFullCourses)}*/}
+                        {/*        />*/}
+                        {/*        <Label htmlFor="hide-full-switch" className="font-normal">Hide full classes</Label>*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
                     </>
                 ) : (
                     <h3 className="font-medium text-xs mr-2 text-slate-500 cursor-pointer" onClick={() => setIsCollapsed(!isCollapsed)}>FILTERS</h3>
@@ -346,7 +365,7 @@ function FindCourses() {
                                 {/*{courses.map((course, index) => (*/}
                                 {/*    <CourseCard key={index} course={course}/>*/}
                                 {filteredCourses.map((course) => (
-                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
+                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} isSaved={courseIsSaved(course)} />
                                 ))}
                             </div>
                         ) : (
@@ -357,7 +376,7 @@ function FindCourses() {
 
                                 {courses.length > 0 ? (
                                     courses.map((course) => (
-                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
+                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} isSaved={courseIsSaved(course)} />
                                     ))
                                 ) : (
                                     // <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">
