@@ -148,8 +148,8 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                 const pdf = new jsPDF("landscape", "mm", "a4");
 
                 // Calculate image dimensions to fit A4 size
-                const pdfWidth = 200;
-                const pdfHeight = 220;
+                const pdfWidth = 300;
+                const pdfHeight = 130;
                 pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
                 pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
             })
