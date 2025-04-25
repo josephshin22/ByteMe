@@ -178,5 +178,8 @@ public class Student {
         schedules.removeIf(schedule -> schedule.getScheduleID() == scheduleID);
     }
 
+    public Integer getId() {
+        return studentID;
+    }
 }
 

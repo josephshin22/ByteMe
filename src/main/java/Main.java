@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.*;
 
@@ -104,9 +103,10 @@ public class Main {
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id INTEGER NOT NULL,
                     course_id INTEGER NOT NULL,
+                    schedule_id INTEGER NOT NULL,
                     date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY(course_id) REFERENCES courses(id),
-                    UNIQUE(user_id, course_id)
+                    UNIQUE(course_id, schedule_id)
                 );
             """;
 
@@ -178,8 +178,12 @@ public class Main {
         System.out.println("All courses, times, and faculty inserted.");
 
 
+        //--------------------------------------------------------------------------------------
+        } ///test
+
+
         // Frontend testing --------------------------------------------------------------------
-        // Configure Jackson ObjectMapper
+        //  Configure Jackson ObjectMapper
         ObjectMapper objectMapper1 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
         // Create Javalin app and set Jackson as the JSON mapper
@@ -191,12 +195,14 @@ public class Main {
                 cors.add(it -> it.allowHost("http://localhost:5173"));
             });
         });
+        System.out.println("Set up Javalin");
 
-        int totalCoursesCount = getTotalCoursesCount();
-        List<Course> allCoursesFromDB = getCoursesFromDB(totalCoursesCount, 0);
+        //System.out.println("Total courses count: " + totalCoursesCount);
+        //List<Course> allCoursesFromDB = getCoursesFromDB(totalCoursesCount, 0);
+        System.out.println("Retrieved courses from DB");
+        //System.out.println(allCoursesFromDB);
 
-
-            // Define a test API endpoint
+        // Define a test API endpoint
         app.get("/api/hello", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
 
 //        app.get("/api/courses", ctx -> ctx.json(courses));
@@ -207,8 +213,8 @@ public class Main {
             int offset = (page - 1) * limit;
 
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
-                ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
-                : courses;
+                    ? courses.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
+                    : courses;
 
             int start = (page - 1) * limit;
             int end = Math.min(start + limit, filteredCourses.size());
@@ -227,34 +233,34 @@ public class Main {
             String semester = ctx.queryParam("semester");
             if (semester == null || semester.isEmpty()) {
                 List<String> allSemesters = student.getSchedules().stream()
-                    .map(Schedule::getSemester)
-                    .distinct()
-                    .toList();
+                        .map(Schedule::getSemester)
+                        .distinct()
+                        .toList();
                 ctx.json(allSemesters);
                 return;
             }
 
             List<Schedule> filteredSchedules = student.getSchedules().stream()
-                .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
-                .toList();
+                    .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
+                    .toList();
 
             ctx.json(filteredSchedules);
         });
 
         // ADD SCHEDULE
-       app.post("/api/schedules", ctx -> {
-           String name = ctx.queryParam("name");
-           String semester = ctx.queryParam("semester");
+        app.post("/api/schedules", ctx -> {
+            String name = ctx.queryParam("name");
+            String semester = ctx.queryParam("semester");
 
-           if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
-               ctx.status(400).json(Map.of("error", "Name and semester are required."));
-               return;
-           }
+            if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
+                ctx.status(400).json(Map.of("error", "Name and semester are required."));
+                return;
+            }
 
-           Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
-           newSchedule.setSemester(semester);
-           ctx.status(201).json(Map.of("message", "Schedule created successfully."));
-       });
+            Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
+            newSchedule.setSemester(semester);
+            ctx.status(201).json(Map.of("message", "Schedule created successfully."));
+        });
 
         //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
         app.get("/api/search-courses", ctx -> {
@@ -275,13 +281,14 @@ public class Main {
             Boolean hideFullCourses = ctx.queryParamAsClass("hideFullCourses", Boolean.class).getOrDefault(false);
 
 //            List<Course> courses_from_db = getCoursesFromDB(limit, offset);
-
+            int totalCoursesCount = getTotalCoursesCount();
+            List<Course> allCoursesFromDB = getCoursesFromDB(totalCoursesCount, 0);
 
             // Filter courses based on the search term and semester
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
                     ? allCoursesFromDB.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
                     : allCoursesFromDB;
-
+            System.out.println("Filtered courses: " + filteredCourses);
             // Filter courses based on the search term
 //            List<Course> filteredCourses = courses;
             if(searchTerm != null && !searchTerm.trim().isEmpty()) {
@@ -338,32 +345,277 @@ public class Main {
             ctx.json(response);
         });
 
+        // Add course to user's saved courses
+        app.post("/api/user-courses", ctx -> {
+            // Extract userId from query parameters or use default
+            int userId = ctx.queryParamAsClass("userId", Integer.class).getOrDefault(student.getId());
+
+            // Extract courseId from query parameters
+            int courseId = ctx.queryParamAsClass("courseId", Integer.class).get();
+
+            // Extract scheduleId from query parameters and convert to integer
+            String scheduleIdStr = ctx.queryParam("scheduleId");  // Get scheduleId from query parameter
+            int scheduleId;
+
+            // Ensure scheduleId is a valid integer
+            try {
+                scheduleId = Integer.parseInt(scheduleIdStr);  // Convert to integer
+            } catch (NumberFormatException e) {
+                ctx.status(400).json(Map.of("error", "Valid scheduleId is required"));
+                return;
+            }
+
+            // Validate courseId and scheduleId
+            if (courseId <= 0) {
+                ctx.status(400).json(Map.of("error", "Valid courseId is required"));
+                return;
+            }
+            if (scheduleId <= 0) {  // Ensure scheduleId is a positive integer
+                ctx.status(400).json(Map.of("error", "Valid scheduleId is required"));
+                return;
+            }
+
+            // Try to add the user-course association
+            try {
+                addUserCourse(userId, courseId, scheduleId);
+                ctx.status(201).json(Map.of("message", "Course added successfully"));
+            } catch (Exception e) {
+                ctx.status(500).json(Map.of("error", "Failed to add course: " + e.getMessage()));
+            }
+        });
+
+
+        // Remove course from user's saved courses
+        app.delete("/api/user-courses", ctx -> {
+            int userId = ctx.queryParamAsClass("userId", Integer.class).getOrDefault(student.getId());
+            int courseId = ctx.queryParamAsClass("courseId", Integer.class).get();
+
+            if (courseId <= 0) {
+                ctx.status(400).json(Map.of("error", "Valid courseId is required"));
+                return;
+            }
+
+            try {
+                removeUserCourse(userId, courseId);
+                ctx.status(200).json(Map.of("message", "Course removed successfully"));
+            } catch (Exception e) {
+                ctx.status(500).json(Map.of("error", "Failed to remove course: " + e.getMessage()));
+            }
+        });
+
+// Get user's saved courses
+        app.get("/api/user-courses", ctx -> {
+            int userId = ctx.queryParamAsClass("userId", Integer.class).getOrDefault(student.getId());
+
+            try {
+                List<Course> userCourses = getUserCourses(userId);
+                ctx.json(Map.of(
+                        "courses", userCourses,
+                        "totalCourses", userCourses.size()
+                ));
+            } catch (Exception e) {
+                ctx.status(500).json(Map.of("error", "Failed to retrieve courses: " + e.getMessage()));
+            }
+        });
         app.start(7000);
-        //--------------------------------------------------------------------------------------
-        }
-
-
 
 
     }
     public static List<Course> getCoursesFromDB(int limit, int offset) {
         List<Course> courseList = new ArrayList<>();
+        Map<Integer, Course> courseMap = new HashMap<>();
         String url = "jdbc:sqlite:database.db";
-        String courseSql = "SELECT * FROM courses LIMIT ? OFFSET ?";
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            // 1. Load all courses
+            String courseSql = "SELECT * FROM courses LIMIT ? OFFSET ?";
+            try (PreparedStatement courseStmt = conn.prepareStatement(courseSql)) {
+                courseStmt.setInt(1, limit);
+                courseStmt.setInt(2, offset);
+                var rs = courseStmt.executeQuery();
+                while (rs.next()) {
+                    Course c = new Course();
+                    int courseId = rs.getInt("id");
+                    c.setId(courseId);
+                    c.setName(rs.getString("name"));
+                    System.out.println(rs.getString("name"));
+                    c.setLocation(rs.getString("location"));
+                    c.setSection(rs.getString("section"));
+                    c.setSemester(rs.getString("semester"));
+                    c.setCourseNum(rs.getInt("courseNum"));
+                    c.setNumCredits(rs.getInt("numCredits"));
+                    c.setIs_lab(rs.getBoolean("is_lab"));
+                    c.setSubjCode(rs.getString("subjCode"));
+                    c.setTotalSeats(rs.getInt("totalSeats"));
+
+                    courseMap.put(courseId, c);
+                }
+            }
+
+            if (courseMap.isEmpty()) return new ArrayList<>();
+
+            // Helper to create IN clause: (?, ?, ?, ...)
+            String inClause = courseMap.keySet().stream()
+                    .map(id -> "?")
+                    .collect(Collectors.joining(", ", "(", ")"));
+
+            List<Integer> courseIds = new ArrayList<>(courseMap.keySet());
+
+            // 2. Load all course_times
+            String timesSql = "SELECT * FROM course_times WHERE course_id IN " + inClause;
+            try (PreparedStatement timeStmt = conn.prepareStatement(timesSql)) {
+                for (int i = 0; i < courseIds.size(); i++) {
+                    timeStmt.setInt(i + 1, courseIds.get(i));
+                }
+
+                var timesRs = timeStmt.executeQuery();
+                while (timesRs.next()) {
+                    int courseId = timesRs.getInt("course_id");
+                    timeBlock tb = new timeBlock();
+                    tb.setDay(timesRs.getString("day"));
+                    tb.setStartTime(timesRs.getString("start_time"));
+                    tb.setEndTime(timesRs.getString("end_time"));
+
+                    Course course = courseMap.get(courseId);
+                    if (course.getTimes() == null) course.setTimes(new ArrayList<>());
+                    course.getTimes().add(tb);
+                }
+            }
+
+            // 3. Load all course_faculty
+            String facultySql = "SELECT * FROM course_faculty WHERE course_id IN " + inClause;
+            try (PreparedStatement facultyStmt = conn.prepareStatement(facultySql)) {
+                for (int i = 0; i < courseIds.size(); i++) {
+                    facultyStmt.setInt(i + 1, courseIds.get(i));
+                }
+
+                var facultyRs = facultyStmt.executeQuery();
+                Map<Integer, List<String>> facultyMap = new HashMap<>();
+
+                while (facultyRs.next()) {
+                    int courseId = facultyRs.getInt("course_id");
+                    String facultyName = facultyRs.getString("faculty_name");
+
+                    facultyMap.computeIfAbsent(courseId, k -> new ArrayList<>()).add(facultyName);
+                }
+
+                for (Map.Entry<Integer, List<String>> entry : facultyMap.entrySet()) {
+                    Course course = courseMap.get(entry.getKey());
+                    course.setFaculty(List.of(entry.getValue().toArray(new String[0])));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Return in original order
+        courseList.addAll(courseMap.values());
+        return courseList;
+    }
+
+    public static int getTotalCoursesCount() {
+        String url = "jdbc:sqlite:database.db";
+        String sql = "SELECT COUNT(*) AS total FROM courses";
 
         try (Connection conn = DriverManager.getConnection(url);
-             PreparedStatement courseStmt = conn.prepareStatement(courseSql)) {
+             Statement stmt = conn.createStatement();
+             var rs = stmt.executeQuery(sql)) {
 
-            courseStmt.setInt(1, limit);
-            courseStmt.setInt(2, offset);
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
 
-            var rs = courseStmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+    // Helper methods for database operations
+    private static void addUserCourse(int userId, int courseId, int scheduleId) {
+        String url = "jdbc:sqlite:database.db";
+        // Update the SQL query to include scheduleId
+        String sql = "INSERT INTO user_courses (user_id, course_id, schedule_id) VALUES (?, ?, ?)";
+        System.out.println("Called addUserCourse function");
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            stmt.setInt(2, courseId);
+            stmt.setInt(3, scheduleId);  // Set scheduleId as an integer
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Failed to add course relationship");
+            }
+
+            // If using in-memory model in addition to database
+            if (userId == student.getId()) {
+                // Find the course in the global courses list
+                Course courseToAdd = courses.stream()
+                        .filter(c -> getCourseDbId(c) == courseId)
+                        .findFirst()
+                        .orElse(null);
+
+                if (courseToAdd != null) {
+                    student.addSavedCourse(courseToAdd);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error adding user course: " + e.getMessage());
+            throw new RuntimeException("Database error: " + e.getMessage(), e);
+        }
+    }
+
+
+    private static void removeUserCourse(int userId, int courseId) {
+        String url = "jdbc:sqlite:database.db";
+        String sql = "DELETE FROM user_courses WHERE user_id = ? AND course_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            stmt.setInt(2, courseId);
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                // No rows were deleted, relationship might not exist
+                System.out.println("No course relationship found to remove");
+            }
+
+
+        } catch (SQLException e) {
+            System.out.println("Error removing user course: " + e.getMessage());
+            throw new RuntimeException("Database error: " + e.getMessage(), e);
+        }
+    }
+
+    private static List<Course> getUserCourses(int userId) {
+        List<Course> courseList = new ArrayList<>();
+        String url = "jdbc:sqlite:database.db";
+
+        String sql = """
+        SELECT c.* FROM courses c
+        JOIN user_courses uc ON c.id = uc.course_id
+        WHERE uc.user_id = ?
+    """;
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            var rs = stmt.executeQuery();
 
             while (rs.next()) {
                 Course c = new Course();
-                int courseId = rs.getInt("id"); // Get the course ID for related data
+                int courseId = rs.getInt("id");
 
-                c.setName(rs.getString("name"));
+                c.setId(courseId);
+                c.setName(rs.getString( "name"));
                 c.setLocation(rs.getString("location"));
                 c.setSection(rs.getString("section"));
                 c.setSemester(rs.getString("semester"));
@@ -407,30 +659,37 @@ public class Main {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error getting user courses: " + e.getMessage());
+            throw new RuntimeException("Database error: " + e.getMessage(), e);
         }
 
         return courseList;
     }
-    public static int getTotalCoursesCount() {
+
+    // Helper method to get course DB ID
+    private static int getCourseDbId(Course course) {
         String url = "jdbc:sqlite:database.db";
-        String sql = "SELECT COUNT(*) AS total FROM courses";
+        String sql = "SELECT id FROM courses WHERE subjCode = ? AND courseNum = ? AND section = ? AND semester = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
-             Statement stmt = conn.createStatement();
-             var rs = stmt.executeQuery(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            stmt.setString(1, course.getSubjCode());
+            stmt.setInt(2, course.getCourseNum());
+            stmt.setString(3, course.getSection());
+            stmt.setString(4, course.getSemester());
+
+            var rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt("total");
+                return rs.getInt("id");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error getting course ID: " + e.getMessage());
         }
 
-        return 0;
+        return -1; // Course not found
     }
-
     // Data class for JSON response - frontend testing
     public static class Message {
         public String message;

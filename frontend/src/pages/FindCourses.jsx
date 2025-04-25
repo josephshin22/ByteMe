@@ -38,6 +38,8 @@ import {saveCourse} from "@/utils/saveCourse.jsx";
 
 function FindCourses() {
 
+    const scheduleOptions = ["1", "2", "3"];
+    const [selectedSchedule, setSelectedSchedule] = useState(scheduleOptions[0]);
     const availableSemesters = ['2023_Fall', '2023_Winter_Online', '2024_Spring', '2024_Early_Summer', '2024_Fall', '2025_Spring'];
     const [selectedSemester, setSelectedSemester] = useState('2025_Spring');
 
@@ -47,6 +49,7 @@ function FindCourses() {
     const [page, setPage] = useState(1);
     const [coursesPerPage, setCoursesPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
+    const [scheduleId, setScheduleId] = useState('');
 
     const [pageButtonClicked, setPageButtonClicked] = useState(false);
     const handleSemesterChange = (value) => {
@@ -321,6 +324,27 @@ function FindCourses() {
 
             <div className="flex justify-between">
                 <h2 className="font-medium text-lg text-">{selectedSemester.replaceAll("_", " ")} Results</h2>
+            <div>
+                <div className="flex items-center rounded-lg bg-input shadow-xs">
+                    <div className="text-slate-500 font-medium text-xs px-2">SCHEDULE</div>
+                    <select
+                        id="scheduleId"
+                        value={scheduleId}
+                        onChange={(e) => {
+                            setSelectedSchedule(e.target.options[e.target.selectedIndex].text);  // Update scheduleId state with the text
+                            setPage(1);  // Reset page to 1 when filter is changed
+                        }}
+                        className="h-8 shadow-none rounded-l-none max-w-36 bg-transparent"
+                    >
+                        <option value="">All Schedules</option>
+                        {scheduleOptions.map((schedule) => (
+                            <option key={schedule} value={schedule}>
+                                {schedule}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
                 <Button variant="ghost" onClick={() => setCardView(!cardView)}>
                     {cardView ? <>Table <Rows3/></> : <>Cards <Rows2/></>}
                 </Button>
@@ -336,7 +360,7 @@ function FindCourses() {
                                 {/*{courses.map((course, index) => (*/}
                                 {/*    <CourseCard key={index} course={course}/>*/}
                                 {filteredCourses.map((course) => (
-                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
+                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} selectedSchedule={selectedSchedule} />
                                 ))}
                             </div>
                         ) : (
@@ -347,7 +371,7 @@ function FindCourses() {
 
                                 {courses.length > 0 ? (
                                     courses.map((course) => (
-                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} />
+                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} selectedSchedule={selectedSchedule} />
                                     ))
                                 ) : (
                                     // <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">

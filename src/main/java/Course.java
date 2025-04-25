@@ -49,13 +49,14 @@ public class Course {
 //    @JsonProperty("semester")
     private String semester;
 
+    private int id;
 
 
     public Course() {
     }
 
     public Course(String name, int courseNum, String abbreviation, String section, String[] faculty, String location,
-                  int numCredits, String description, timeBlock[] timeBlocks, boolean is_lab, boolean is_open, int openSeats, int totalSeats, String semester ) {
+                  int numCredits, String description, timeBlock[] timeBlocks, boolean is_lab, boolean is_open, int openSeats, int totalSeats, String semester, int id ) {
         this.name = name;
         this.courseNum = courseNum;
         this.abbreviation = abbreviation;
@@ -71,6 +72,7 @@ public class Course {
         this.openSeats = openSeats;
 
         this.semester = semester;
+        this.id = id;
     }
 
 
@@ -132,7 +134,7 @@ public class Course {
 
     @Override
     public String toString(){
-        return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times;
+        return "Course: " + name + "\nCourse Number: " + courseNum + "\nAbbrevation: " + abbreviation + "\nLocation: " + location + "\nCredits: " + numCredits + "\nTimes: " + times +  "\nFaculty: " + Arrays.toString(faculty) + "\nIs Lab: " + is_lab + "\nIs Open: " + is_open + "\nOpen Seats: " + openSeats + "\nTotal Seats: " + totalSeats + "\nSection: " + section + "\nSemester: " + semester + "\nID: " + id;
     }
 
     public String daysString(){
@@ -244,6 +246,12 @@ public class Course {
         this.times = times;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+    public int getId() {
+        return id;
+    }
 }
 
 

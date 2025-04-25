@@ -3,9 +3,10 @@ import {Bookmark, BookMarked, PlusCircle, School} from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {saveCourse} from "@/utils/saveCourse.jsx";
+import {handleAddCourse} from "@/utils/courseActions.jsx";
 
-export default function CourseCard({ course }) {
-
+export default function CourseCard({ course, selectedSchedule }) {
+    const [isInSchedule, setIsInSchedule] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
@@ -50,10 +51,16 @@ export default function CourseCard({ course }) {
                         )}
                         <p>Save</p>
                     </div>
-                    <div onClick={() => handleAddCourse(course)} className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium">
-                        <PlusCircle className="h-5 w-5 mt-0.5" />
-                        <p>Add</p>
-                    </div>
+                        <div
+                            onClick={() => {
+                                console.log("Selected Schedule ID test:", selectedSchedule);  // Log the scheduleId
+                                handleAddCourse(course, selectedSchedule);  // Call your existing function
+                            }}
+                            className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium"
+                        >
+                            <PlusCircle className="h-5 w-5 mt-0.5" />
+                            <p>Add</p>
+                        </div>
                 </div>
             </div>
 
