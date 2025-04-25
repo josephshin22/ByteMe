@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import {Button} from "@/components/ui/button.jsx";
 import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
+import html2canvas from "html2canvas-pro";
 
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
     const courseColors = {
@@ -104,6 +105,55 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
             height: `${heightPercentage}%`
         };
     };
+    const exportToPDF = (schedule) => {
+        const calendarElement = document.querySelector(
+            `[data-schedule-semester="${schedule.semester}"][data-schedule-name="${schedule.name}"]`
+        );
+
+        if (!calendarElement) {
+            console.error("Calendar element not found");
+            return;
+        }
+
+        // Clone the calendar element to avoid modifying the original
+        const clonedElement = calendarElement.cloneNode(true);
+
+        // Update the header with the current schedule name
+        const header = clonedElement.querySelector("h2");
+        if (header) {
+            header.textContent = schedule.name;
+        }
+
+        // Apply styles to the cloned element
+        clonedElement.style.width = "1200px";
+        clonedElement.style.padding = "20px";
+        clonedElement.style.margin = "20px";
+
+        // Append the cloned element to the body (hidden) for rendering
+        clonedElement.style.position = "absolute";
+        clonedElement.style.top = "-9999px";
+        document.body.appendChild(clonedElement);
+
+        html2canvas(clonedElement, { scale: 2 })
+            .then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+                const pdf = new jsPDF("landscape", "mm", "a4");
+
+                // Calculate image dimensions to fit A4 size
+                const pdfWidth = 300;
+                const pdfHeight = 130;
+                pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
+            })
+            .catch((error) => {
+                console.error("Error exporting calendar to PDF:", error);
+            })
+            .finally(() => {
+                // Remove the cloned element from the DOM
+                document.body.removeChild(clonedElement);
+            });
+    };
+
 
     // Get classes for a specific day
     const getClassesForDay = (day) => {
@@ -111,10 +161,14 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
     };
 
     return (
+
         <div className="flex flex-col bg-white rounded-lg shadow-lg p-4 h-full mr-8">
             {/* Calendar Header */}
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-slate-500">{schedule.name}</h2>
+                <Button variant="ghost" onClick={() => exportToPDF(schedule)}>
+                    Export to PDF
+                </Button>
             </div>
 
             {/* Week View */}
