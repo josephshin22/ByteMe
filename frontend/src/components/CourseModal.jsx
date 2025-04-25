@@ -2,6 +2,7 @@ import React from "react";
 import {Armchair, Bookmark, Calendar, CircleDollarSign, Clock, PlusCircle, School, User, X} from "lucide-react";
 import {Separator} from "@/components/ui/separator.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
+import {saveCourse} from "@/utils/saveCourse.jsx";
 
 const CourseModal = ({ isOpen, onClose, course }) => {
     if (!isOpen) return null;
@@ -124,7 +125,9 @@ const CourseModal = ({ isOpen, onClose, course }) => {
 
                 {/* Buttons (Fixed at Bottom) */}
                 <div className="flex items-stretch">
-                    <div className="rounded-bl-lg flex-1 py-3 cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 flex space-x-2 items-center justify-center">
+                    <div className="rounded-bl-lg flex-1 py-3 cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 flex space-x-2 items-center justify-center"
+                         onClick={() => {saveCourse(course)}}
+                    >
                         <Bookmark className="w-4.5" />
                         <p>Save for Later</p>
                     </div>

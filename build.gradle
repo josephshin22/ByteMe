@@ -20,6 +20,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
     implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
+    implementation 'org.mindrot:jbcrypt:0.4'
 }
 
 application {
