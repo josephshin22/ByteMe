@@ -3,6 +3,7 @@ import {Button} from "@/components/ui/button.jsx";
 import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
 import html2canvas from "html2canvas-pro";
+import { jsPDF } from "jspdf";
 
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
     const courseColors = {
