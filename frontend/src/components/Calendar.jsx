@@ -142,7 +142,7 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         clonedElement.style.top = "-9999px";
         document.body.appendChild(clonedElement);
 
-        html2canvas(clonedElement, { scale: 7 })
+        html2canvas(clonedElement, { scale: 2 })
             .then((canvas) => {
                 const imgData = canvas.toDataURL("image/png");
                 const pdf = new jsPDF("landscape", "mm", "a4");
