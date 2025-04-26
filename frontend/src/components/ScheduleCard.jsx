@@ -15,6 +15,7 @@ const ScheduleCard = ({semester}) => {
                 response.data.map((schedule, index) => {
                     api.get(`/user-courses?scheduleId=${schedule.scheduleID}`).then((courses) => {
                         response.data[index].courses = courses.data.courses;
+                        console.log("courses data:", response.data[0])
                     });
                 });
                 setSchedules(response.data);

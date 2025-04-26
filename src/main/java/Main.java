@@ -279,6 +279,10 @@ public class Main {
                 return;
             }
 
+//            // First, delete courses related to this schedule
+//            boolean deletedCourses = removeCoursesForSchedule(scheduleId);
+
+            // Then delete the schedule itself
             boolean deletedFromDb = removeScheduleFromDatabase(scheduleId);
 
             if (deletedFromDb) {
@@ -430,13 +434,13 @@ public class Main {
             }
         });
 
-// Get user's saved courses
+        // Get user's saved courses
         app.get("/api/user-courses", ctx -> {
             int scheduleId = ctx.queryParamAsClass("scheduleId", Integer.class).getOrDefault(-1);
             int userId = ctx.queryParamAsClass("userId", Integer.class).getOrDefault(student.getId());
 
             try {
-                List<Course> userCourses = getUserCourses(userId);
+                List<Course> userCourses = getUserCourses(scheduleId);
                 ctx.json(Map.of(
                         "courses", userCourses,
                         "totalCourses", userCourses.size()
@@ -774,6 +778,23 @@ public class Main {
             throw new RuntimeException("Database error: Failed to remove schedule with ID: " + scheduleId, e);
         }
     }
+
+//    private static boolean removeCoursesForSchedule(int scheduleId) {
+//        String url = "jdbc:sqlite:database.db";
+//        String sql = "DELETE FROM user_courses WHERE schedule_id = ?";
+//        System.out.println("Called removeCoursesForSchedule function for schedule ID: " + scheduleId);
+//
+//        try (Connection conn = DriverManager.getConnection(url);
+//             PreparedStatement stmt = conn.prepareStatement(sql)) {
+//
+//            stmt.setInt(1, scheduleId); // Set the schedule ID to delete
+//            stmt.executeUpdate();
+//            return true;
+//        } catch (SQLException e) {
+//            System.err.println("Error removing courses for schedule from database: " + e.getMessage());
+//            throw new RuntimeException("Database error: Failed to remove courses for schedule ID: " + scheduleId, e);
+//        }
+//    }
     // Helper method to get course DB ID
     private static int getCourseDbId(Course course) {
         String url = "jdbc:sqlite:database.db";
