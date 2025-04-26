@@ -5,7 +5,7 @@ import api from "@/api.js";
 
 
 
-const Navbar = () => {
+const Navbar = ({ schedules, onScheduleUpdate }) => {
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchExpanded, setIsSearchExpanded] = useState(window.innerWidth >= 880);
@@ -20,18 +20,19 @@ const Navbar = () => {
     const location = useLocation(); // Get the current path
 
     // const schedules = ["Spring 2026", "Fall 2025", "Summer 2025", "Winter 2025"];
-    const [schedules, setSchedules] = useState([]);
-    useEffect(() => {
-        api.get("/schedules")
-            .then((response) => {
-                console.log('test', response.data);
-                setSchedules(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching schedules:", error);
-            });
-    }, []);
-    console.log('schedules', schedules);
+    // const [schedules, setSchedules] = useState([]);
+    // useEffect(() => {
+    //     api.get("/schedules")
+    //         .then((response) => {
+    //             console.log('test', response.data);
+    //             setSchedules(response.data);
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error fetching schedules:", error);
+    //         });
+    // }, []);
+    // console.log('schedules', schedules);
+
     const sortedSchedules = schedules.sort((a, b) => {
         const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
         const [seasonA, yearA] = a.semester.split('_');
@@ -130,8 +131,6 @@ const Navbar = () => {
     //     setTheme(theme === 'light' ? 'dark' : 'light');
     // };
 
-
-
     return (
         <nav className="fixed w-full bg-background top-0 shadow z-10">
 
@@ -161,17 +160,19 @@ const Navbar = () => {
                             <Link to="/schedules" onClick={() => setIsScheduleOpen(false)}>
                                 My Schedules
                             </Link>
-                            <ChevronDown className="h-4 w-4 cursor-pointer" />
+                            {sortedSchedules.length !== 0 &&
+                                <ChevronDown className="h-4 w-4 cursor-pointer" />
+                            }
                         </div>
-                        {isScheduleOpen && (
+                        {isScheduleOpen && sortedSchedules.length !== 0 && (
                             <div
                                 ref={scheduleMenuRef}
                                 className="absolute top-full left-0 w-48 z-100"
                             >
                                 <div className="bg-background border border-border rounded-lg shadow-lg py-1 mt-2">
-                                    {sortedSchedules.map((semester, index) => (
-                                        <Link key={index} className="block px-4 py-2 hover:bg-muted" to={`/schedules/${semester}`} onClick={()=>{setIsScheduleOpen(false)}}>
-                                            {semester.semester.replaceAll("_", " ")}
+                                    {sortedSchedules.map((schedule, index) => (
+                                        <Link key={index} className="block px-4 py-2 hover:bg-muted" onClick={()=>{setIsScheduleOpen(false); window.location.href = `/schedules/${schedule.semester}`;}}>
+                                            {schedule.semester.replaceAll("_", " ")}
                                         </Link>
                                     ))}
                                     {/*<Link to="#" className="block px-4 py-2 hover:bg-muted">+ Add New Schedule</Link>*/}

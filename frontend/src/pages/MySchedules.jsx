@@ -11,21 +11,21 @@ import api from "@/api.js";
 // const schedules = ["2023_Fall", "2024_Spring"];
 
 
-function MySchedules() {
-    const [schedules, setSchedules] = useState([]);
+function MySchedules({ schedules, onScheduleUpdate }) {
+    // const [schedules, setSchedules] = useState([]);
     const [isDescending, setIsDescending] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedSemester, setSelectedSemester] = useState("");
 
-    useEffect(() => {
-        api.get("/schedules")
-            .then((res) => {
-                setSchedules(res.data);
-            })
-            .catch((err) => {
-                console.error("Error fetching schedules:", err);
-            });
-    }, []);
+    // useEffect(() => {
+    //     api.get("/schedules")
+    //         .then((res) => {
+    //             setSchedules(res.data);
+    //         })
+    //         .catch((err) => {
+    //             console.error("Error fetching schedules:", err);
+    //         });
+    // }, []);
 
     const sortedSchedules = schedules.sort((a, b) => {
         const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
@@ -48,19 +48,19 @@ function MySchedules() {
         <div>
             <div className="flex justify-between">
                 <h1 className="font-semibold text-xl mb-4 ">My Schedules</h1>
-                <Button variant="ghost" onClick={() => setIsDescending(!isDescending)}>
-                    {isDescending ? (
-                            <>
-                                Newest First
-                                <ArrowDown />
-                            </>
-                        ):(
-                            <>
-                                Oldest First
-                                <ArrowUp/>
-                            </>
-                        )}
-                </Button>
+                {/*<Button variant="ghost" onClick={() => setIsDescending(!isDescending)}>*/}
+                {/*    {isDescending ? (*/}
+                {/*            <>*/}
+                {/*                Newest First*/}
+                {/*                <ArrowDown />*/}
+                {/*            </>*/}
+                {/*        ):(*/}
+                {/*            <>*/}
+                {/*                Oldest First*/}
+                {/*                <ArrowUp/>*/}
+                {/*            </>*/}
+                {/*        )}*/}
+                {/*</Button>*/}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-5xl">
@@ -104,10 +104,8 @@ function MySchedules() {
                                         const scheduleName = `Schedule_${Date.now()}`;
                                         api.post(`/schedules?name=${scheduleName}&semester=${selectedSemester}`)
                                             .then((res) => {
-                                                api.get("/schedules").then((res) => {
-                                                    setSchedules(res.data);
-                                                });
                                                 console.log("Created:", res.data);
+                                                onScheduleUpdate();
                                                 setShowModal(false);
                                             })
                                             .catch((err) => {

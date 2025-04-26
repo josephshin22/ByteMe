@@ -4,7 +4,7 @@ import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
 
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
-    console.log('schedule:',schedule);
+    // console.log('schedule:',schedule);
     const courseColors = {
         ACCT: 'bg-red-200',
         COMP: 'bg-slate-200',

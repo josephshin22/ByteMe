@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import {Bookmark, BookMarked, PlusCircle, School} from "lucide-react";
+import React, {useEffect, useState} from "react";
+import {Bookmark, BookmarkCheck, BookMarked, Circle, PlusCircle, School} from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {saveCourse} from "@/utils/saveCourse.jsx";
 import {handleAddCourse} from "@/utils/courseActions.jsx";
 
-export default function CourseCard({ course, selectedSchedule }) {
+export default function CourseCard({ course, selectedSchedule, isSaved, disableSaveBtn }) {
     const [isInSchedule, setIsInSchedule] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSavedOverride, setIsSavedOverride] = useState(isSaved);
 
     return (
         <div className="group">
@@ -41,26 +42,45 @@ export default function CourseCard({ course, selectedSchedule }) {
 
                 {/* Buttons */}
                 <div className="flex items-center p-1 gap-1">
-                    <div className="cursor-pointer flex-col space-y-0.5 bg-blue-100 hover:bg-blue-200 text-blue-800 flex items-center justify-center px-4 h-full w-20 font-medium rounded-xs"
-                        onClick={()=>saveCourse(course)}
-                    >
-                        {course.saved ? (
-                            <School  className="h-5 w-5 mt-0.5" />
-                        ) : (
-                            <Bookmark  className="h-5 w-5 mt-0.5" />
-                        )}
-                        <p>Save</p>
-                    </div>
-                        <div
-                            onClick={() => {
-                                console.log("Selected Schedule ID test:", selectedSchedule);  // Log the scheduleId
-                                handleAddCourse(course, selectedSchedule);  // Call your existing function
-                            }}
-                            className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium"
+
+                    {/*SAVE BUTTON*/}
+                    {!disableSaveBtn && (
+                        <div className="cursor-pointer flex-col space-y-0.5 bg-blue-100 hover:bg-blue-200 text-blue-800 flex items-center justify-center px-4 h-full w-20 font-medium rounded-xs"
+                             onClick={()=> {
+                                 const saved = saveCourse(course);
+                                 console.log(saved);
+                                 if (saved) {
+                                     setIsSavedOverride(true);
+                                 } else {
+                                     setIsSavedOverride(false);
+                                 }
+                             }}
                         >
-                            <PlusCircle className="h-5 w-5 mt-0.5" />
-                            <p>Add</p>
+                            {isSaved || isSavedOverride ? (
+                                <>
+                                    <BookmarkCheck className="h-5 w-5 mt-0.5" />
+                                    <p>Saved</p>
+                                </>
+                            ) : (
+                                <>
+                                    <Bookmark  className="h-5 w-5 mt-0.5" />
+                                    <p>Save</p>
+                                </>
+                            )}
                         </div>
+                    )}
+
+                    {/*ADD BUTTON*/}
+                    <div
+                        onClick={() => {
+                            console.log("Selected Schedule ID test:", selectedSchedule);  // Log the scheduleId
+                            handleAddCourse(course, selectedSchedule);  // Call your existing function
+                        }}
+                        className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium"
+                    >
+                        <PlusCircle className="h-5 w-5 mt-0.5" />
+                        <p>Add</p>
+                    </div>
                 </div>
             </div>
 

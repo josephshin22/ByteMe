@@ -26,7 +26,7 @@ function SemesterSchedules() {
                     })
                 );
 
-                console.log('before setting state:', schedulesWithCourses);
+                // console.log('before setting state:', schedulesWithCourses);
                 setSchedules(schedulesWithCourses);
                 setLoading(false);
             } catch (error) {
@@ -37,7 +37,7 @@ function SemesterSchedules() {
         fetchSchedules();
     }, [semester]);
 
-    console.log("Schedules:", schedules);
+    // console.log("Schedules:", schedules);
 
     const [abbreviateName, setAbbreviateName] = useState(false);
     const [moreInfo, setMoreInfo] = useState(false);

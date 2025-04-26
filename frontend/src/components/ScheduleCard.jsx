@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import api from "@/api.js";
 import {Button} from "@/components/ui/button.jsx";
 import {useNavigate} from "react-router-dom";
+import {Pencil} from "lucide-react";
 
 const ScheduleCard = ({semester}) => {
 
@@ -12,19 +13,21 @@ const ScheduleCard = ({semester}) => {
     useEffect(() => {
         api.get(`/schedules?semester=${semester}`)
             .then((response) => {
-                response.data.map((schedule, index) => {
-                    api.get(`/user-courses?scheduleId=${schedule.scheduleID}`).then((courses) => {
-                        response.data[index].courses = courses.data.courses;
-                        console.log("courses data:", response.data[0])
-                    });
-                });
+                // response.data.map((schedule, index) => {
+                //     api.get(`/user-courses?scheduleId=${schedule.scheduleID}`).then((courses) => {
+                //         response.data[index].courses = courses.data.courses;
+                //         console.log("courses data:", response.data[0])
+                //     });
+                // });
                 setSchedules(response.data);
-                console.log('new', schedules);
+                // console.log('new', schedules);
             })
             .catch((error) => {
                 console.error("Error fetching schedules:", error);
             });
     }, [semester]);
+
+    console.log(`${semester} card schedules:`, schedules);
 
     const handleDelete = (scheduleId) => {
         api.delete(`/schedules/${scheduleId}`)
@@ -50,8 +53,29 @@ const ScheduleCard = ({semester}) => {
         >
             <div
                 className={`shadow cursor-pointer flex flex-col bg-white rounded-lg p-4 min-h-40 outline-0 outline-border transition-all duration-100 ${!showDeleteOptions ? "group-hover:outline-1 group-hover:shadow-lg group-hover:-translate-y-0.5" : ""}`}>
-                <h2 className="text-lg font-medium">{semester.replaceAll("_", " ")}</h2>
-                <p className="text-xs text-slate-400">Junior Year {semester.split("_").pop()}</p>
+
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h2 className="text-lg font-medium">{semester.replaceAll("_", " ")}</h2>
+                        <p className="text-xs text-slate-400">Junior Year {semester.split("_").pop()}</p>
+                    </div>
+
+                    <div className="translate-x-1 -translate-y-1">
+                        {!showDeleteOptions && schedules.length > 0 && (
+                            <Button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowDeleteOptions(true);
+                                }}
+                                className="flex-end hover:bg-slate-100"
+                                // size="xs"
+                                variant="icon"
+                            >
+                                <Pencil/>
+                            </Button>
+                        )}
+                    </div>
+                </div>
 
                 <div className="flex flex-col mt-3">
                     {schedules.length ? (
@@ -64,20 +88,7 @@ const ScheduleCard = ({semester}) => {
                         <p className="text-slate-500">No schedules</p>
                     )}
                 </div>
-                <div className="mt-auto pt-3">
-                    {!showDeleteOptions && schedules.length > 0 && (
-                        <Button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowDeleteOptions(true);
-                            }}
-                            className="mt-2 w-full bg-red-100 hover:bg-red-200 text-red-800 transition-colors duration-150"
-                            size="sm"
-                        >
-                            Remove
-                        </Button>
-                    )}
-                </div>
+
 
                 {showDeleteOptions && schedules.length > 0 && (
                     <div
@@ -104,7 +115,7 @@ const ScheduleCard = ({semester}) => {
                                 variant="ghost"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setShowDfeleteOptions(false)
+                                    setShowDeleteOptions(false)
                                 }}
                                 size="sm"
                                 className="w-full"
