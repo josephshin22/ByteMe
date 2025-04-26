@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import ScheduleCard from "../components/ScheduleCard.jsx";
 import {PlusCircle} from "lucide-react";
 import { Link } from "react-router-dom";
@@ -6,19 +6,31 @@ import {Button} from "@/components/ui/button.jsx";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import FormModal from "@/components/FormModal.jsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import api from "@/api.js";
 
-const schedules = ["2023_Fall", "2024_Spring"];
+// const schedules = ["2023_Fall", "2024_Spring"];
 
 
 function MySchedules() {
-
+    const [schedules, setSchedules] = useState([]);
     const [isDescending, setIsDescending] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [selectedSemester, setSelectedSemester] = useState("");
+
+    useEffect(() => {
+        api.get("/schedules")
+            .then((res) => {
+                setSchedules(res.data);
+            })
+            .catch((err) => {
+                console.error("Error fetching schedules:", err);
+            });
+    }, []);
 
     const sortedSchedules = schedules.sort((a, b) => {
         const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
-        const [seasonA, yearA] = a.split(' ');
-        const [seasonB, yearB] = b.split(' ');
+        const [seasonA, yearA] = a.semester.split(' ');
+        const [seasonB, yearB] = b.semester.split(' ');
         return isDescending
             ? yearB - yearA || seasons[seasonB] - seasons[seasonA]
             : yearA - yearB || seasons[seasonA] - seasons[seasonB];
@@ -53,10 +65,8 @@ function MySchedules() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-5xl">
 
-                {sortedSchedules.map((semester) => (
-                    <Link to={`/schedules/${semester}`}>
-                        <ScheduleCard semester={semester} />
-                    </Link>
+                {sortedSchedules.map((schedule) => (
+                    <ScheduleCard key={schedule.semester} semester={schedule.semester} />
                 ))}
 
                 <div
@@ -73,7 +83,7 @@ function MySchedules() {
 
                             <h2 className="font-semibold text-lg mb-4">Choose Semester</h2>
 
-                            <Select onValueChange={(value) => console.log(value)}>
+                            <Select onValueChange={(value) => setSelectedSemester(value)}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Choose..." />
                                 </SelectTrigger>
@@ -89,7 +99,20 @@ function MySchedules() {
                             <div className="flex gap-2 mt-4">
                                 <Button
                                     onClick={() => {
-                                        setShowModal(false)
+                                        if (!selectedSemester) return; // handle empty selection
+
+                                        const scheduleName = `Schedule_${Date.now()}`;
+                                        api.post(`/schedules?name=${scheduleName}&semester=${selectedSemester}`)
+                                            .then((res) => {
+                                                api.get("/schedules").then((res) => {
+                                                    setSchedules(res.data);
+                                                });
+                                                console.log("Created:", res.data);
+                                                setShowModal(false);
+                                            })
+                                            .catch((err) => {
+                                                console.error("Error creating schedule:", err);
+                                            });
                                     } }
                                 >
                                     Submit

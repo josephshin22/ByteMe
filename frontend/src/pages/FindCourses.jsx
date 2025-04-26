@@ -37,8 +37,7 @@ import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {saveCourse} from "@/utils/saveCourse.jsx";
 
 function FindCourses() {
-
-    const scheduleOptions = ["1", "2", "3"];
+    const [scheduleOptions, setScheduleOptions] = useState([])
     const [selectedSchedule, setSelectedSchedule] = useState(scheduleOptions[0]);
     const availableSemesters = ['2023_Fall', '2023_Winter_Online', '2024_Spring', '2024_Early_Summer', '2024_Fall', '2025_Spring'];
     const [selectedSemester, setSelectedSemester] = useState('2025_Spring');
@@ -93,6 +92,11 @@ function FindCourses() {
                 }
             })
             .catch((err) => console.error("Error fetching courses:", err));
+
+        api.get('/schedules').then((response) => {
+            console.log('dropdown', response);
+            setScheduleOptions(response.data.map((item) => item.scheduleID))
+        })
     }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter]);
     console.log("Courses:", courses);
 
@@ -329,8 +333,9 @@ function FindCourses() {
                     <div className="text-slate-500 font-medium text-xs px-2">SCHEDULE</div>
                     <select
                         id="scheduleId"
-                        value={scheduleId}
+                        value={selectedSchedule}
                         onChange={(e) => {
+                            console.log(e.target.options[e.target.selectedIndex].text)
                             setSelectedSchedule(e.target.options[e.target.selectedIndex].text);  // Update scheduleId state with the text
                             setPage(1);  // Reset page to 1 when filter is changed
                         }}

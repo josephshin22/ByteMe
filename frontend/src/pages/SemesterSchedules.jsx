@@ -10,17 +10,33 @@ import * as React from "react";
 
 function SemesterSchedules() {
     const { semester } = useParams();
+    const [loading, setLoading] = useState(true);
     const [schedules, setSchedules] = useState([]);
 
     useEffect(() => {
-        api.get(`/schedules?semester=${semester}`)
-            .then((response) => {
-                setSchedules(response.data);
-            })
-            .catch((error) => {
+        const fetchSchedules = async () => {
+            try {
+                const response = await api.get(`/schedules?semester=${semester}`);
+                const schedules = response.data;
+
+                const schedulesWithCourses = await Promise.all(
+                    schedules.map(async (schedule) => {
+                        const coursesRes = await api.get(`/user-courses?scheduleId=${schedule.scheduleID}`);
+                        return { ...schedule, courses: coursesRes.data.courses };
+                    })
+                );
+
+                console.log('before setting state:', schedulesWithCourses);
+                setSchedules(schedulesWithCourses);
+                setLoading(false);
+            } catch (error) {
                 console.error("Error fetching schedules:", error);
-            });
+            }
+        };
+
+        fetchSchedules();
     }, [semester]);
+
     console.log("Schedules:", schedules);
 
     const [abbreviateName, setAbbreviateName] = useState(false);
@@ -43,9 +59,12 @@ function SemesterSchedules() {
             });
     }, []);
 
+    if (loading) {
+        return <span>Loading...</span>
+    }
+
     return (
         <div className="">
-            
             <div className="z-[1] fixed top-24 flex justify-between w-full max-w-6xl pr-6 sm:pr-8 md:pr-12">
                 <div className="p-1 px-4 pr-1 bg-white rounded-lg shadow-md flex align-middle items-center justify-center border border-slate-200">
                     <h1 className="text-lg font-semibold">{selectedSemester.replaceAll("_", " ")}</h1>
@@ -59,10 +78,9 @@ function SemesterSchedules() {
                             <span className="sr-only">Select Semester</span>
                         </SelectTrigger>
                         <SelectContent>
-                            {availableSemesters
-                                .map((s) => (
-                                    <SelectItem key={s} value={s}>
-                                        {s.replaceAll("_", " ")}
+                            {availableSemesters.map((s) => (
+                                    <SelectItem key={s.semester} value={s.semester}>
+                                        {s.semester.replaceAll("_", " ")}
                                     </SelectItem>
                                 ))
                             }
@@ -79,11 +97,10 @@ function SemesterSchedules() {
                     </Button>
                 </div>
             </div>
-
             <div className="mt-16 flex">
                 {schedules.map((schedule, index) => (
                     <div key={index} className="min-w-[900px]">
-                        <Calendar key={schedule.id} schedule={schedule} abbreviateName={abbreviateName} moreInfo={moreInfo} />
+                        <Calendar key={schedule.scheduleId} schedule={schedule} abbreviateName={abbreviateName} moreInfo={moreInfo} />
                     </div>
                 ))}
             </div>

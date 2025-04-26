@@ -23,6 +23,10 @@
             s.setSchedule(this);
         }
 
+        public Schedule() {
+
+        }
+
         private int createScheduleID() {
             return (int) (Math.random() * 900000) + 100000;
         }
@@ -121,5 +125,17 @@
 
         public int getScheduleID() {
             return scheduleID;
+        }
+
+        public void setScheduleID(int scheduleId) {
+            this.scheduleID = scheduleId;
+        }
+
+        public void setStudentID(int studentID) {
+            this.studentID = studentID;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
     }

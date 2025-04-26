@@ -4,6 +4,7 @@ import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
 
 export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
+    console.log('schedule:',schedule);
     const courseColors = {
         ACCT: 'bg-red-200',
         COMP: 'bg-slate-200',
@@ -109,6 +110,7 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
     const getClassesForDay = (day) => {
         return classes.filter(cls => cls.days.includes(day));
     };
+
 
     return (
         <div className="flex flex-col bg-white rounded-lg shadow-lg p-4 h-full mr-8">

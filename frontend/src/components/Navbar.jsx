@@ -24,17 +24,18 @@ const Navbar = () => {
     useEffect(() => {
         api.get("/schedules")
             .then((response) => {
+                console.log('test', response.data);
                 setSchedules(response.data);
             })
             .catch((error) => {
                 console.error("Error fetching schedules:", error);
             });
     }, []);
-
+    console.log('schedules', schedules);
     const sortedSchedules = schedules.sort((a, b) => {
         const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
-        const [seasonA, yearA] = a.split('_');
-        const [seasonB, yearB] = b.split('_');
+        const [seasonA, yearA] = a.semester.split('_');
+        const [seasonB, yearB] = b.semester.split('_');
         return yearB - yearA || seasons[seasonB] - seasons[seasonA];
     });
 
@@ -170,7 +171,7 @@ const Navbar = () => {
                                 <div className="bg-background border border-border rounded-lg shadow-lg py-1 mt-2">
                                     {sortedSchedules.map((semester, index) => (
                                         <Link key={index} className="block px-4 py-2 hover:bg-muted" to={`/schedules/${semester}`} onClick={()=>{setIsScheduleOpen(false)}}>
-                                            {semester.replaceAll("_", " ")}
+                                            {semester.semester.replaceAll("_", " ")}
                                         </Link>
                                     ))}
                                     {/*<Link to="#" className="block px-4 py-2 hover:bg-muted">+ Add New Schedule</Link>*/}

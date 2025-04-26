@@ -109,11 +109,21 @@ public class Main {
                     UNIQUE(course_id, schedule_id)
                 );
             """;
-
+            String createSchedulesSQL = """
+                CREATE TABLE IF NOT EXISTS schedules (
+                    schedule_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    semester TEXT,
+                    studentID INTEGER,
+                    name TEXT
+                );
+            """;
             stmt.execute(createCoursesSQL);
             stmt.execute(createTimesSQL);
             stmt.execute(createFacultySQL);
             stmt.execute(createUserCoursesSQL);
+            System.out.println("Created user_courses table");
+            stmt.execute(createSchedulesSQL);
+            System.out.println("Created schedules table");
 
             System.out.println("All tables created or already exist.");
         } catch (SQLException e) {
@@ -231,35 +241,53 @@ public class Main {
 
         app.get("/api/schedules", ctx -> {
             String semester = ctx.queryParam("semester");
-            if (semester == null || semester.isEmpty()) {
-                List<String> allSemesters = student.getSchedules().stream()
-                        .map(Schedule::getSemester)
-                        .distinct()
-                        .toList();
-                ctx.json(allSemesters);
-                return;
+            if (semester == null) {
+                semester = "";
             }
-
-            List<Schedule> filteredSchedules = student.getSchedules().stream()
-                    .filter(schedule -> schedule.getSemester().equalsIgnoreCase(semester))
-                    .toList();
-
-            ctx.json(filteredSchedules);
+            ctx.json(getSchedulesFromDB(semester));
         });
 
         // ADD SCHEDULE
         app.post("/api/schedules", ctx -> {
-            String name = ctx.queryParam("name");
             String semester = ctx.queryParam("semester");
-
+            String name = "New Schedule";
             if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
                 ctx.status(400).json(Map.of("error", "Name and semester are required."));
                 return;
             }
 
-            Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
-            newSchedule.setSemester(semester);
-            ctx.status(201).json(Map.of("message", "Schedule created successfully."));
+            int newScheduleId = addScheduleToDatabase(semester);
+
+            if (newScheduleId != -1) {
+                // Assuming you want to associate the new schedule ID with the student's in-memory representation
+                Schedule newSchedule = new Schedule(student, new ArrayList<>(), name);
+                newSchedule.setSemester(semester);
+                ctx.status(201).json(Map.of("message", "Schedule created successfully", "scheduleId", newScheduleId));
+            } else {
+                ctx.status(500).json(Map.of("error", "Failed to create schedule in the database"));
+            }
+        });
+        // DELETE SCHEDULE by ID
+        app.delete("/api/schedules/{scheduleId}", ctx -> {
+            String scheduleIdStr = ctx.pathParam("scheduleId");
+            int scheduleId;
+
+            try {
+                scheduleId = Integer.parseInt(scheduleIdStr);
+            } catch (NumberFormatException e) {
+                ctx.status(400).json(Map.of("error", "Invalid schedule ID format"));
+                return;
+            }
+
+            boolean deletedFromDb = removeScheduleFromDatabase(scheduleId);
+
+            if (deletedFromDb) {
+                // Find and remove the schedule from the in-memory student object
+                student.getSchedules().removeIf(schedule -> schedule.getScheduleID() == scheduleId);
+                ctx.status(200).json(Map.of("message", "Schedule deleted successfully"));
+            } else {
+                ctx.status(404).json(Map.of("error", "Schedule not found"));
+            }
         });
 
         //app.get("/api/search", ctx -> ctx.json(new Message("Hello from Javalin with Jackson!")));
@@ -288,7 +316,6 @@ public class Main {
             List<Course> filteredCourses = (semester != null && !semester.isEmpty())
                     ? allCoursesFromDB.stream().filter(course -> semester.equalsIgnoreCase(course.getSemester())).toList()
                     : allCoursesFromDB;
-            System.out.println("Filtered courses: " + filteredCourses);
             // Filter courses based on the search term
 //            List<Course> filteredCourses = courses;
             if(searchTerm != null && !searchTerm.trim().isEmpty()) {
@@ -405,6 +432,7 @@ public class Main {
 
 // Get user's saved courses
         app.get("/api/user-courses", ctx -> {
+            int scheduleId = ctx.queryParamAsClass("scheduleId", Integer.class).getOrDefault(-1);
             int userId = ctx.queryParamAsClass("userId", Integer.class).getOrDefault(student.getId());
 
             try {
@@ -421,8 +449,39 @@ public class Main {
 
 
     }
+
+    public static List<Schedule> getSchedulesFromDB(String semester) throws SQLException {
+
+        String url = "jdbc:sqlite:database.db";
+        List<Schedule> schedules = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(url)) {
+            // 1. Load all courses
+            String scheduleSql = "";
+            if (!semester.isEmpty()) {
+                scheduleSql = "SELECT * FROM schedules WHERE semester = ?";
+            } else {
+                scheduleSql = "SELECT * FROM schedules";
+            }
+            try (PreparedStatement schedulestmt = conn.prepareStatement(scheduleSql)) {
+                if (!semester.isEmpty()) {
+                    schedulestmt.setString(1, semester);
+                }
+                var rs = schedulestmt.executeQuery();
+                while (rs.next()) {
+                    Schedule c = new Schedule();
+                    c.setSemester(rs.getString("semester"));
+                    c.setScheduleID(rs.getInt("schedule_id"));
+                    c.setStudentID(rs.getInt("studentID"));
+                    c.setName(rs.getString("name"));
+                    schedules.add(c);
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return schedules;
+    }
     public static List<Course> getCoursesFromDB(int limit, int offset) {
-        List<Course> courseList = new ArrayList<>();
         Map<Integer, Course> courseMap = new HashMap<>();
         String url = "jdbc:sqlite:database.db";
 
@@ -438,7 +497,6 @@ public class Main {
                     int courseId = rs.getInt("id");
                     c.setId(courseId);
                     c.setName(rs.getString("name"));
-                    System.out.println(rs.getString("name"));
                     c.setLocation(rs.getString("location"));
                     c.setSection(rs.getString("section"));
                     c.setSemester(rs.getString("semester"));
@@ -510,6 +568,7 @@ public class Main {
         }
 
         // Return in original order
+        List<Course> courseList = new ArrayList<>();
         courseList.addAll(courseMap.values());
         return courseList;
     }
@@ -594,20 +653,20 @@ public class Main {
         }
     }
 
-    private static List<Course> getUserCourses(int userId) {
+    private static List<Course> getUserCourses(int scheduleId) {
         List<Course> courseList = new ArrayList<>();
         String url = "jdbc:sqlite:database.db";
 
         String sql = """
         SELECT c.* FROM courses c
         JOIN user_courses uc ON c.id = uc.course_id
-        WHERE uc.user_id = ?
+        WHERE uc.schedule_id = ?
     """;
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, userId);
+            stmt.setInt(1, scheduleId);
             var rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -666,6 +725,55 @@ public class Main {
         return courseList;
     }
 
+    // Helper method for database operations
+    private static int addScheduleToDatabase(String semester) {
+        String url = "jdbc:sqlite:database.db";
+        String sql = "INSERT INTO schedules (semester, studentID, name) VALUES (?, ?, ?)"; // Add semester column
+        System.out.println("Called addScheduleToDatabase with semester function");
+        int generatedId = -1;
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setString(1, semester); // Set the semester value
+            stmt.setInt(2, 123456); // Set the student ID
+            stmt.setString(3, "New Schedule"); // Set the schedule name
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Failed to add new schedule with semester");
+            }
+
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                generatedId = generatedKeys.getInt(1);
+            } else {
+                throw new SQLException("Failed to retrieve generated schedule ID");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error adding schedule with semester to database: " + e.getMessage());
+            throw new RuntimeException("Database error: " + e.getMessage(), e);
+        }
+        return generatedId;
+    }
+
+    // Helper method for database operations
+    private static boolean removeScheduleFromDatabase(int scheduleId) {
+        String url = "jdbc:sqlite:database.db";
+        String sql = "DELETE FROM schedules WHERE schedule_id = ?";
+        System.out.println("Called removeScheduleFromDatabase function for ID: " + scheduleId);
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, scheduleId); // Set the schedule ID to delete
+            stmt.executeUpdate();
+            return true; // Returns true if at least one row was deleted
+        } catch (SQLException e) {
+            System.err.println("Error removing schedule from database: " + e.getMessage());
+            throw new RuntimeException("Database error: Failed to remove schedule with ID: " + scheduleId, e);
+        }
+    }
     // Helper method to get course DB ID
     private static int getCourseDbId(Course course) {
         String url = "jdbc:sqlite:database.db";
