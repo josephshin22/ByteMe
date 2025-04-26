@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import api from "@/api.js";
 import Calendar from "../components/Calendar.jsx";
 import {Button} from "@/components/ui/button.jsx";
-import {ChevronsDownUp, ChevronsUpDown} from "lucide-react";
+import {ChevronsDownUp, ChevronsUpDown, Plus, PlusCircle} from "lucide-react";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.jsx";
 import * as React from "react";
 
@@ -17,7 +17,8 @@ function SemesterSchedules() {
         const fetchSchedules = async () => {
             try {
                 const response = await api.get(`/schedules?semester=${semester}`);
-                const schedules = response.data;
+                const schedules = response.data.semesterSchedules[0].schedules;
+                console.log(schedules);
 
                 const schedulesWithCourses = await Promise.all(
                     schedules.map(async (schedule) => {
@@ -48,11 +49,12 @@ function SemesterSchedules() {
         window.location.href = `/schedules/${value}`;
     };
 
-    const [availableSemesters, setAvailibleSchedules] = useState([]);
+    const [semestersWithSchedules, setSemestersWithSchedules] = useState([]);
     useEffect(() => {
         api.get("/schedules")
             .then((response) => {
-                setAvailibleSchedules(response.data);
+                setSemestersWithSchedules(response.data.semesterSchedules);
+                console.log("semestersWithSchedules:", semestersWithSchedules)
             })
             .catch((error) => {
                 console.error("Error fetching schedules:", error);
@@ -78,7 +80,7 @@ function SemesterSchedules() {
                             <span className="sr-only">Select Semester</span>
                         </SelectTrigger>
                         <SelectContent>
-                            {availableSemesters.map((s) => (
+                            {semestersWithSchedules.map((s) => (
                                     <SelectItem key={s.semester} value={s.semester}>
                                         {s.semester.replaceAll("_", " ")}
                                     </SelectItem>
@@ -87,8 +89,24 @@ function SemesterSchedules() {
                         </SelectContent>
                     </Select>
 
+                    <Button variant="outline"
+                        onClick={() => {
+                            const scheduleName = `Schedule_${Date.now()}`;
+                            api.post(`/schedules?name=${scheduleName}&semester=${selectedSemester}`)
+                                .then((res) => {
+                                    console.log("Created:", res.data);
+                                })
+                                .catch((err) => {
+                                    console.error("Error creating schedule:", err);
+                                });
+                        }}
+                    >
+                        <Plus/>
+                        Add new schedule
+                    </Button>
 
                 </div>
+
                 <div className="flex align-middle justify-center items-center p-1 bg-white rounded-lg shadow-md border border-slate-200">
                     <Button variant="ghost" onClick={() => setAbbreviateName(!abbreviateName)}>{abbreviateName ? "Show Names" : "Show Codes"}</Button>
                     <Button variant="ghost" onClick={() => setMoreInfo(!moreInfo)}>

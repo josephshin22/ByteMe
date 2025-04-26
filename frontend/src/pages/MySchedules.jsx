@@ -12,10 +12,14 @@ import api from "@/api.js";
 
 
 function MySchedules({ schedules, onScheduleUpdate }) {
-    // const [schedules, setSchedules] = useState([]);
     const [isDescending, setIsDescending] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedSemester, setSelectedSemester] = useState("");
+    const availableSemesters = ['2023_Fall', '2023_Winter_Online', '2024_Spring', '2024_Early_Summer', '2024_Fall', '2025_Spring'];
+
+    const missingSemesters = availableSemesters.filter(
+        (semester) => !schedules.some((schedule) => schedule.semester === semester)
+    );
 
     // useEffect(() => {
     //     api.get("/schedules")
@@ -27,22 +31,21 @@ function MySchedules({ schedules, onScheduleUpdate }) {
     //         });
     // }, []);
 
-    const sortedSchedules = schedules.sort((a, b) => {
-        const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
-        const [seasonA, yearA] = a.semester.split(' ');
-        const [seasonB, yearB] = b.semester.split(' ');
-        return isDescending
-            ? yearB - yearA || seasons[seasonB] - seasons[seasonA]
-            : yearA - yearB || seasons[seasonA] - seasons[seasonB];
-    });
+    // const sortedSchedules = schedules.sort((a, b) => {
+    //     const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
+    //     const [seasonA, yearA] = a.semester.split(' ');
+    //     const [seasonB, yearB] = b.semester.split(' ');
+    //     return isDescending
+    //         ? yearB - yearA || seasons[seasonB] - seasons[seasonA]
+    //         : yearA - yearB || seasons[seasonA] - seasons[seasonB];
+    // });
 
     const handleOutsideClick = (e) => {
         if (e.target.id === "form-modal-overlay") {
-            onClose();
+            setShowModal(false);
         }
     };
 
-    const availableSemesters = ['2023_Fall', '2023_Winter_Online', '2024_Spring', '2024_Early_Summer', '2024_Fall', '2025_Spring'];
 
     return (
         <div>
@@ -65,17 +68,19 @@ function MySchedules({ schedules, onScheduleUpdate }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-5xl">
 
-                {sortedSchedules.map((schedule) => (
-                    <ScheduleCard key={schedule.semester} semester={schedule.semester} />
+                {schedules.map((semesterSchedules) => (
+                    <ScheduleCard key={semesterSchedules.semester} semesterSchedules={semesterSchedules} />
                 ))}
 
-                <div
-                    className="cursor-pointer py-6 w-full h-full flex flex-col space-y-1 items-center justify-center border-[1.5px] border-slate-400 border-dashed rounded-lg hover:border-black"
-                    onClick={() => setShowModal(true)}
-                >
-                    <PlusCircle className="h-5" />
-                    <p>Add Semester</p>
-                </div>
+                {missingSemesters.length !== 0 && (
+                    <div
+                        className="cursor-pointer py-6 w-full h-full flex flex-col space-y-1 items-center justify-center border-[1.5px] border-slate-400 border-dashed rounded-lg hover:border-black"
+                        onClick={() => setShowModal(true)}
+                    >
+                        <PlusCircle className="h-5" />
+                        <p>Add Semester</p>
+                    </div>
+                )}
 
                 {showModal && (
                     <div id="form-modal-overlay" className="z-20 fixed inset-0 p-4 bg-black/50 flex flex-col items-center justify-center" onClick={handleOutsideClick}>
@@ -88,7 +93,7 @@ function MySchedules({ schedules, onScheduleUpdate }) {
                                     <SelectValue placeholder="Choose..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {availableSemesters.map((semester) => (
+                                    {missingSemesters.map((semester) => (
                                         <SelectItem key={semester} value={semester}>
                                             {semester.replaceAll("_", " ")}
                                         </SelectItem>

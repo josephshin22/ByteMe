@@ -54,6 +54,7 @@ function FindCourses() {
     const handleSemesterChange = (value) => {
         setSelectedSemester(value);
         setPage(1);
+        setScheduleOptions([]);
         // console.log("Selected semester:", value);
     };
     const [searchInput, setSearchInput] = useState('');
@@ -93,12 +94,17 @@ function FindCourses() {
             })
             .catch((err) => console.error("Error fetching courses:", err));
 
-        api.get('/schedules').then((response) => {
-            console.log('dropdown', response);
-            setScheduleOptions(response.data.map((item) => item.scheduleID))
-        })
+        api.get(`/schedules?semester=${selectedSemester}`).then((response) => {
+            // const schedules = response.data.semesterSchedules[0].schedules.map((item) => item.scheduleID);
+            const schedules = response.data.semesterSchedules[0].schedules;
+            setScheduleOptions(schedules);
+            if (schedules.length > 0) {
+                setSelectedSchedule(schedules[0].scheduleID); // Set the first option as the default
+            }
+        });
     }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter]);
     // console.log("Courses:", courses);
+    console.log("scheduleOptions", scheduleOptions);
 
     const options = [
         {label: "Monday", value: "M"},
@@ -349,23 +355,32 @@ function FindCourses() {
             <div>
                 <div className="flex items-center rounded-lg bg-input shadow-xs">
                     <div className="text-slate-500 font-medium text-xs px-2">SCHEDULE</div>
-                    <select
-                        id="scheduleId"
+                    <Select
                         value={selectedSchedule}
-                        onChange={(e) => {
-                            console.log(e.target.options[e.target.selectedIndex].text)
-                            setSelectedSchedule(e.target.options[e.target.selectedIndex].text);  // Update scheduleId state with the text
-                            setPage(1);  // Reset page to 1 when filter is changed
+                        onValueChange={(value) => {
+                            console.log(value);
+                            setSelectedSchedule(value); // Update scheduleId state with the selected value
+                            setPage(1); // Reset page to 1 when filter is changed
                         }}
-                        className="h-8 shadow-none rounded-l-none max-w-36 bg-transparent"
                     >
-                        <option value="">All Schedules</option>
-                        {scheduleOptions.map((schedule) => (
-                            <option key={schedule} value={schedule}>
-                                {schedule}
-                            </option>
-                        ))}
-                    </select>
+                        <SelectTrigger className="h-8 shadow-none rounded-l-none ">
+                            <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {scheduleOptions.length === 0 ? (
+                                <div className="px-2 text-slate-500 text-sm max-w-40">No schedules for {selectedSemester.replaceAll("_"," ")}</div>
+                            ):(
+                                <>
+                                    {scheduleOptions.map((schedule) => (
+                                        <SelectItem key={schedule.scheduleID} value={schedule.scheduleID}>
+                                            {schedule.name} {schedule.scheduleID}
+                                        </SelectItem>
+                                    ))}
+                                </>
+                            )}
+
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
                 <Button variant="ghost" onClick={() => setCardView(!cardView)}>
@@ -383,7 +398,7 @@ function FindCourses() {
                                 {/*{courses.map((course, index) => (*/}
                                 {/*    <CourseCard key={index} course={course}/>*/}
                                 {filteredCourses.map((course) => (
-                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} selectedSchedule={selectedSchedule} isSaved={courseIsSaved(course)}/>
+                                    <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} selectedSchedule={selectedSchedule === "all" ? "" : selectedSchedule} isSaved={courseIsSaved(course)}/>
                                 ))}
                             </div>
                         ) : (
@@ -394,7 +409,7 @@ function FindCourses() {
 
                                 {courses.length > 0 ? (
                                     courses.map((course) => (
-                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} selectedSchedule={selectedSchedule} isSaved={courseIsSaved(course)}/>
+                                        <CourseCard key={`${course.subject || "N/A"}-${course.number || "N/A"}-${course.section || "N/A"}-${course.semester || "N/A"}`} course={course} selectedSchedule={selectedSchedule === "all" ? "" : selectedSchedule} isSaved={courseIsSaved(course)}/>
                                     ))
                                 ) : (
                                     // <div className="h-20 flex items-center justify-center w-full rounded-lg text-sm animate-shine">

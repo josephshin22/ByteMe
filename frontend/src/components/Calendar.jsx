@@ -116,7 +116,7 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         <div className="flex flex-col bg-white rounded-lg shadow-lg p-4 h-full mr-8">
             {/* Calendar Header */}
             <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-slate-500">{schedule.name}</h2>
+                <h2 className="text-lg font-semibold text-slate-500">{schedule.name} {schedule.scheduleID}</h2>
             </div>
 
             {/* Week View */}

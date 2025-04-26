@@ -17,7 +17,7 @@ function App() {
     function fetchSchedules() {
         api.get("/schedules")
             .then((res) => {
-                setSchedules(res.data);
+                setSchedules(res.data.semesterSchedules);
             })
             .catch((err) => {
                 console.error("Error fetching schedules:", err);

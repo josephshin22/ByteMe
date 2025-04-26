@@ -4,30 +4,11 @@ import {Button} from "@/components/ui/button.jsx";
 import {useNavigate} from "react-router-dom";
 import {Pencil} from "lucide-react";
 
-const ScheduleCard = ({semester}) => {
+const ScheduleCard = ({semesterSchedules}) => {
 
-    const [schedules, setSchedules] = useState([]);
+    const [schedules, setSchedules] = useState(semesterSchedules.schedules);
     const [showDeleteOptions, setShowDeleteOptions] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        api.get(`/schedules?semester=${semester}`)
-            .then((response) => {
-                // response.data.map((schedule, index) => {
-                //     api.get(`/user-courses?scheduleId=${schedule.scheduleID}`).then((courses) => {
-                //         response.data[index].courses = courses.data.courses;
-                //         console.log("courses data:", response.data[0])
-                //     });
-                // });
-                setSchedules(response.data);
-                // console.log('new', schedules);
-            })
-            .catch((error) => {
-                console.error("Error fetching schedules:", error);
-            });
-    }, [semester]);
-
-    console.log(`${semester} card schedules:`, schedules);
 
     const handleDelete = (scheduleId) => {
         api.delete(`/schedules/${scheduleId}`)
@@ -42,7 +23,7 @@ const ScheduleCard = ({semester}) => {
 
     const handleCardClick = () => {
         if (!showDeleteOptions) {
-            navigate(`/schedules/${semester}`);
+            navigate(`/schedules/${semesterSchedules.semester}`);
         }
     };
 
@@ -56,8 +37,8 @@ const ScheduleCard = ({semester}) => {
 
                 <div className="flex items-start justify-between">
                     <div>
-                        <h2 className="text-lg font-medium">{semester.replaceAll("_", " ")}</h2>
-                        <p className="text-xs text-slate-400">Junior Year {semester.split("_").pop()}</p>
+                        <h2 className="text-lg font-medium">{semesterSchedules.semester.replaceAll("_", " ")}</h2>
+                        <p className="text-xs text-slate-400">Junior Year {semesterSchedules.semester.split("_").pop()}</p>
                     </div>
 
                     <div className="translate-x-1 -translate-y-1">
@@ -81,7 +62,7 @@ const ScheduleCard = ({semester}) => {
                     {schedules.length ? (
                         <>
                             {schedules.map((schedule, index) => (
-                                <p key={index}>{schedule.name}</p>
+                                <p key={index}>{schedule.name} {schedule.scheduleID}</p>
                             ))}
                         </>
                     ) : (

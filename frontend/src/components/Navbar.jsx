@@ -33,12 +33,13 @@ const Navbar = ({ schedules, onScheduleUpdate }) => {
     // }, []);
     // console.log('schedules', schedules);
 
-    const sortedSchedules = schedules.sort((a, b) => {
-        const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
-        const [seasonA, yearA] = a.semester.split('_');
-        const [seasonB, yearB] = b.semester.split('_');
-        return yearB - yearA || seasons[seasonB] - seasons[seasonA];
-    });
+    const sortedSchedules = []
+    // const sortedSchedules = schedules.sort((a, b) => {
+    //     const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
+    //     const [seasonA, yearA] = a.semester.split('_');
+    //     const [seasonB, yearB] = b.semester.split('_');
+    //     return yearB - yearA || seasons[seasonB] - seasons[seasonA];
+    // });
 
     useEffect(() => {
         if (isMobileMenuOpen) {

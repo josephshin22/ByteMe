@@ -58,8 +58,6 @@ public class Main {
         Course testCourse6 = courses.get(895);
         testSchedule3.addToSchedule(testCourse6);
 
-        student.addSavedCourse(testCourse1);
-
         // Step 1: Create tables
         try (Connection conn = DriverManager.getConnection(url);
             Statement stmt = conn.createStatement()) {
@@ -148,42 +146,42 @@ public class Main {
                 INSERT INTO course_faculty (course_id, faculty_name) VALUES (?, ?)
             """);
 
-            for (Course c : courses) {
-                // Insert course
-                courseStmt.setString(1, c.getName());
-                courseStmt.setString(2, c.getLocation());
-                courseStmt.setString(3, c.getSection());
-                courseStmt.setString(4, c.getSemester());
-                courseStmt.setInt(5, c.getCourseNum());
-                courseStmt.setInt(6, c.getNumCredits());
-                courseStmt.setBoolean(7, c.getIs_lab());
-                courseStmt.setString(8, c.getSubjCode());
-                courseStmt.setInt(9, c.getTotalSeats());
-                courseStmt.executeUpdate();
-
-                // Get course ID
-                ResultSet rs = courseStmt.getGeneratedKeys();
-                int courseId = -1;
-                if (rs.next()) {
-                    courseId = rs.getInt(1);
-                }
-
-                // Insert times
-                for (timeBlock t : c.getTimes()) {
-                    timeStmt.setInt(1, courseId);
-                    timeStmt.setString(2, t.getDay());
-                    timeStmt.setString(3, t.getStartTime());
-                    timeStmt.setString(4, t.getEndTime());
-                    timeStmt.executeUpdate();
-                }
-
-                // Insert faculty
-                for (String prof : c.getFaculty()) {
-                    facultyStmt.setInt(1, courseId);
-                    facultyStmt.setString(2, prof);
-                    facultyStmt.executeUpdate();
-                }
-            }
+//            for (Course c : courses) {
+//                // Insert course
+//                courseStmt.setString(1, c.getName());
+//                courseStmt.setString(2, c.getLocation());
+//                courseStmt.setString(3, c.getSection());
+//                courseStmt.setString(4, c.getSemester());
+//                courseStmt.setInt(5, c.getCourseNum());
+//                courseStmt.setInt(6, c.getNumCredits());
+//                courseStmt.setBoolean(7, c.getIs_lab());
+//                courseStmt.setString(8, c.getSubjCode());
+//                courseStmt.setInt(9, c.getTotalSeats());
+//                courseStmt.executeUpdate();
+//
+//                // Get course ID
+//                ResultSet rs = courseStmt.getGeneratedKeys();
+//                int courseId = -1;
+//                if (rs.next()) {
+//                    courseId = rs.getInt(1);
+//                }
+//
+//                // Insert times
+//                for (timeBlock t : c.getTimes()) {
+//                    timeStmt.setInt(1, courseId);
+//                    timeStmt.setString(2, t.getDay());
+//                    timeStmt.setString(3, t.getStartTime());
+//                    timeStmt.setString(4, t.getEndTime());
+//                    timeStmt.executeUpdate();
+//                }
+//
+//                // Insert faculty
+//                for (String prof : c.getFaculty()) {
+//                    facultyStmt.setInt(1, courseId);
+//                    facultyStmt.setString(2, prof);
+//                    facultyStmt.executeUpdate();
+//                }
+//            }
 
         System.out.println("All courses, times, and faculty inserted.");
 
@@ -251,6 +249,13 @@ public class Main {
         app.post("/api/schedules", ctx -> {
             String semester = ctx.queryParam("semester");
             String name = "New Schedule";
+            if (!Objects.equals(ctx.queryParam("name"), "")){
+                name = ctx.queryParam("name");
+            }
+
+            System.out.println(ctx.queryParam("name"));
+            System.out.println(name);
+
             if (name == null || name.isEmpty() || semester == null || semester.isEmpty()) {
                 ctx.status(400).json(Map.of("error", "Name and semester are required."));
                 return;
@@ -454,18 +459,14 @@ public class Main {
 
     }
 
-    public static List<Schedule> getSchedulesFromDB(String semester) throws SQLException {
+    public static Map<String, Object> getSchedulesFromDB(String semester) throws SQLException {
 
         String url = "jdbc:sqlite:database.db";
-        List<Schedule> schedules = new ArrayList<>();
+        Map<String, List<Schedule>> groupedSchedules = new TreeMap<>(); // TreeMap to keep semesters sorted
         try (Connection conn = DriverManager.getConnection(url)) {
-            // 1. Load all courses
-            String scheduleSql = "";
-            if (!semester.isEmpty()) {
-                scheduleSql = "SELECT * FROM schedules WHERE semester = ?";
-            } else {
-                scheduleSql = "SELECT * FROM schedules";
-            }
+            String scheduleSql = semester.isEmpty()
+                ? "SELECT * FROM schedules"
+                : "SELECT * FROM schedules WHERE semester = ?";
             try (PreparedStatement schedulestmt = conn.prepareStatement(scheduleSql)) {
                 if (!semester.isEmpty()) {
                     schedulestmt.setString(1, semester);
@@ -477,14 +478,27 @@ public class Main {
                     c.setScheduleID(rs.getInt("schedule_id"));
                     c.setStudentID(rs.getInt("studentID"));
                     c.setName(rs.getString("name"));
-                    schedules.add(c);
+
+                    groupedSchedules
+                        .computeIfAbsent(c.getSemester(), k -> new ArrayList<>())
+                        .add(c);
                 }
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-        return schedules;
+
+        // Convert to desired JSON structure
+        List<Map<String, Object>> semesterSchedules = groupedSchedules.entrySet().stream()
+            .map(entry -> Map.of(
+                "semester", entry.getKey(),
+                "schedules", entry.getValue()
+            ))
+            .toList();
+
+        return Map.of("semesterSchedules", semesterSchedules);
     }
+
     public static List<Course> getCoursesFromDB(int limit, int offset) {
         Map<Integer, Course> courseMap = new HashMap<>();
         String url = "jdbc:sqlite:database.db";
