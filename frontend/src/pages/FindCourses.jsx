@@ -65,6 +65,7 @@ function FindCourses() {
     const [day3, setDay3] = useState('');
     const [day4, setDay4] = useState('');
     const [day5, setDay5] = useState('');
+    const [credits, setCredits] = useState('');
     const [hideFullCourses, setHideFullCourses] = useState(false); // State to control showing full courses
     const [filteredCourses, setFilteredCourses] = useState([]); // Filtered courses
 
@@ -79,7 +80,7 @@ function FindCourses() {
         // const endpoint = searchInput
         //     ? `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
         //     : `/courses?page=${page}&limit=${coursesPerPage}&semester=${selectedSemester}`;
-        const endpoint = `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}`
+        const endpoint = `/search-courses?semester=${selectedSemester}&searchTerm=${encodeURIComponent(searchInput)}&page=${page}&limit=${coursesPerPage}&code=${code}&day1=${day1}&day2=${day2}&day3=${day3}&day4=${day4}&day5=${day5}&startTime=${startTimeFilter}&endTime=${endTimeFilter}&hideFullCourses=${hideFullCourses}&credits=${credits}`
 
         api.get(endpoint)
             .then((res) => {
@@ -103,7 +104,7 @@ function FindCourses() {
                 setSelectedSchedule(schedules[0].scheduleID); // Set the first option as the default
             }
         });
-    }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter]);
+    }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter, credits]);
     // console.log("Courses:", courses);
     // console.log("scheduleOptions", scheduleOptions);
 
@@ -316,6 +317,20 @@ function FindCourses() {
                                 {(startTimeFilter !== '' || endTimeFilter !== '') && (
                                     <div className=" cursor-pointer text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
                                 )}
+                            </div>
+
+                            {/* Course Code */}
+                            <div className="flex items-center rounded-lg bg-input shadow-xs">
+                                <div className=" text-slate-500 font-medium text-xs px-2">CREDITS</div>
+                                <Input
+                                    className="h-8 shadow-none rounded-l-none max-w-36"
+                                    placeholder="ex: '3'"
+                                    value={credits}
+                                    onChange={(e) => {
+                                        setCredits(e.target.value);
+                                        updateSearch();
+                                    }}
+                                />
                             </div>
 
 
