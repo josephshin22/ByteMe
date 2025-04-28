@@ -142,6 +142,7 @@ public class Course {
         for (timeBlock timeBlock : times) {
             days.append(timeBlock.getDay()).append(" ");
         }
+//        System.out.println("course daysString: " + days.toString().trim().toLowerCase());
         return days.toString().trim().toLowerCase();
     }
 

@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/pagination.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {saveCourse} from "@/utils/saveCourse.jsx";
+import {handleAddCourse} from "@/utils/courseActions.jsx";
 
 function FindCourses() {
     const [scheduleOptions, setScheduleOptions] = useState([])
@@ -104,7 +105,7 @@ function FindCourses() {
         });
     }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter]);
     // console.log("Courses:", courses);
-    console.log("scheduleOptions", scheduleOptions);
+    // console.log("scheduleOptions", scheduleOptions);
 
     const options = [
         {label: "Monday", value: "M"},
@@ -120,6 +121,8 @@ function FindCourses() {
         // setSelected((prev) =>
         //     prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
         // );
+        console.log("trying to filter")
+        // updateSearch();
         setSelected((prev) => {
             if (prev.includes(value)) {
                 // Deselect the value
@@ -310,8 +313,8 @@ function FindCourses() {
                                     value={endTimeFilter}
                                     onChange={(e) => handleTimeChange(e.target.value, setEndTimeFilter)}
                                 />
-                                {startTimeFilter !== '' || endTimeFilter !== '' && (
-                                    <div className=" text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
+                                {(startTimeFilter !== '' || endTimeFilter !== '') && (
+                                    <div className=" cursor-pointer text-slate-500 font-medium text-xs px-2"><X onClick={clearTimeFilters} size={14} /></div>
                                 )}
                             </div>
 
@@ -455,7 +458,7 @@ function FindCourses() {
                                         <TableCell>{course.location}</TableCell>
                                         <TableCell>{formatCourseTimes(course.times)}</TableCell>
                                         <TableCell onClick={(e) => { e.stopPropagation(); saveCourse(course); }}><Bookmark size={16}/></TableCell>
-                                        <TableCell onClick={(e) => { e.stopPropagation(); console.log("add"); }}><PlusCircle size={16}/></TableCell>
+                                        <TableCell onClick={(e) => { e.stopPropagation(); handleAddCourse(course, selectedSchedule) }}><PlusCircle size={16}/></TableCell>
                                     </TableRow>
 
                                 )) : (

@@ -2,17 +2,34 @@ import { useState, useMemo } from 'react';
 import {Button} from "@/components/ui/button.jsx";
 import CourseModal from "@/components/CourseModal.jsx";
 import * as React from "react";
+import html2canvas from "html2canvas-pro";
+import { jsPDF } from "jspdf";
+import {Share} from "lucide-react";
 
-export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo }) {
+export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo, setMoreInfo }) {
     // console.log('schedule:',schedule);
     const courseColors = {
         ACCT: 'bg-red-200',
-        COMP: 'bg-slate-200',
         MATH: 'bg-orange-200',
-        PHYS: 'bg-purple-200',
-        CHEM: 'bg-pink-200',
-        BIOL: 'bg-green-200',
         HUMA: 'bg-yellow-200',
+        EDUC: 'bg-amber-200',
+        HIST: 'bg-amber-200',
+        PSYC: 'bg-lime-200',
+        BIOL: 'bg-green-200',
+        STAT: 'bg-emerald-200',
+        DESI: 'bg-teal-100',
+        ART: 'bg-cyan-100',
+        MUSC: 'bg-sky-200',
+        ECON: 'bg-indigo-200',
+        ENGL: 'bg-violet-200',
+        PHYS: 'bg-purple-200',
+        LANG: 'bg-fuchsia-200',
+        CHEM: 'bg-pink-200',
+        SOCI: 'bg-rose-200',
+        COMP: 'bg-slate-200',
+        PHIL: 'bg-gray-200',
+        COMM: 'bg-slate-200',
+
         // Add more course codes and colors as needed
     };
 
@@ -28,8 +45,8 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                 const dayMap = { M: 'Monday', T: 'Tuesday', W: 'Wednesday', R: 'Thursday', F: 'Friday' };
                 return dayMap[time.day];
             }),
-            startTime: course.times[0]?.start_time.slice(0, 5), // Use the first time slot's start time
-            endTime: course.times[0]?.end_time.slice(0, 5), // Use the first time slot's end time
+            startTime: course.times.length!==0 ? course.times[0]?.start_time.slice(0, 5) : "00000", // Use the first time slot's start time
+            endTime: course.times.length!==0 ? course.times[0]?.end_time.slice(0, 5) : "00000", // Use the first time slot's end time
             location: course.location,
             color: courseColors[course.subjCode] || 'bg-blue-200',
         }));
@@ -50,7 +67,6 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
     const calendarEndHour = useMemo(() => {
         // Default end hour is 16 (4 PM)
         let endHour = 16;
-
         // Check if any classes end after 4 PM
         classes.forEach(cls => {
             const [hours, minutes] = cls.endTime.split(':').map(Number);
@@ -84,6 +100,8 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
 
     // Calculate position and height based on time - FIXED CALCULATION
     const calculateClassPosition = (startTime, endTime) => {
+        console.log(`startTime: ${startTime} endTime: ${endTime}`);
+
         const [startHour, startMinute] = startTime.split(':').map(Number);
         const [endHour, endMinute] = endTime.split(':').map(Number);
 
@@ -111,12 +129,78 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
         return classes.filter(cls => cls.days.includes(day));
     };
 
+    const getOtherClasses= () => {
+        return classes.filter(cls => cls.days.length === 0);
+    }
+
+    const exportToPDF = async (schedule) => {
+        console.log(schedule.semester)
+        console.log(schedule.name)
+        await setMoreInfo();
+        const calendarElement = document.querySelector(
+            `[data-schedule-semester="${schedule.semester}"][data-schedule-name="${schedule.name} ${schedule.scheduleID}"]`
+        );
+
+        if (!calendarElement) {
+            console.error("Calendar element not found");
+            return;
+        }
+
+        // Clone the calendar element to avoid modifying the original
+        const clonedElement = calendarElement.cloneNode(true);
+
+        // Update the header with the current schedule name
+        const header = clonedElement.querySelector("h2");
+        if (header) {
+            header.textContent = `${schedule.name} ${schedule.scheduleID}`;
+        }
+
+        // Apply styles to the cloned element
+        clonedElement.style.width = "1200px";
+        clonedElement.style.padding = "20px";
+        clonedElement.style.margin = "20px";
+
+        // Append the cloned element to the body (hidden) for rendering
+        clonedElement.style.position = "absolute";
+        clonedElement.style.top = "-9999px";
+        document.body.appendChild(clonedElement);
+
+        html2canvas(clonedElement, { scale: 2 })
+            .then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+                const pdf = new jsPDF("landscape", "mm", "a4");
+
+                // Calculate image dimensions to fit A4 size
+                const pdfWidth = 300;
+                const pdfHeight = 130;
+                pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`${schedule.name.replace(/\s+/g, "_")}_Schedule.pdf`);
+            })
+            .catch((error) => {
+                console.error("Error exporting calendar to PDF:", error);
+            })
+            .finally(() => {
+                // Remove the cloned element from the DOM
+                document.body.removeChild(clonedElement);
+            });
+    };
+
 
     return (
-        <div className="flex flex-col bg-white rounded-lg shadow-lg p-4 h-full mr-8">
+        <div
+            data-schedule-semester={schedule.semester}
+            data-schedule-name={`${schedule.name} ${schedule.scheduleID}`}
+            className="flex flex-col bg-white rounded-lg shadow-lg p-4 pt-2 h-full mr-8"
+        >
             {/* Calendar Header */}
-            <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-slate-500">{schedule.name} {schedule.scheduleID}</h2>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-slate-500">{schedule.name} {schedule.scheduleID}</h2>
+                </div>
+                <Button variant="outline" onClick={() => exportToPDF(schedule)}>
+                    <Share/>
+                    Export to PDF
+                </Button>
             </div>
 
             {/* Week View */}
@@ -154,7 +238,7 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                                     <div key={timeIndex} className={`${moreInfo ? "h-12" : "h-7"} border-b border-slate-300`}></div>
                                 ))}
 
-                                {/* Classes */}
+                                {/* Classes with days */}
                                 {getClassesForDay(day).map(cls => {
                                     const { top, height } = calculateClassPosition(cls.startTime, cls.endTime);
                                     return (
@@ -175,13 +259,36 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                                         </div>
                                     );
                                 })}
+
                             </div>
                         ))}
                     </div>
                 </div>
+
+                {/* Classes without days */}
+                <div className="flex mt-4">
+                    <div className="max-w-20 text-xs text-slate-500 text-right pr-2">
+                        OTHER CLASSES
+                    </div>
+                    <div className="grid grid-cols-3 gap-1 w-full">
+                        {getOtherClasses().map(cls => {
+                            return (
+                                <div
+                                    key={cls.id}
+                                    className={`cursor-pointer ${cls.color} rounded p-1 overflow-hidden border border-slate-300 hover:scale-101 hover:shadow-md`}
+                                    onClick={() => handleClassClick(cls.course)}
+                                >
+                                    <div className="text-xs font-semibold truncate">{cls.code}</div>
+                                    <div className="text-xs truncate">{cls.title.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}</div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
 
-            <CourseModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} course={courseForModal}/>
+
+            <CourseModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} course={courseForModal} isAdded={true} scheduleId={schedule.scheduleID}/>
         </div>
     );
 }

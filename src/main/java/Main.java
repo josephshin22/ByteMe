@@ -334,21 +334,21 @@ public class Main {
             }
             if(code!="") {
                 filteredCourses = filteredCourses.stream()
-
                         .filter(course -> course.getFullCourseCode().trim().toLowerCase().contains(code.trim().toLowerCase()))
                         .toList();
             }
+            System.out.println(filteredCourses.get(0).getName());
 
             StringBuilder days = new StringBuilder();
             days.append(day1).append(" ").append(day2).append(" ").append(day3).append(" ").append(day4).append(" ").append(day5);
             String daysString = days.toString().trim().toLowerCase();
-            if(daysString!="") {
+            System.out.println("Days String: " + daysString);
+            if (!daysString.isEmpty()) {
                 filteredCourses = filteredCourses.stream()
-
-                        .filter(course -> daysString.contains(course.daysString().trim().toLowerCase()))
+                        .filter(course -> course.daysString() != null && daysString.contains(course.daysString().trim().toLowerCase()))
                         .toList();
-
             }
+            System.out.println(filteredCourses.get(0).getName());
             if(startTime!="") {
                 filteredCourses = filteredCourses.stream()
                         .filter(course -> course.getTimes().stream()
@@ -425,6 +425,14 @@ public class Main {
         app.delete("/api/user-courses", ctx -> {
             int userId = ctx.queryParamAsClass("userId", Integer.class).getOrDefault(student.getId());
             int courseId = ctx.queryParamAsClass("courseId", Integer.class).get();
+            String scheduleIdStr = ctx.queryParam("scheduleId");  // Get scheduleId from query parameter
+            int scheduleId;
+            try {
+                scheduleId = Integer.parseInt(scheduleIdStr);  // Convert to integer
+            } catch (NumberFormatException e) {
+                ctx.status(400).json(Map.of("error", "Valid scheduleId is required"));
+                return;
+            }
 
             if (courseId <= 0) {
                 ctx.status(400).json(Map.of("error", "Valid courseId is required"));
@@ -432,7 +440,7 @@ public class Main {
             }
 
             try {
-                removeUserCourse(userId, courseId);
+                removeUserCourse(userId, courseId, scheduleId);
                 ctx.status(200).json(Map.of("message", "Course removed successfully"));
             } catch (Exception e) {
                 ctx.status(500).json(Map.of("error", "Failed to remove course: " + e.getMessage()));
@@ -648,15 +656,17 @@ public class Main {
     }
 
 
-    private static void removeUserCourse(int userId, int courseId) {
+    private static void removeUserCourse(int userId, int courseId, int scheduleId) {
         String url = "jdbc:sqlite:database.db";
-        String sql = "DELETE FROM user_courses WHERE user_id = ? AND course_id = ?";
+        System.out.println("user_id: " + userId + " course_id: " + courseId + " schedule_id: " + scheduleId);
+        String sql = "DELETE FROM user_courses WHERE user_id = ? AND course_id = ? AND schedule_id = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             stmt.setInt(2, courseId);
+            stmt.setInt(3, scheduleId);  // Set scheduleId as an integer
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected == 0) {

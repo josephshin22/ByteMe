@@ -1,17 +1,52 @@
-import React from "react";
-import {Armchair, Bookmark, Calendar, CircleDollarSign, Clock, PlusCircle, School, User, X} from "lucide-react";
+import React, {useEffect, useState} from "react";
+import {
+    Armchair,
+    Bookmark,
+    BookmarkCheck,
+    Calendar,
+    CircleDollarSign,
+    Clock,
+    PlusCircle,
+    School,
+    Trash,
+    User,
+    X
+} from "lucide-react";
 import {Separator} from "@/components/ui/separator.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {saveCourse} from "@/utils/saveCourse.jsx";
+import {handleRemoveCourse} from "@/utils/courseActions.jsx";
 
-const CourseModal = ({ isOpen, onClose, course }) => {
+export default function CourseModal({ isOpen, onClose, course, isAdded, scheduleId }) {
     if (!isOpen) return null;
+
+    console.log("scheduleId in courseModal:", scheduleId);
 
     const handleOutsideClick = (e) => {
         if (e.target.id === "modal-overlay") {
             onClose();
         }
     };
+
+    const [savedCourses, setSavedCourses] = useState([]);
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem("savedCourses")) || [];
+        setSavedCourses(saved);
+    }, []);
+    function courseIsSaved(course) {
+        return savedCourses.some(savedCourse => {
+            const match =  savedCourse.subjCode === course.subjCode &&
+                savedCourse.number === course.number &&
+                savedCourse.section === course.section &&
+                savedCourse.semester === course.semester;
+
+            // console.log("match? ", match)
+            return match;
+        });
+    }
+    const [isSaved, setIsSaved] = useState(courseIsSaved(course));
+    const [isSavedOverride, setIsSavedOverride] = useState(isSaved);
+
 
     return (
         <div id="modal-overlay" className="z-20 fixed inset-0 p-4 bg-black/50 flex flex-col items-center justify-center" onClick={handleOutsideClick}>
@@ -125,21 +160,56 @@ const CourseModal = ({ isOpen, onClose, course }) => {
 
                 {/* Buttons (Fixed at Bottom) */}
                 <div className="flex items-stretch">
+
+                    {/*SAVE BUTTON*/}
                     <div className="rounded-bl-lg flex-1 py-3 cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 flex space-x-2 items-center justify-center"
-                         onClick={() => {saveCourse(course)}}
+                         onClick={()=> {
+                             const saved = saveCourse(course);
+                             console.log(saved);
+                             if (saved) {
+                                 setIsSavedOverride(true);
+                             } else {
+                                 setIsSavedOverride(false);
+                             }
+                         }}
                     >
-                        <Bookmark className="w-4.5" />
-                        <p>Save for Later</p>
+                        {isSaved || isSavedOverride ? (
+                            <>
+                                <BookmarkCheck className="h-5 w-5 mt-0.5" />
+                                <p>Course Saved</p>
+                            </>
+                        ) : (
+                            <>
+                                <Bookmark  className="h-5 w-5 mt-0.5" />
+                                <p>Save Course</p>
+                            </>
+                        )}
                     </div>
-                    <div className="rounded-br-lg flex-1 py-3 cursor-pointer bg-green-100 hover:bg-green-200 text-green-800 flex space-x-2 items-center justify-center">
-                        <PlusCircle className="w-4.5" />
-                        <p>Add to Schedule</p>
-                    </div>
+
+
+
+                    {isAdded ? (
+                        <div
+                            className="rounded-br-lg flex-1 py-3 cursor-pointer bg-red-100 hover:bg-red-200 text-red-800 flex space-x-2 items-center justify-center"
+                            onClick={()=>{
+                                handleRemoveCourse(course, scheduleId);
+                                onClose();
+                                window.location.reload();
+                            }}
+                        >
+                            <Trash className="w-4.5" />
+                            <p>Remove from Schdeule</p>
+                        </div>
+                        ) : (
+                        <div className="rounded-br-lg flex-1 py-3 cursor-pointer bg-green-100 hover:bg-green-200 text-green-800 flex space-x-2 items-center justify-center">
+                            <PlusCircle className="w-4.5" />
+                            <p>Add to Schedule</p>
+                        </div>
+                        )
+                    }
                 </div>
             </div>
         </div>
 
     );
 };
-
-export default CourseModal;

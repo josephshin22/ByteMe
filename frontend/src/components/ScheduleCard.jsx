@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import api from "@/api.js";
 import {Button} from "@/components/ui/button.jsx";
 import {useNavigate} from "react-router-dom";
-import {Pencil} from "lucide-react";
+import {Pencil, Trash} from "lucide-react";
 
 const ScheduleCard = ({semesterSchedules}) => {
 
@@ -74,7 +74,6 @@ const ScheduleCard = ({semesterSchedules}) => {
                 {showDeleteOptions && schedules.length > 0 && (
                     <div
                         className="absolute top-0 left-0 w-full h-full bg-white/95 p-4 flex flex-col gap-2 rounded-lg shadow-md z-10">
-                        <p className="font-medium">Select schedule to remove:</p>
                         <div className="flex-1 overflow-y-auto max-h-40 flex flex-col gap-2">
                             {schedules.map((s) => (
                                 <div key={s.scheduleID}>
@@ -86,7 +85,8 @@ const ScheduleCard = ({semesterSchedules}) => {
                                         className="bg-red-100 hover:bg-red-200 text-red-800 transition-colors duration-150 text-left whitespace-normal break-words w-full"
                                         size="sm"
                                     >
-                                        {s.name}
+                                        <Trash/>
+                                        {s.name} {s.scheduleID}
                                     </Button>
                                 </div>
                             ))}

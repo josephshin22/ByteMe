@@ -53,8 +53,15 @@ function SemesterSchedules() {
     useEffect(() => {
         api.get("/schedules")
             .then((response) => {
-                setSemestersWithSchedules(response.data.semesterSchedules);
-                console.log("semestersWithSchedules:", semestersWithSchedules)
+                const sortedSchedules = response.data.semesterSchedules.sort((a, b) => {
+                    const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
+                    const [yearA, seasonA] = a.semester.split('_');
+                    const [yearB, seasonB] = b.semester.split('_');
+                    console.log(yearA);
+                    return yearB - yearA || seasons[seasonB] - seasons[seasonA];
+                });
+                setSemestersWithSchedules(sortedSchedules);
+                // console.log("semestersWithSchedules:", semestersWithSchedules)
             })
             .catch((error) => {
                 console.error("Error fetching schedules:", error);
@@ -95,6 +102,7 @@ function SemesterSchedules() {
                             api.post(`/schedules?name=${scheduleName}&semester=${selectedSemester}`)
                                 .then((res) => {
                                     console.log("Created:", res.data);
+                                    window.location.reload();
                                 })
                                 .catch((err) => {
                                     console.error("Error creating schedule:", err);
@@ -118,7 +126,7 @@ function SemesterSchedules() {
             <div className="mt-16 flex">
                 {schedules.map((schedule, index) => (
                     <div key={index} className="min-w-[900px]">
-                        <Calendar key={schedule.scheduleId} schedule={schedule} abbreviateName={abbreviateName} moreInfo={moreInfo} />
+                        <Calendar key={schedule.scheduleId} schedule={schedule} abbreviateName={abbreviateName} moreInfo={moreInfo} setMoreInfo={()=>setMoreInfo(true)} />
                     </div>
                 ))}
             </div>
