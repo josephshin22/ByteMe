@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {Bookmark, BookmarkCheck, BookMarked, Check, Circle, CircleCheck, PlusCircle, School} from "lucide-react";
+import {
+    Bookmark,
+    BookmarkCheck,
+    BookMarked,
+    Check,
+    Circle,
+    CircleCheck,
+    Loader,
+    PlusCircle,
+    School
+} from "lucide-react";
 import CourseModal from "./CourseModal.jsx";
 import {formatCourseTimes} from "@/utils/formatCourseTimes.jsx";
 import {saveCourse} from "@/utils/saveCourse.jsx";
@@ -9,7 +19,11 @@ export default function CourseCard({ course, selectedSchedule, isSaved, disableS
     const [isInSchedule, setIsInSchedule] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSavedOverride, setIsSavedOverride] = useState(isSaved);
-    const [isChecked, setIsChecked] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => setIsAdding(false), 6000);
+    }, [isAdding]);
 
     return (
         <div className="group">
@@ -74,23 +88,25 @@ export default function CourseCard({ course, selectedSchedule, isSaved, disableS
                     {/*ADD BUTTON*/}
                     <div
                         onClick={() => {
-                            console.log("Selected Schedule ID test:", selectedSchedule);  // Log the scheduleId
-                            handleAddCourse(course, selectedSchedule)
-                            setIsChecked(true)
+                            if (!isAdding) {
+                                console.log("Selected Schedule ID test:", selectedSchedule);  // Log the scheduleId
+                                handleAddCourse(course, selectedSchedule)
+                                setIsAdding(true)
+                            }
                         }}
-                        className="cursor-pointer flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium"
+                        className={`${!isAdding ? "cursor-pointer" : "cursor-default"} flex-col space-y-0.5 bg-green-100 hover:bg-green-200 text-green-800 flex items-center justify-center px-4 h-full w-20 rounded-xs rounded-r-md font-medium`}
                     >
-                        {/*{isChecked ? (*/}
-                        {/*    <>*/}
-                        {/*        <CircleCheck className="h-5 w-5 mt-0.5" />*/}
-                        {/*        <p>Added</p>*/}
-                        {/*    </>*/}
-                        {/*) : (*/}
+                        {isAdding ? (
+                            <>
+                                <PlusCircle className="opacity-50 h-5 w-5 mt-0.5" />
+                                <p className="opacity-50">Add</p>
+                            </>
+                        ) : (
                             <>
                                 <PlusCircle className="h-5 w-5 mt-0.5" />
                                 <p>Add</p>
                             </>
-                        {/*)}*/}
+                        )}
                     </div>
                 </div>
             </div>

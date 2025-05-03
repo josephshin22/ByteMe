@@ -1,7 +1,13 @@
 import { useCallback } from 'react';
+import { toast } from "sonner";
 
 // Define your function as a regular function
 const handleAddCourse = async (course, scheduleId) => {
+  if (scheduleId === "") {
+    toast.error("Schedule not found");
+    return; // Exit the function early
+  }
+
   try {
     console.log("Adding course: " + course.id + " with schedule ID: " + scheduleId);
 
@@ -14,13 +20,16 @@ const handleAddCourse = async (course, scheduleId) => {
 
     if (!response.ok) {
       const errorData = await response.json();
+      toast.error(errorData.error || "Unknown error occurred");
       throw new Error(errorData.error || "Unknown error occurred");
     }
+    toast.success(`${course.fullCourseCode} added to New Schedule ${scheduleId}`);
 
     const data = await response.json();
-    console.log("Course added successfully:", data.message);
+    console.log(`course added successfully:`, data.message);
   } catch (error) {
     console.error("Failed to add course:", error);
+    // toast.error("Failed to add course");
   }
 };
 
@@ -37,6 +46,7 @@ const handleRemoveCourse = async (course, scheduleId) => {
 
     if (!response.ok) {
       const errorData = await response.json();
+      toast.error(errorData.error || "Unknown error occurred");
       throw new Error(errorData.error || "Unknown error occurred");
     }
 
@@ -44,6 +54,7 @@ const handleRemoveCourse = async (course, scheduleId) => {
     console.log("Course removed successfully:", data.message);
   } catch (error) {
     console.error("Failed to remove course:", error);
+    toast.error("Failed to remove course");
   }
 }
 

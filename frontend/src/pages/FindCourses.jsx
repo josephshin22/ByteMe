@@ -53,6 +53,7 @@ function FindCourses() {
 
     const [pageButtonClicked, setPageButtonClicked] = useState(false);
     const handleSemesterChange = (value) => {
+        console.log("value:", value);
         setSelectedSemester(value);
         setPage(1);
         setScheduleOptions([]);
@@ -98,10 +99,14 @@ function FindCourses() {
 
         api.get(`/schedules?semester=${selectedSemester}`).then((response) => {
             // const schedules = response.data.semesterSchedules[0].schedules.map((item) => item.scheduleID);
-            const schedules = response.data.semesterSchedules[0].schedules;
+            const schedules = response?.data?.semesterSchedules?.[0]?.schedules ?? [];
             setScheduleOptions(schedules);
             if (schedules.length > 0) {
+                console.log("s.l > 0")
                 setSelectedSchedule(schedules[0].scheduleID); // Set the first option as the default
+            } else {
+                console.log("else")
+                setSelectedSchedule("");
             }
         });
     }, [searchInput, page, selectedSemester, code, day1, day2, day3, day4, day5, hideFullCourses, startTimeFilter, endTimeFilter, credits]);

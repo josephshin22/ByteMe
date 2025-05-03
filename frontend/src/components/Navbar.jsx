@@ -31,13 +31,12 @@ const Navbar = ({ schedules, onScheduleUpdate }) => {
     //             console.error("Error fetching schedules:", error);
     //         });
     // }, []);
-    console.log('schedules', schedules);
+    // console.log('schedules', schedules);
 
     const sortedSchedules = schedules.sort((a, b) => {
         const seasons = { "Winter": 0, "Spring": 1, "Summer": 2, "Fall": 3 };
         const [yearA, seasonA] = a.semester.split('_');
         const [yearB, seasonB] = b.semester.split('_');
-        console.log(yearA);
         return yearB - yearA || seasons[seasonB] - seasons[seasonA];
     });
 

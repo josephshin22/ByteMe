@@ -266,25 +266,28 @@ export default function WeeklyClassCalendar({ schedule, abbreviateName, moreInfo
                 </div>
 
                 {/* Classes without days */}
-                <div className="flex mt-4">
-                    <div className="max-w-20 text-xs text-slate-500 text-right pr-2">
-                        OTHER CLASSES
+                {getOtherClasses().length > 0 && (
+                    <div className="flex mt-4">
+                        <div className="max-w-20 text-xs text-slate-500 text-right pr-2">
+                            OTHER CLASSES
+                        </div>
+                        <div className="grid grid-cols-3 gap-1 w-full">
+                            {getOtherClasses().map(cls => {
+                                return (
+                                    <div
+                                        key={cls.id}
+                                        className={`cursor-pointer ${cls.color} rounded p-1 overflow-hidden border border-slate-300 hover:scale-101 hover:shadow-md`}
+                                        onClick={() => handleClassClick(cls.course)}
+                                    >
+                                        <div className="text-xs font-semibold truncate">{cls.code}</div>
+                                        <div className="text-xs truncate">{cls.title.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-1 w-full">
-                        {getOtherClasses().map(cls => {
-                            return (
-                                <div
-                                    key={cls.id}
-                                    className={`cursor-pointer ${cls.color} rounded p-1 overflow-hidden border border-slate-300 hover:scale-101 hover:shadow-md`}
-                                    onClick={() => handleClassClick(cls.course)}
-                                >
-                                    <div className="text-xs font-semibold truncate">{cls.code}</div>
-                                    <div className="text-xs truncate">{cls.title.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}</div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
+                )}
+
             </div>
 
 

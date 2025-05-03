@@ -640,28 +640,55 @@ public class Main {
         String sql = "INSERT INTO user_courses (user_id, course_id, schedule_id) VALUES (?, ?, ?)";
         System.out.println("Called addUserCourse function");
 
-        try (Connection conn = DriverManager.getConnection(url);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(url)) {
+            // Check for conflicts
+            String conflictCheckSql = """
+                SELECT c.id, c.name, ct.day, ct.start_time, ct.end_time
+                FROM courses c
+                JOIN user_courses uc ON c.id = uc.course_id
+                JOIN course_times ct ON c.id = ct.course_id
+                WHERE uc.schedule_id = ? AND ct.day IN (
+                    SELECT day FROM course_times WHERE course_id = ?
+                ) AND (
+                    (ct.start_time < (SELECT end_time FROM course_times WHERE course_id = ?) AND
+                     ct.end_time > (SELECT start_time FROM course_times WHERE course_id = ?))
+                )
+            """;
 
-            stmt.setInt(1, userId);
-            stmt.setInt(2, courseId);
-            stmt.setInt(3, scheduleId);  // Set scheduleId as an integer
+            try (PreparedStatement conflictStmt = conn.prepareStatement(conflictCheckSql)) {
+                conflictStmt.setInt(1, scheduleId);
+                conflictStmt.setInt(2, courseId);
+                conflictStmt.setInt(3, courseId);
+                conflictStmt.setInt(4, courseId);
 
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("Failed to add course relationship");
+                var rs = conflictStmt.executeQuery();
+                if (rs.next()) {
+                    throw new RuntimeException("Course conflict detected with: " + rs.getString("name"));
+                }
             }
 
-            // If using in-memory model in addition to database
-            if (userId == student.getId()) {
-                // Find the course in the global courses list
-                Course courseToAdd = courses.stream()
-                        .filter(c -> getCourseDbId(c) == courseId)
-                        .findFirst()
-                        .orElse(null);
+            // Add the course if no conflicts
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, userId);
+                stmt.setInt(2, courseId);
+                stmt.setInt(3, scheduleId);  // Set scheduleId as an integer
 
-                if (courseToAdd != null) {
-                    student.addSavedCourse(courseToAdd);
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new SQLException("Failed to add course relationship");
+                }
+
+                // If using in-memory model in addition to database
+                if (userId == student.getId()) {
+                    // Find the course in the global courses list
+                    Course courseToAdd = courses.stream()
+                            .filter(c -> getCourseDbId(c) == courseId)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (courseToAdd != null) {
+                        student.addSavedCourse(courseToAdd);
+                    }
                 }
             }
 

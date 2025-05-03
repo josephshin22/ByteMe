@@ -9,6 +9,7 @@ import SavedCourses from "./pages/SavedCourses.jsx";
 import SemesterSchedules from "@/pages/SemesterSchedules.jsx";
 import Chatbot from "@/pages/Chatbot.jsx";
 import api from "@/api.js";
+import { Toaster } from "@/components/ui/sonner"
 
 function App() {
 
@@ -44,6 +45,7 @@ function App() {
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </div>
+                <Toaster richColors position="top-center" />
             </div>
         </Router>
     );
