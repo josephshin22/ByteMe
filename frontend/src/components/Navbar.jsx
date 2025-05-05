@@ -225,25 +225,25 @@ const Navbar = ({ schedules, onScheduleUpdate }) => {
                 )}
 
                 <div className="flex items-center space-x-5 text-sm">
-                    <div className="relative">
-                        {isSearchExpanded ? (
-                            <div ref={searchInputRef} className="flex items-center">
-                                <input
-                                    type="text"
-                                    placeholder="Search courses..."
-                                    className="pl-10 pr-4 py-1.5 bg-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-300 min-w-full"
-                                />
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => setIsSearchExpanded(true)}
-                                className="flex items-center justify-center cursor-pointer"
-                            >
-                                <Search className="h-5 w-5 text-slate-500 hover:text-slate-700" />
-                            </button>
-                        )}
-                    </div>
+                    {/*<div className="relative">*/}
+                    {/*    {isSearchExpanded ? (*/}
+                    {/*        <div ref={searchInputRef} className="flex items-center">*/}
+                    {/*            <input*/}
+                    {/*                type="text"*/}
+                    {/*                placeholder="Search courses..."*/}
+                    {/*                className="pl-10 pr-4 py-1.5 bg-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-300 min-w-full"*/}
+                    {/*            />*/}
+                    {/*            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />*/}
+                    {/*        </div>*/}
+                    {/*    ) : (*/}
+                    {/*        <button*/}
+                    {/*            onClick={() => setIsSearchExpanded(true)}*/}
+                    {/*            className="flex items-center justify-center cursor-pointer"*/}
+                    {/*        >*/}
+                    {/*            <Search className="h-5 w-5 text-slate-500 hover:text-slate-700" />*/}
+                    {/*        </button>*/}
+                    {/*    )}*/}
+                    {/*</div>*/}
 
                     {/* Light/dark mode toggle */}
                     {/*<button onClick={toggleTheme} className="flex items-center justify-center cursor-pointer">*/}
